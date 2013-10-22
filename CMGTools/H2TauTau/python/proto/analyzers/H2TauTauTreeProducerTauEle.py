@@ -133,9 +133,14 @@ class H2TauTauTreeProducerTauEle( TreeAnalyzerNumpy ):
        fill(tr, 'hqtWeightUp', event.higgsPtWeightUp)
        fill(tr, 'hqtWeightDown', event.higgsPtWeightDown)
        
-       fill(tr, 'tauFakeRateWeightUp', event.tauFakeRateWeightUp)
-       fill(tr, 'tauFakeRateWeightDown', event.tauFakeRateWeightDown)
-       fill(tr, 'tauFakeRateWeight', event.tauFakeRateWeight)
+       if hasattr( event, 'tauFakeRateWeightUp'):
+           fill(tr, 'tauFakeRateWeightUp', event.tauFakeRateWeightUp)
+
+       if hasattr( event, 'tauFakeRateWeightDown'):
+           fill(tr, 'tauFakeRateWeightDown', event.tauFakeRateWeightDown)
+
+       if hasattr( event, 'tauFakeRateWeight'):
+           fill(tr, 'tauFakeRateWeight', event.tauFakeRateWeight)
 
        if hasattr(event, 'NJetWeight'):
           fill(tr, 'NJetWeight', event.NJetWeight)
