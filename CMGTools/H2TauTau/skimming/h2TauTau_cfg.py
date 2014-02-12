@@ -5,7 +5,7 @@ sep_line = '-'*70
 process = cms.Process("H2TAUTAU")
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.maxLuminosityBlocks = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -36,8 +36,12 @@ print 'tau scaling =', tauScaling
 ##########
 
 # Input  & JSON             -------------------------------------------------
-dataset_user  = 'cmgtools_group' 
-dataset_name  = '/GluGluToHToTauTau_M-120_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_14_0'
+#dataset_user  = 'cmgtools' 
+#dataset_name  = '/VBF_HToTauTau_M-125_7TeV-powheg-pythia6-tauola/Fall11-PU_S6_START42_V14B-v1/AODSIM/V5_B/PAT_CMG_V5_15_0'
+#dataset_user  = 'cmgtools_group'
+#dataset_name  = '/GluGluToHToTauTau_M-120_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_14_0'
+dataset_user  = 'cmgtools'
+dataset_name  = '/MuEG/Run2012B-22Jan2013-v1/AOD/PAT_CMG_V5_15_0'
 
 # dataset_user  = 'cmgtools'
 # dataset_name  = '/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_16_0'
