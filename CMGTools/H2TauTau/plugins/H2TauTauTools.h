@@ -33,6 +33,6 @@ typedef PhysicsObjectProducer<cmg::DiTauUpdateFactory> DiTauUpdatePOProducer;
 
 typedef DiTauWithSVFitProducer< cmg::TauMu > TauMuWithSVFitProducer;
 typedef DiTauWithSVFitProducer< cmg::TauEle > TauEleWithSVFitProducer;
-typedef DiTauWithSVFitProducer< cmg::MuEle > MuEleWithSVFitProducer;
+typedef DiTauWithSVFitProducer< cmg::MuEleDiTau > MuEleWithSVFitProducer;
 typedef DiTauWithSVFitProducer< cmg::DiTau > TauTauWithSVFitProducer;
 

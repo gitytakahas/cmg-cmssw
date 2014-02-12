@@ -118,6 +118,7 @@ def setupRecoilCorrection( process, runOnMC, enable=True, is53X=True, mode=None,
 
     if not hasattr( process, 'recoilCorMETTauMu')  and \
        not hasattr( process, 'recoilCorMETTauEle') and \
+       not hasattr( process, 'recoilCorMETMuEle') and \
        not hasattr( process, 'recoilCorMETDiTau') :
         print 'recoil correction module not in the path -> DISABLED'
         return False
@@ -158,6 +159,15 @@ def setupRecoilCorrection( process, runOnMC, enable=True, is53X=True, mode=None,
             process.recoilCorMETTauEle.fileZmmData = fileZmmData
             process.recoilCorMETTauEle.fileZmmMC = fileZmmMC
             process.recoilCorMETTauEle.correctionType = correctionType
+        if hasattr( process, 'recoilCorMETMuEle'):
+            if mode:
+                process.recoilCorMETMuEle.force = True
+            process.recoilCorMETMuEle.enable = True
+            process.recoilCorMETMuEle.fileCorrectTo = correctFileName
+            process.recoilCorMETMuEle.leptonLeg = leptonLeg 
+            process.recoilCorMETMuEle.fileZmmData = fileZmmData
+            process.recoilCorMETMuEle.fileZmmMC = fileZmmMC
+            process.recoilCorMETMuEle.correctionType = correctionType
         if hasattr( process, 'recoilCorMETDiTau'):
             if mode:
                 process.recoilCorMETDiTau.force = True
@@ -175,6 +185,8 @@ def setupRecoilCorrection( process, runOnMC, enable=True, is53X=True, mode=None,
             process.recoilCorMETTauMu.enable = False
         if hasattr( process, 'recoilCorMETTauEle'):
             process.recoilCorMETTauEle.enable = False
+        if hasattr( process, 'recoilCorMETMuEle'):
+            process.recoilCorMETMuEle.enable = False
         if hasattr( process, 'recoilCorMETDiTau'):
             process.recoilCorMETDiTau.enable = False
             

@@ -12,7 +12,8 @@ typedef RecoilCorrectedMETProducer<cmg::TauEle> RecoilCorrectedMETProducerTauEle
 typedef RecoilCorrectedMETProducer<cmg::MuEleDiTau> RecoilCorrectedMETProducerMuEle; 
 typedef RecoilCorrectedMETProducer<cmg::DiTau> RecoilCorrectedMETProducerDiTau; 
 
-typedef MVAMETProducer<cmg::TauMu>    MVAMETProducerTauMu; 
+typedef MVAMETProducer<cmg::TauMu>    MVAMETProducerTauMu;
+typedef MVAMETProducer<cmg::MuEleDiTau>    MVAMETProducerMuEle; 
 typedef MVAMETProducer<cmg::TauEle>    MVAMETProducerTauEle; 
 typedef MVAMETProducer<cmg::DiTau>    MVAMETProducerDiTau; 
 

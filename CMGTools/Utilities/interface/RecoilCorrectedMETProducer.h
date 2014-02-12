@@ -153,8 +153,10 @@ void RecoilCorrectedMETProducer<RecBosonType>::produce(edm::Event & iEvent, cons
     case 25: // Higgs
     case 35: // SUSY Higgs H0
     case 36: // SUSY Higgs A0
-      if( leptonLeg_ != 0 ) 
-	throw cms::Exception("leptonLeg should be equal to 0 when running on Higgs or Drell-Yan events.");   
+      if( leptonLeg_ != 0 ){
+	std::cout << "Number of leptonLeg = " << leptonLeg_ << std::endl;
+	throw cms::Exception("leptonLeg should be equal to 0 when running on Higgs or Drell-Yan events.");
+      }
       break;
     default:
       throw cms::Exception("input genBoson should be a W or a Z0/gamma.");

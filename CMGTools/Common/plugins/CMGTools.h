@@ -222,7 +222,7 @@ typedef ObjectSelector<cmg::GenericPhysicsObjectSelectorDefinition<cmg::TauEle> 
 
 typedef ObjectSelector<cmg::GenericPhysicsObjectSelectorDefinition<cmg::TauMu> > CmgTauMuSelector;
 
-typedef ObjectSelector<cmg::GenericPhysicsObjectSelectorDefinition<cmg::MuEle> > CmgMuEleSelector;
+typedef ObjectSelector<cmg::GenericPhysicsObjectSelectorDefinition<cmg::MuEleDiTau> > CmgMuEleSelector;
 
 typedef ObjectSelector<cmg::GenericPhysicsObjectSelectorDefinition<reco::GenParticle> > CmgGenParticleSelector;
 

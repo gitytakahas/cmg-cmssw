@@ -4,7 +4,7 @@ from CMGTools.Common.factories.cmgDiObject_cfi import diObjectFactory
 muEleFactory = diObjectFactory.clone(
     leg1Collection = cms.InputTag('cmgMuonSel'),
     leg2Collection = cms.InputTag('cmgElectronSel'),
-    metCollection = cms.InputTag("")
+    metCollection = cms.InputTag("cmgPFMET")
 )
 
 cmgMuEle = cms.EDFilter(

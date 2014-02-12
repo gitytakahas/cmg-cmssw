@@ -12,8 +12,10 @@ cmgMuEleCorFactory = cms.PSet(
     shift1Prong1Pi0     = cms.double(0.),
     ptDependence1Pi0    = cms.double(0.),
     shift3Prong         = cms.double(0.),
-    ptDependence3Prong  = cms.double(0.)
-)
+    ptDependence3Prong  = cms.double(0.),
+    shiftMet            = cms.bool(True),
+    shiftTaus           = cms.bool(True)
+    )
 
 cmgMuEleCor = cms.EDFilter(
     "MuEleUpdatePOProducer",
