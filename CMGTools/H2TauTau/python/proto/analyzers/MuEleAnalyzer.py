@@ -14,7 +14,7 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         # print 'MuEleAnalyzer.declareHandles'
         self.handles['diLeptons'] = AutoHandle(
             'cmgMuEleCorSVFitFullSel',
-            'std::vector<cmg::DiObject<cmg::Muon ,cmg::Electron>>'
+            'std::vector<cmg::DiTauObject<cmg::Muon ,cmg::Electron>>'
             )
         self.handles['leptons'] = AutoHandle(
             'cmgElectronSel',
