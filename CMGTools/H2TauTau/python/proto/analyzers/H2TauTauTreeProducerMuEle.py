@@ -22,8 +22,10 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
        var( tr, 'pfmet')
        
        bookParticle(tr, 'diTau')
-       bookTau(tr, 'l1')
-       bookMuon(tr, 'l2')
+#       bookTau(tr, 'l1')
+#       bookMuon(tr, 'l2')
+       bookMuon(tr, 'l1')
+       bookEle(tr, 'l2')       
        bookParticle(tr, 'l1Jet')
        bookParticle(tr, 'l2Jet')
        
@@ -93,8 +95,11 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
 
        
        fillParticle(tr, 'diTau', event.diLepton)
-       fillTau(tr, 'l1', event.diLepton.leg1() )
-       fillMuon(tr, 'l2', event.diLepton.leg2() )
+#       fillTau(tr, 'l1', event.diLepton.leg1() )
+#       fillMuon(tr, 'l2', event.diLepton.leg2() )
+       fillMuon(tr, 'l1', event.diLepton.leg1() )
+       fillEle(tr, 'l2', event.diLepton.leg2() )
+       
        fillParticle(tr, 'l1Jet', event.diLepton.leg1().jet )
        fillParticle(tr, 'l2Jet', event.diLepton.leg2().jet )
 

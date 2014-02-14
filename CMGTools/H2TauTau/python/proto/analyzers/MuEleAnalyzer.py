@@ -1,3 +1,4 @@
+import operator
 from CMGTools.RootTools.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 from CMGTools.RootTools.fwlite.AutoHandle import AutoHandle
 from CMGTools.RootTools.physicsobjects.DiObject import MuonElectron
@@ -105,6 +106,11 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         return True
 
 
+
+
+
+# Yuta
+# This is for tau
 #    def testLeg1ID(self, tau):
 #        if tau.decayMode() == 0 and \
 #               tau.calcEOverP() < 0.2: #reject muons faking taus in 2011B
@@ -129,6 +135,39 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         '''Tests vertex constraints, for mu and tau'''
         return abs(lepton.dxy()) < 0.045 and \
                abs(lepton.dz()) < 0.2 
+
+
+
+    def testLeg1ID(self, muon):
+        '''Tight muon selection, no isolation requirement'''
+        return muon.tightId() and \
+               self.testVertex( muon )
+               
+
+    def testLeg1Iso(self, muon, isocut):
+        '''Tight muon selection, with isolation requirement'''
+        if isocut is None:
+            isocut = self.cfg_ana.iso1
+        return muon.relIsoAllChargedDB05()<isocut    
+
+
+    def testLeg2ID(self, electron):
+        '''Tight muon selection, no isolation requirement'''
+        #        print 'WARNING: USING SETUP FOR SYNC PURPOSES'
+        #        return electron.looseIdForEleTau() and \
+#        if self.relaxEleId:
+#            return electron.relaxedIdForEleTau() and \
+#               self.testVertex( electron )    
+#        return electron.tightIdForEleTau() and \
+#               self.testVertex( electron )
+        return electron.tightId() and \
+               self.testVertex( electron )
+
+    def testLeg2Iso(self, leg, isocut): #electron
+        if isocut is None:
+           isocut = self.cfg_ana.iso2
+        return leg.relIsoAllChargedDB05() < isocut
+
 
 
 #    def testLeg2ID(self, muon):
