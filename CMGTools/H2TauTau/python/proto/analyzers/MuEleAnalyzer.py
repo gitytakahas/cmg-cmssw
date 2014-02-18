@@ -133,6 +133,15 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
     def testVertex(self, lepton):
         '''Tests vertex constraints, for mu and tau'''
+#        return abs(lepton.dxy()) < 0.045 and \
+#        TauMu -> d0 < 0.045, MuEle -> d0 < 0.02
+        return abs(lepton.dxy()) < 0.02 and \
+               abs(lepton.dz()) < 0.2 
+
+    def testVertexNormal(self, lepton):
+        '''Tests vertex constraints, for mu and tau'''
+#        return abs(lepton.dxy()) < 0.045 and \
+#        TauMu -> d0 < 0.045, MuEle -> d0 < 0.02
         return abs(lepton.dxy()) < 0.045 and \
                abs(lepton.dz()) < 0.2 
 
@@ -148,7 +157,11 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         '''Tight muon selection, with isolation requirement'''
         if isocut is None:
             isocut = self.cfg_ana.iso1
-        return muon.relIsoAllChargedDB05()<isocut    
+
+        if abs(muon.eta() > 1.479):
+            return muon.relIsoAllChargedDB05()<isocut
+        else:
+            return muon.relIsoAllChargedDB05()<isocut + 0.05
 
 
     def testLeg2ID(self, electron):
@@ -166,7 +179,12 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
     def testLeg2Iso(self, leg, isocut): #electron
         if isocut is None:
            isocut = self.cfg_ana.iso2
-        return leg.relIsoAllChargedDB05() < isocut
+#        return leg.relIsoAllChargedDB05() < isocut
+
+        if abs(leg.eta() > 1.479):
+            return leg.relIsoAllChargedDB05()<isocut
+        else:
+            return leg.relIsoAllChargedDB05()<isocut + 0.05
 
 
 
@@ -185,17 +203,21 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
     def thirdLeptonVeto(self, leptons, otherLeptons, ptcut = 10, isocut = 0.3) :
         '''The tri-lepton veto. returns False if > 2 leptons (e or mu).'''
+        # count muons
         vleptons = [lep for lep in leptons if
                     self.testLegKine(lep, ptcut=ptcut, etacut=2.4) and 
-                    self.testLeg2ID(lep) and
-                    self.testLeg2Iso(lep, isocut) ]
+                    self.testLeg1ID(lep) and
+                    self.testVertexNormal(lep) and
+                    lep.relIsoAllChargedDB05() < isocut]
+
         # count electrons
         votherLeptons = [olep for olep in otherLeptons if 
                          self.testLegKine(olep, ptcut=ptcut, etacut=2.5) and \
                          olep.looseIdForTriLeptonVeto()           and \
-                         self.testVertex( olep )           and \
+                         self.testVertexNormal( olep )           and \
                          olep.relIsoAllChargedDB05() < isocut
                         ]
+
         if len(vleptons) + len(votherLeptons)> 1:
             return False
         else:
@@ -206,26 +228,27 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         '''The di-lepton veto, returns false if > one lepton.
         e.g. > 1 mu in the mu tau channel'''
         looseLeptons = [muon for muon in leptons if
-                        self.testLegKine(muon, ptcut=15, etacut=2.4) and
-                        muon.isGlobalMuon() and
-                        muon.isTrackerMuon() and
-                        muon.sourcePtr().userFloat('isPFMuon') and
+                        self.testLegKine(muon, ptcut=3, etacut=2.4)
+#                        muon.isGlobalMuon() and
+#                        muon.isTrackerMuon() and
+#                        muon.sourcePtr().userFloat('isPFMuon') and
                         #COLIN Not sure this vertex cut is ok... check emu overlap
                         #self.testVertex(muon) and
                         # JAN: no dxy cut
-                        abs(muon.dz()) < 0.2 and
-                        self.testLeg2Iso(muon, 0.3)
+#                        abs(muon.dz()) < 0.2 and
+#                        self.testLeg2Iso(muon, 0.3)
                         ]
-        isPlus = False
-        isMinus = False
+#        isPlus = False
+#        isMinus = False
         # import pdb; pdb.set_trace()
-        for lepton in looseLeptons:
-            if lepton.charge()<0: isMinus=True
-            elif lepton.charge()>0: isPlus=True
-            else:
-                raise ValueError('Impossible!')
-        veto = isMinus and isPlus
-        return not veto
+#        for lepton in looseLeptons:
+#            if lepton.charge()<0: isMinus=True
+#            elif lepton.charge()>0: isPlus=True
+#            else:
+#                raise ValueError('Impossible!')
+#        veto = isMinus and isPlus
+#        return not veto
+
 
     def bestDiLepton(self, diLeptons):
         '''Returns the best diLepton (1st precedence opposite-sign, 2nd precedence
@@ -239,15 +262,3 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
             return max( diLeptons, key=operator.methodcaller( 'sumPt' ) )
 
 
-#    def testLeg1(self, leg):
-#        return self.testMuon (leg) and \
-#               super( MuEleAnalyzer, self).testLeg1( leg )
-#
-#
-#    def testLeg2(self, leg):
-#        return self.testElectron(leg) and \
-#               super( MuEleAnalyzer, self).testLeg2( leg )
-#
-
-#    def leptonAccept(self, leptons):
-#        pass
