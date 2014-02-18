@@ -5,6 +5,7 @@ from CMGTools.RootTools.physicsobjects.DiObject import MuonElectron
 #from CMGTools.RootTools.physicsobjects.PhysicsObjects import Electron
 from CMGTools.RootTools.physicsobjects.HTauTauElectron import HTauTauElectron as Electron
 from CMGTools.RootTools.physicsobjects.PhysicsObjects import Muon, GenParticle
+from CMGTools.RootTools.utils.DeltaR import deltaR
 
 class MuEleAnalyzer( DiLeptonAnalyzer ):
 
@@ -47,8 +48,6 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
             pydil.leg2().associatedVertex = event.goodVertices[0]
             if not self.testLeg2( pydil.leg2(), 99999 ):
                 continue
-            #if hasattr(self.cfg_ana, 'mvametsigs'):
-            #    pydil.mvaMetSig = mvaMetSig = self.handles['mvametsigs'].product()[index]
             pydil.mvaMetSig = mvaMetSig = dil.metSig()
             diLeptons.append( pydil )
         return diLeptons
@@ -77,8 +76,45 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
 
     def process(self, iEvent, event):
+
+        # First, run over the parent dilepton object
         result = super(MuEleAnalyzer, self).process(iEvent, event)
 
+        # Second, check the trigger path
+#        print 'type_check -> ', type(event.diLepton)
+        if hasattr(event, 'diLepton')==False:
+            return False
+        
+#        import pdb; pdb.set_trace()
+#        if len(event.diLepton):
+#            return False
+
+    #            print '[WARNING] No dilepton object is found'
+#            return False
+
+
+        if event.hltPath.find('HLT_Mu8_Ele17_CaloId')!=-1:
+            if not event.diLepton.leg1().pt() > 10 and event.diLepton.leg2().pt() > 20:
+                return False
+            
+        elif event.hltPath.find('HLT_Mu17_Ele8_CaloId'):
+            if not event.diLepton.leg1().pt() > 20 and event.diLepton.leg2().pt() > 10:
+                return False
+        else:
+            print 'Wrong trigger information. Returning false : ', event.hltPath
+            return False
+
+
+#        print 'check -> ', event.leptons, event.otherLeptons, event.diLepton
+        if self.triLeptonVeto(event.leptons, event.otherLeptons, event.diLepton)==False:
+            print 'There find third lepton ... veto !'
+            return False
+
+        if self.dimuonVeto(event.leptons, event.diLepton)==False:
+             print 'There find another dimuon ... veto !'
+             return False
+        
+        
         if result is False:
             result = self.selectionSequence(event, fillCounter=False,
                                             leg1IsoCut = -9999,
@@ -148,7 +184,7 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
 
     def testLeg1ID(self, muon):
-        '''Tight muon selection, no isolation requirement'''
+        '''Tight muon selection'''
         return muon.tightId() and \
                self.testVertex( muon )
                
@@ -165,79 +201,81 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
 
     def testLeg2ID(self, electron):
-        '''Tight muon selection, no isolation requirement'''
-        #        print 'WARNING: USING SETUP FOR SYNC PURPOSES'
-        #        return electron.looseIdForEleTau() and \
-#        if self.relaxEleId:
-#            return electron.relaxedIdForEleTau() and \
-#               self.testVertex( electron )    
-#        return electron.tightIdForEleTau() and \
-#               self.testVertex( electron )
+        '''Tight electron selection'''
         return electron.tightId() and \
                self.testVertex( electron )
 
     def testLeg2Iso(self, leg, isocut): #electron
+        '''Tight electron selection, with isolation requirement'''
         if isocut is None:
            isocut = self.cfg_ana.iso2
-#        return leg.relIsoAllChargedDB05() < isocut
 
         if abs(leg.eta() > 1.479):
             return leg.relIsoAllChargedDB05()<isocut
         else:
             return leg.relIsoAllChargedDB05()<isocut + 0.05
 
+        
 
-
-#    def testLeg2ID(self, muon):
-#        '''Tight muon selection, no isolation requirement'''
-#        return muon.tightId() and \
-#               self.testVertex( muon )
-#               
-#
-#    def testLeg2Iso(self, muon, isocut):
-#        '''Tight muon selection, with isolation requirement'''
-#        if isocut is None:
-#            isocut = self.cfg_ana.iso2
-#        return muon.relIsoAllChargedDB05()<isocut    
-
-
-    def thirdLeptonVeto(self, leptons, otherLeptons, ptcut = 10, isocut = 0.3) :
+    def triLeptonVeto(self, leptons, otherLeptons, diLepton, ptcut = 10, isocut = 0.3):
         '''The tri-lepton veto. returns False if > 2 leptons (e or mu).'''
         # count muons
         vleptons = [lep for lep in leptons if
                     self.testLegKine(lep, ptcut=ptcut, etacut=2.4) and 
                     self.testLeg1ID(lep) and
                     self.testVertexNormal(lep) and
-                    lep.relIsoAllChargedDB05() < isocut]
+                    lep.relIsoAllChargedDB05() < isocut and
+                    deltaR(diLepton.leg1().eta(), diLepton.leg1().phi(), lep.eta(), lep.phi()) > 0.3 and
+                    deltaR(diLepton.leg2().eta(), diLepton.leg2().phi(), lep.eta(), lep.phi()) > 0.3
+                    ]
 
         # count electrons
         votherLeptons = [olep for olep in otherLeptons if 
                          self.testLegKine(olep, ptcut=ptcut, etacut=2.5) and \
                          olep.looseIdForTriLeptonVeto()           and \
                          self.testVertexNormal( olep )           and \
-                         olep.relIsoAllChargedDB05() < isocut
+                         olep.relIsoAllChargedDB05() < isocut and \
+                         deltaR(diLepton.leg1().eta(), diLepton.leg1().phi(), olep.eta(), olep.phi()) > 0.3 and
+                         deltaR(diLepton.leg2().eta(), diLepton.leg2().phi(), olep.eta(), olep.phi()) > 0.3
                         ]
+
+#        print 'veto_lepton, veto_otherlepton', len(vleptons), len(votherLeptons)            
 
         if len(vleptons) + len(votherLeptons)> 1:
             return False
         else:
             return True
         
-
-    def leptonAccept(self, leptons):
+    def dimuonVeto(self, leptons, diLepton):
         '''The di-lepton veto, returns false if > one lepton.
         e.g. > 1 mu in the mu tau channel'''
+
+#        for imuon in leptons:
+#            dr = deltaR(diLepton.leg2().eta(), diLepton.leg2().phi(),
+#                        imuon.eta(), imuon.phi())
+           
+#            print 'check :', 'pT = ', imuon.pt(), dr
+           
         looseLeptons = [muon for muon in leptons if
-                        self.testLegKine(muon, ptcut=3, etacut=2.4)
+                        self.testLegKine(muon, ptcut=3, etacut=2.4) and
+                        deltaR(diLepton.leg2().eta(), diLepton.leg2().phi(),
+                               muon.eta(), muon.phi()) < 0.3
 #                        muon.isGlobalMuon() and
 #                        muon.isTrackerMuon() and
 #                        muon.sourcePtr().userFloat('isPFMuon') and
-                        #COLIN Not sure this vertex cut is ok... check emu overlap
-                        #self.testVertex(muon) and
-                        # JAN: no dxy cut
+                       #COLIN Not sure this vertex cut is ok... check emu overlap
+                       #self.testVertex(muon) and
+                       # JAN: no dxy cut
 #                        abs(muon.dz()) < 0.2 and
 #                        self.testLeg2Iso(muon, 0.3)
                         ]
+
+        if len(looseLeptons) > 0:
+            print '# of loose leptons = ', len(looseLeptons), 'found'
+            return False
+        else:
+            return True
+
 #        isPlus = False
 #        isMinus = False
         # import pdb; pdb.set_trace()
