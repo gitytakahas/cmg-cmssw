@@ -39,7 +39,8 @@ class H2TauTauTreeProducerTauMu( TreeAnalyzerNumpy ):
 
        bookVBF( tr, 'VBF' )
        #bookJet(tr, 'cjet') # leading central veto jet from VBF
-       
+
+       var( tr, 'genHiggsPt')
        var( tr, 'weight')
        var( tr, 'vertexWeight')
        var( tr, 'embedWeight')
@@ -129,6 +130,10 @@ class H2TauTauTreeProducerTauMu( TreeAnalyzerNumpy ):
 
        fill(tr, 'weight', event.eventWeight)
        fill(tr, 'embedWeight', event.embedWeight)
+
+       if hasattr(event, 'genHiggs'):
+           fill(tr, 'genHiggsPt', event.genHiggs.pt())
+           
        fill(tr, 'hqtWeight', event.higgsPtWeight)
        fill(tr, 'hqtWeightUp', event.higgsPtWeightUp)
        fill(tr, 'hqtWeightDown', event.higgsPtWeightDown)

@@ -77,6 +77,7 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
     def process(self, iEvent, event):
 
+#        import pdb; pdb.set_trace()
         # First, run over the parent dilepton object
         result = super(MuEleAnalyzer, self).process(iEvent, event)
 
@@ -92,13 +93,15 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
     #            print '[WARNING] No dilepton object is found'
 #            return False
 
+        print 'HLT path = ', event.hltPath
+#        import pdb; pdb.set_trace();
 
         if event.hltPath.find('HLT_Mu8_Ele17_CaloId')!=-1:
-            if not event.diLepton.leg1().pt() > 10 and event.diLepton.leg2().pt() > 20:
+            if not (event.diLepton.leg1().pt() > 10. and event.diLepton.leg2().pt() > 20.):
                 return False
             
-        elif event.hltPath.find('HLT_Mu17_Ele8_CaloId'):
-            if not event.diLepton.leg1().pt() > 20 and event.diLepton.leg2().pt() > 10:
+        elif event.hltPath.find('HLT_Mu17_Ele8_CaloId')!=-1:
+            if not (event.diLepton.leg1().pt() > 20. and event.diLepton.leg2().pt() > 10.):
                 return False
         else:
             print 'Wrong trigger information. Returning false : ', event.hltPath
