@@ -102,7 +102,7 @@ class H2TauTauMC( AnalysisDataMC ):
             self.__class__.HINDEX+=1
 
             tree = file.Get( self.treeName )
-            
+
             if compName == 'Ztt':
                 self._BuildHistogram(tree, comp, compName, self.varName,
                                      self.cut + ' && isFake==0', layer)

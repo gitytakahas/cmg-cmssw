@@ -107,7 +107,10 @@ def getQCD( plotSS, plotOS, dataName, VVgroup=None, scale=1.06, subtractBGForSha
     # qcdOS.RemoveNegativeValues()
     print 'QCD yield', qcd_yield
 
-    qcdOS.Scale( qcd_yield / qcdOS.Integral() )
+    if qcdOS.Integral()==0:
+        pass
+    else:
+        qcdOS.Scale( qcd_yield / qcdOS.Integral() )
 
     plotOSWithQCD.AddHistogram('QCD', qcdOS.weighted, 1030)
     plotOSWithQCD.Hist('QCD').layer=1.5
@@ -134,7 +137,12 @@ def fW(mtplot, dataName, xmin, xmax, VVgroup=None, channel = 'TauMu'):
 
     print 'Subtracted BG', oldIntegral - subtrIntegral
 
-    relSysError = 0.1 * (oldIntegral - subtrIntegral)/subtrIntegral
+    relSysError = 0
+    if subtrIntegral != 0:
+        relSysError = 0.1 * (oldIntegral - subtrIntegral)/subtrIntegral
+    else:
+        print '[WARNING] subtrIntegral is zero.'
+        
     print 'W+Jets, high MT: Relative error due to BG subtraction', relSysError
 
     relSysError = 0.05 * mtplot.Hist('Ztt').Integral(True, xmin, xmax)
@@ -159,7 +167,13 @@ def fW(mtplot, dataName, xmin, xmax, VVgroup=None, channel = 'TauMu'):
       relSysError = math.sqrt(relSysError**2 + 0.3*0.3*mtplot.Hist('VV').Integral(True, xmin, xmax)**2)
       # print 'Plus VV subtraction', relSysError/subtrIntegral
     print 'W+Jets, high MT: Absolute error due to BG subtraction with smaller DY uncertainties', relSysError
-    relSysError = relSysError/subtrIntegral
+
+    relSysError = 0
+    if subtrIntegral != 0:
+        relSysError = relSysError/subtrIntegral
+    else:
+        print '[WARNING] subtrIntegral is zero.'
+        
     print 'W+Jets, high MT: Relative error due to BG subtraction with smaller DY uncertainties', relSysError
     # print 'W+Jets, high MT: Contribution from ttbar', 0.1*mtplot.Hist('TTJets').Integral(True, xmin, xmax)/subtrIntegral
 
@@ -179,8 +193,13 @@ def fW(mtplot, dataName, xmin, xmax, VVgroup=None, channel = 'TauMu'):
     if data_integral_jan != data_integral:
         print 'WARNING, not the same integral in w+jets estimation'
 
-    print 'Adding relative error due to data error', error_data/data_integral
-    relSysError = math.sqrt(error_data**2/data_integral**2 + relSysError**2)
+    if data_integral != 0:
+        print 'Adding relative error due to data error', error_data/data_integral
+        relSysError = math.sqrt(error_data**2/data_integral**2 + relSysError**2)
+    else:
+        print '[WARNING] data_integral is zero.'
+        relSysError = 0
+        
     print 'TOTAL ERROR on high mass SF', relSysError
     mc_integral = mtplot.Hist('WJets').Integral(True, xmin, xmax)
     # Do not double-count W+jets uncertainty (is in high-low ratio)
@@ -201,7 +220,12 @@ def w_lowHighMTRatio( var, anaDir,
 
     mt_low = mt.Integral(True, 0, lowMTMax)
     mt_high = mt.Integral(True, highMTMin, highMTMax)
-    mt_ratio = mt_low / mt_high 
+
+    mt_ratio = 0
+    if mt_high !=0:
+        mt_ratio = mt_low / mt_high
+    else:
+        print '[WARNING] mt_high is zero'
 
     print 'W MT ratio, mt ranges', lowMTMax, highMTMin, highMTMax
 
@@ -255,7 +279,11 @@ def plot_W(anaDir, comps, weights,
     
     print 'W SCALE FACTOR OS:'
     data_OS, mc_OS = fW( mtOS, 'Data', xmin, xmax, VVgroup)
-    fW_OS = data_OS / mc_OS
+    fW_OS = 0
+    if mc_OS !=0:
+        fW_OS = data_OS / mc_OS
+    else:
+        print '[WARNING] mc_OS is zero ... zero Division'
 
 
     print 'extracting WJets data/MC factor in high mt region, SS'

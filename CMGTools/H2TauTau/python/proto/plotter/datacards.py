@@ -59,6 +59,11 @@ datacards_aliases = {
     'HiggsVH150':'VH150',
     'HiggsVH155':'VH155',
     'HiggsVH160':'VH160',
+
+    # Yuta added
+    'HiggsTTH125':'TTH125',
+    'HiggsWH125':'WH125',
+    'HiggsZH125':'ZH125',
     # MSSM GluGlu
     'HiggsSUSYGluGlu80':'ggH80',
     'HiggsSUSYGluGlu90':'ggH90',
@@ -181,6 +186,8 @@ def datacards(plot, cutstring, shift, channel='muTau', prefix=None, energy='8TeV
     print 'output file', fileName
     zttzl = None
     zttzj = None
+
+#    import pdb; pdb.set_trace()
     for myName, hist in sorted(plot.histosDict.iteritems()):
 
         if 'btag' in category:

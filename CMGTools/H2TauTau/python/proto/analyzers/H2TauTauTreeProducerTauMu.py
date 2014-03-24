@@ -61,6 +61,7 @@ class H2TauTauTreeProducerTauMu( TreeAnalyzerNumpy ):
        var( tr, 'thirdLeptonVeto')
 
        var(tr, 'genMass')
+       var(tr, 'genPattern')
 
        bookGenParticle(tr, 'genW')
        bookGenParticle(tr, 'genZ')
@@ -169,6 +170,9 @@ class H2TauTauTreeProducerTauMu( TreeAnalyzerNumpy ):
               fill(tr, 'genMass', p.mass())
               break
 
+       if hasattr(event, 'pattern'):
+           fill(tr, 'genPattern', event.pattern)
+           
        if hasattr( event, 'genZs'):
            if len(event.genZs):
                fillGenParticle(tr, 'genZ', event.genZs[0])

@@ -134,25 +134,57 @@ class H2TauTauDataMC( AnalysisDataMC ):
             else:
                 tfile = self.__class__.keeper[ fileName + str(self.__class__.HINDEX) ] = TFile.Open(fileName)
                 self.__class__.HINDEX+=1
-            
+
+
             if compName == 'Ztt':
                 self._BuildHistogram(tfile, comp, compName, self.varName,
                                      self.cut + ' && isFake==0', layer)
+
                 fakeCompName = 'Ztt_ZL'
                 self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
                                      self.cut + ' && isFake==1', layer)
                 self.Hist(fakeCompName).realName =  comp.realName + '_ZL'
                 self.weights[fakeCompName] = self.weights[compName]
+
                 fakeCompName = 'Ztt_ZJ'
                 self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
                                      self.cut + ' && isFake==2', layer)
                 self.Hist(fakeCompName).realName =  comp.realName + '_ZJ'
                 self.weights[fakeCompName] = self.weights[compName]
+
                 fakeCompName = 'Ztt_TL'
                 self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
                                      self.cut + ' && isFake==3', layer)
                 self.Hist(fakeCompName).realName =  comp.realName + '_TL'
                 self.weights[fakeCompName] = self.weights[compName]
+                
+
+            # YUTA : added to adopt new H2TauTauLimit package
+            elif compName == 'HiggsVH125':
+
+#                import pdb; pdb.set_trace()
+                self._BuildHistogram(tfile, comp, compName, self.varName,
+                                     self.cut + '', layer)
+                
+                fakeCompName = 'HiggsZH125'
+                self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
+                                     self.cut + ' && genPattern==0', layer)
+                self.Hist(fakeCompName).realName =  comp.realName + '_ZH'
+                self.weights[fakeCompName] = self.weights[compName]
+
+                fakeCompName = 'HiggsWH125'
+                self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
+                                     self.cut + ' && genPattern==1', layer)
+                self.Hist(fakeCompName).realName =  comp.realName + '_WH'
+                self.weights[fakeCompName] = self.weights[compName]
+
+                fakeCompName = 'HiggsTTH125'
+                self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
+                                     self.cut + ' && genPattern==2', layer)
+                self.Hist(fakeCompName).realName =  comp.realName + '_TTH'
+                self.weights[fakeCompName] = self.weights[compName]
+
+
             # Add gen mass cut a la full hadronic
             elif 'HiggsSUSY' in compName :
                 mA = re.findall(r"\d{2,4}", compName)
