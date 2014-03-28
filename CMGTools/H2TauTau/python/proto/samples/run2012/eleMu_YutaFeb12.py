@@ -70,102 +70,39 @@ aliases = {
     }
 
 
-#mc_ewk = []
+mc_ewk = []
 # mc_ewk += mc_dy
-#mc_ewk += t_mc_ewk
-#mc_ewk += mc_w
-#mc_ewk += mc_w_ext
+mc_ewk += t_mc_ewk
+mc_ewk += mc_w
+mc_ewk += mc_w_ext
 
+MC_list = copy.copy( mc_ewk )
 
-#MC_list = copy.copy( mc_singletop ) ## for mumuTau
-
-MC_list = copy.copy( mc_diboson ) ## for mumuTau
-#MC_list = copy.copy( mc_higgs_vbf_125 ) ## for mumuTau
-
-
-#MC_list.extend( mc_diboson_wz )
-#MC_list.extend( t_mc_ewk )
-
-#MC_list = copy.copy( mc_tH ) ## for mumuTau
-#MC_list.extend( mc_w )
-#MC_list.extend( mc_dy )
-
-
-#MC_list.extend( mc_singletop ) ## for mumuTau
-#MC_list.extend(mc_wgamma)
-
-
-#MC_list = copy.copy(mc_wgamma)
-
-#MC_list = copy.copy( t_mc_ewk ) ## for single top
-
-
-#MC_list = copy.copy( mc_ttbar )
-
-#MC_list = copy.copy( mc_dy )
 # MC_list.extend( mc_higgs )
 # MC_list.extend( mc_higgs_susy )
-#MC_list.extend( mc_diboson ) 
-    
-#allsamples = copy.copy( MC_list )
-#allsamples = copy.copy( data_list )
-allsamples = copy.copy( embed_list )
-#allsamples.extend( data_list )
+MC_list.extend( mc_diboson )     
+allsamples = copy.copy( MC_list )
+allsamples.extend( data_list )
+# allsamples.extend( embed_list )
 
-#allsamples = copy.copy( MC_list )
-#allsamples.extend( embed_list )
-
-#allsamples = copy.copy( data_list )
+mc_repro = []
+mc_repro += mc_dy
+mc_repro += mc_higgs
+mc_repro += mc_higgs_susy
 
 
+#connect( allsamples, '%TAUMU_SVFitVEGAS_Jul29_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
+#connect( embed_list, '%TAUMU_SVFitVEGAS_Aug07_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
+#connect( mc_repro, '%TAUMU_SVFitVEGAS_Aug26_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
 
-
-#mc_repro = []
-#mc_repro += mc_dy
-#mc_repro += mc_higgs
-#mc_repro += mc_higgs_susy
-
-print 'connect to the db'
-#connect(mc_tH, '%EMuTau_Yuta_Feb6', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-
-#connect(mc_diboson_wz, '%EMuTau_Yuta_Oct18', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_diboson, '%EMuTau_Yuta_Oct15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_diboson_ww, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_ttbar, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_dy, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_w, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_wgamma, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(t_mc_ewk, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_singletop, '%EMuTau_Yuta_Nov15', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect( mc_diboson, '%EMuTau_Yuta_Feb12', 'muEle_.*root', aliases, cache=True, verbose=False)
-#connect( mc_higgs_vbf_125, '%EMuTau_Yuta_Feb12', 'muEle_.*root', aliases, cache=True, verbose=False)
-
-################################
-#connect(data_list, '%EMuTau_Yuta_Feb21', 'muEle_.*root', aliases, cache=True, verbose=False)
-#connect( mc_higgs_vbf_125, '%EMuTau_Yuta_Feb21', 'muEle_.*root', aliases, cache=True, verbose=False)
-#connect( mc_higgs_vbf_125, '%EMuTau_Yuta_Mar4', 'muEle_.*root', aliases, cache=True, verbose=False)
+connect(data_list, '%EMuTau_Yuta_Feb21', 'muEle_.*root', aliases, cache=True, verbose=False)
+connect(mc_repro, '%EMuTau_Yuta_Feb21', 'muEle_.*root', aliases, cache=True, verbose=False)
 connect(embed_list, '%EMu_Yuta_Mar22', 'muEle_.*root', aliases, cache=True, verbose=False)
-################################
 
-#connect(mc_diboson_wz, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_diboson, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(data_list, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_diboson_ww, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_ttbar, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_dy, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_w, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_wgamma, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(t_mc_ewk, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-#connect(mc_singletop, '%EMuTau_Yuta_Nov24', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
+allsamples.extend( embed_list )
+allsamples.extend( mc_repro )
+MC_list.extend( mc_repro ) 
 
-
-
-
-#connect(mc_diboson_wz, '%EMuTau_Yuta_Oct25', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
-
-#allsamples.extend( embed_list )
-#allsamples.extend( mc_repro )
-#MC_list.extend( mc_repro ) 
 
 # Attach number of generated events for stitching
 dy_nevents = [ DYJets.nGenEvents,
@@ -196,7 +133,6 @@ for mc in MC_list:
 for data in data_list:
     if len(data.files):
         data.json = jsonPick( data.files[0], jsonMap)
-#        data.triggers = data_parked_triggers_2012
         data.triggers = data_triggers
         # allsamples.append(data)
 for embed in embed_list:
@@ -204,6 +140,5 @@ for embed in embed_list:
         embed.json = jsonPick( embed.files[0], jsonMap)
         embed.triggers = embed_triggers
         # No trigger requirements for embedded samples
-
 for c in allsamples:
-    c.splitFactor = splitFactor(c, 1e4)
+    c.splitFactor = splitFactor(c, 5e4)
