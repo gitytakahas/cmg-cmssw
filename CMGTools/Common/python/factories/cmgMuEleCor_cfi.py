@@ -4,7 +4,7 @@ cmgMuEleCorFactory = cms.PSet(
     # leg1 and leg2 are dummy collections here
     leg1Collection = cms.InputTag(''),
     leg2Collection = cms.InputTag(''),
-    metCollection = cms.InputTag('recoilCorrectedMET'),
+#    metCollection = cms.InputTag('recoilCorrectedMET'),
     diObjectCollection = cms.InputTag('cmgMuEleSel'),
     nSigma              = cms.double(0),
     uncertainty         = cms.double(0.03),
@@ -12,8 +12,10 @@ cmgMuEleCorFactory = cms.PSet(
     shift1Prong1Pi0     = cms.double(0.),
     ptDependence1Pi0    = cms.double(0.),
     shift3Prong         = cms.double(0.),
-    ptDependence3Prong  = cms.double(0.)
-)
+    ptDependence3Prong  = cms.double(0.),
+    shiftMet            = cms.bool(True),
+    shiftTaus           = cms.bool(True)
+    )
 
 cmgMuEleCor = cms.EDFilter(
     "MuEleUpdatePOProducer",

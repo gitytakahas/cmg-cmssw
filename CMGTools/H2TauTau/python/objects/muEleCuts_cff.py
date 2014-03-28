@@ -5,7 +5,8 @@ from CMGTools.H2TauTau.objects.eleCuts_cff import getEleCuts
 
 muEleCuts = cms.PSet(
     baseline = cms.PSet(
-         mass = cms.string('mass()>10'),
+#         mass = cms.string('mass()>10'),
+         mass = cms.string('mass()>0'),
          muLeg = getMuCuts('leg1', 'muEle').clone(),
          eleLeg = getEleCuts('leg2', 'muEle').clone()
          ),
