@@ -5,11 +5,11 @@ from CMGTools.RootTools.utils.TriggerList import TriggerList
 from CMGTools.RootTools.utils.TriggerMatching import selTriggerObjects
 from CMGTools.RootTools.physicsobjects.PhysicsObjects import TriggerObject
 
-class TriggerAnalyzer( Analyzer ):
+class DiTriggerAnalyzer( Analyzer ):
     '''Access to trigger information, and trigger selection'''
 
     def declareHandles(self):
-        super(TriggerAnalyzer, self).declareHandles()
+        super(DiTriggerAnalyzer, self).declareHandles()
 
         self.handles['cmgTriggerObjectSel'] =  AutoHandle(
             'cmgTriggerObjectSel',
@@ -22,7 +22,7 @@ class TriggerAnalyzer( Analyzer ):
             )
  
     def beginLoop(self):
-        super(TriggerAnalyzer,self).beginLoop()
+        super(DiTriggerAnalyzer,self).beginLoop()
         self.triggerList = TriggerList( self.cfg_comp.triggers )
         if hasattr(self.cfg_comp,'vetoTriggers'):
             self.vetoTriggerList = TriggerList( self.cfg_comp.vetoTriggers )
@@ -43,6 +43,7 @@ class TriggerAnalyzer( Analyzer ):
         
         
         event.triggerObject = self.handles['cmgTriggerObjectSel'].product()[0]
+        event.triggerObjects = []
         run = iEvent.eventAuxiliary().id().run()
         lumi = iEvent.eventAuxiliary().id().luminosityBlock()
         eventId = iEvent.eventAuxiliary().id().event()
@@ -51,57 +52,64 @@ class TriggerAnalyzer( Analyzer ):
         event.lumi = lumi
         event.eventId = eventId
 
-        ## if component is embed return (has no trigger obj) RHEMB will have trigger!
-        if self.cfg_comp.isEmbed and len(self.cfg_comp.triggers)==0 :
-          return True
-
 ##        if self.cfg_ana.verbose:
 ##            self.printTriggerObject( event.triggerObject )
         
         self.counters.counter('Trigger').inc('All events')
-        # import pdb; pdb.set_trace()
+
         usePrescaled = False
         if hasattr( self.cfg_ana, 'usePrescaled'):
             usePrescaled = self.cfg_ana.usePrescaled
 
-        # import pdb; pdb.set_trace()
+#        import pdb; pdb.set_trace()
                 
-        ### want to check whether more than one unprescaled trigger has been fired
+
         hltPathVec = []
         
         self.triggerList = TriggerList( self.cfg_comp.triggers )
         
         passed, hltPath = self.triggerList.triggerPassed(event.triggerObject,
                                                          run, lumi, self.cfg_comp.isData,
-                                                         self.cfg_comp.isEmbed,
+#                                                         self.cfg_comp.isEmbed,
                                                          usePrescaled = usePrescaled)
 
         if passed and not hltPath == None:
-          hltPathVec.append(hltPath)
+            hltPathVec.append(hltPath)
         
-        
+#        for a in event.triggerObject:
+#            print a
+            
         if passed and not hltPath == None:
-          for tr in self.cfg_comp.triggers :       
-            if tr in hltPathVec : 
-              for triggerToRemove in self.triggerList.triggerList :
-                if triggerToRemove.name == tr :
-                  self.triggerList.triggerList.remove(triggerToRemove)
+            for tr in self.cfg_comp.triggers :       
+                if tr in hltPathVec : 
+                    for triggerToRemove in self.triggerList.triggerList :
+                        if triggerToRemove.name == tr :
+                            self.triggerList.triggerList.remove(triggerToRemove)
+#                            self.triggerList.restrictList.remove(triggerToRemove)
+#                            import pdb; pdb.set_trace()
 
-              passed2, hltPath2 = self.triggerList.triggerPassed(event.triggerObject,
-                                                               run, lumi, self.cfg_comp.isData,
-                                                               self.cfg_comp.isEmbed,
+
+            # this is very alternative choice !!
+            # to be run, lumi, False <--
+            # in order to avoid both Mu17_Ele8 and Mu8_Ele17 are fired ...
+            passed2, hltPath2 = self.triggerList.triggerPassed(event.triggerObject,
+#                                                               run, lumi, self.cfg_comp.isData,
+                                                               run, lumi, False,
                                                                usePrescaled = usePrescaled)
-              if passed2 and not hltPath2 == None:
+            if passed2 and not hltPath2 == None:
                 hltPathVec.append(hltPath2)
-        
+
+
+#        import pdb; pdb.set_trace()
         event.hltPaths = set(hltPathVec)
+
         
         #Check the veto!
         veto=False
         if self.vetoTriggerList is not None:
             veto,hltVetoPath = self.vetoTriggerList.triggerPassed(event.triggerObject,
                                                          run,lumi,self.cfg_comp.isData,
-                                                         self.cfg_comp.isEmbed,
+#                                                         self.cfg_comp.isEmbed,
                                                          usePrescaled = usePrescaled)
 
         # Check if events needs to be skipped if no trigger is found (useful for generator level studies)
@@ -122,12 +130,23 @@ class TriggerAnalyzer( Analyzer ):
         #import pdb ; pdb.set_trace()
         event.hltPath = hltPath 
 
+#        import pdb;pdb.set_trace()
+##        ### Riccardo: I want the trigger objects corresponding to the trigger I want to fire even if it has not been fired
+##        if hltPath is not None :
+##          trigObjs = map( TriggerObject, self.handles['cmgTriggerObjectListSel'].product())
+##          # selecting the trigger objects used in this path
+##          event.triggerObjects = selTriggerObjects( trigObjs, hltPath )
 
         ### Riccardo: I want the trigger objects corresponding to the trigger I want to fire even if it has not been fired
         if hltPath is not None :
-          trigObjs = map( TriggerObject, self.handles['cmgTriggerObjectListSel'].product())
-          # selecting the trigger objects used in this path
-          event.triggerObjects = selTriggerObjects( trigObjs, hltPath )
+            # first fill in triggerObjects
+            trigObjs = map( TriggerObject, self.handles['cmgTriggerObjectListSel'].product())
+
+            for tpath in event.hltPaths:
+#                print 'adding', tpath
+                event.triggerObjects.extend(selTriggerObjects( trigObjs, tpath))
+
+
         elif keepFailingEvents :
           event.triggerObjects = []
           for hltPath in self.cfg_comp.triggers :
@@ -148,11 +167,11 @@ class TriggerAnalyzer( Analyzer ):
 
     def write(self):
         print 'writing TriggerAnalyzer'
-        super(TriggerAnalyzer, self).write()
+        super(DiTriggerAnalyzer, self).write()
         self.triggerList.write( self.dirName )
 
     def __str__(self):
-        tmp = super(TriggerAnalyzer,self).__str__()
+        tmp = super(DiTriggerAnalyzer,self).__str__()
         triglist = str( self.triggerList )
         return '\n'.join( [tmp, triglist ] )
 
