@@ -28,7 +28,7 @@ class TriggerList( object ):
                               'src/CMGTools/RootTools/python/utils/triggerEvolution_all.txt'])
         #datasets = ['TauPlusX']
         # FIXME: This is tau-specific.
-        datasets = ['Tau','TauParked','DoubleMu','DoubleMuParked','TauPlusX','SingleMu']
+        datasets = ['Tau','TauParked','DoubleMu','DoubleMuParked','TauPlusX','SingleMu','MuEG']
         self.menus = Menus( fileName, datasets )
         self.run = -1
         self.triggerJSON = TriggerJSON()
