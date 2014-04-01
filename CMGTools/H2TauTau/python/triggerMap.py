@@ -45,19 +45,14 @@ pathsAndFilters = {
                                                                           'hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1IsoEG18OrEG20'),
 
 
-    # YUTA
+    # YUTA added
     # MuEle
 
-#    'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*':('hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'),
-#    'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*':('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'),
-
-    # for MC !!
+    # for MC
     'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7':('hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'),
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7':('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'),
 
 
-
-    # mu-ele for 2012 data
     # mu8e17 2011 data
     # take from here : http://fwyzard.web.cern.ch/fwyzard/hlt/2011/summary
     'HLT_Mu8_Ele17_CaloIdL_v1':('hltL1Mu3EG5L3Filtered8','hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'),
@@ -66,7 +61,6 @@ pathsAndFilters = {
     'HLT_Mu8_Ele17_CaloIdL_v4':('hltL1MuOpenEG5L3Filtered8','hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'),
     'HLT_Mu8_Ele17_CaloIdL_v5':('hltL1MuOpenEG5L3Filtered8','hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'),
     'HLT_Mu8_Ele17_CaloIdL_v6':('hltL1MuOpenEG5L3Filtered8','hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'),
-#    'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v1':('hltL1MuOpenEG12L3Filtered8','hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'),
     'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v3':('hltL1MuOpenEG12L3Filtered8','hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'),
     'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v4':('hltL1MuOpenEG12L3Filtered8','hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'),
     'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v7':('hltL1MuOpenEG12L3Filtered8','hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'),
