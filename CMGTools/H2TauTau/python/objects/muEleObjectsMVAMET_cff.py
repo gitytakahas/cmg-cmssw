@@ -68,7 +68,8 @@ cmgMuEleTauPtSel = cms.EDFilter(
     "CmgMuEleSelector",
     src = cms.InputTag( "cmgMuEleCor" ),
 #    cut = cms.string( "leg1().pt()>18." )
-    cut = cms.string( "leg1().pt()>10." )
+#    cut = cms.string( "leg1().pt()>10." )
+    cut = cms.string( "(leg1().pt()>20. || leg2().pt()>20.)" )
     )
 
 cmgMuEleTauPtSel = cmgMuEleTauPtSel.clone()
