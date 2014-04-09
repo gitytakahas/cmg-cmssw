@@ -67,6 +67,9 @@ aliases = {
     '/MuEG/Run2012C-22Jan2013-v1*' : 'data_Run2012C',
     '/MuEG/Run2012D-22Jan2013-v1*' : 'data_Run2012D',
     '/DoubleMu/StoreResults-Run2012A_22Jan2013*':'embed_Run2012A_22Jan',
+    '/DoubleMuParked/StoreResults-Run2012B_22Jan2013*':'embed_Run2012B_22Jan',
+    '/DoubleMuParked/StoreResults-Run2012C_22Jan2013*':'embed_Run2012C_22Jan',
+    '/DoubleMuParked/StoreResults-Run2012D_22Jan2013*':'embed_Run2012D_22Jan',
     }
 
 
@@ -98,7 +101,7 @@ mc_repro += mc_higgs
 connect(allsamples, '%EleMu_Yuta_Apr2', 'muEle_.*root', aliases, cache=True, verbose=False)
 connect(data_list, '%EleMu_Yuta_Apr2', 'muEle_.*root', aliases, cache=True, verbose=False)
 connect(mc_repro, '%EleMu_Yuta_Apr2', 'muEle_.*root', aliases, cache=True, verbose=False)
-connect(embed_list, '%EleMu_Yuta_Apr2', 'muEle_.*root', aliases, cache=True, verbose=False)
+connect(embed_list, '%EleMu_Yuta_Apr3', 'muEle_.*root', aliases, cache=True, verbose=False)
 
 # for ttbar
 
@@ -163,5 +166,5 @@ for embed in embed_list:
         embed.triggers = embed_triggers
         # No trigger requirements for embedded samples
 for c in allsamples:
-#    c.splitFactor = splitFactor(c, 1e4)
-    c.splitFactor = splitFactor(c, 1e3)
+    c.splitFactor = splitFactor(c, 1e4)
+#    c.splitFactor = splitFactor(c, 1e3)

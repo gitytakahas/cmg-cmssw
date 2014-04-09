@@ -58,7 +58,8 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
        var( tr, 'thirdLeptonVeto')
 
        var(tr, 'genMass')
-
+       var(tr, 'genPattern')
+       
        bookGenParticle(tr, 'genW')
        bookGenParticle(tr, 'genZ')
        bookGenParticle(tr, 'genWlep')
@@ -155,6 +156,10 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
                if p.pdgId() in [23, 25, 35, 36, 37]:
                    fill(tr, 'genMass', p.mass())
                    break
+
+       if hasattr(event, 'pattern'):
+           fill(tr, 'genPattern', event.pattern)
+
 
        if hasattr( event, 'genZs'):
            if len(event.genZs):
