@@ -5,21 +5,20 @@ from CMGTools.H2TauTau.proto.plotter.cut import *
 
 from CMGTools.Common.Tools.cmsswRelease import cmsswIs44X,cmsswIs52X
 
-pt1 = 30
-pt2 = 17 # 2011
-if cmsswIs52X():
-#    pt2 = 18 # 2012, check that
-    pt2 = 20 # 2012, check that
+pt1 = 10.
+pt2 = 10. # 2011
 
 #inc_sig_tau = Cut('l1_looseMvaIso>0.5 && (l1_EOverp>0.2 || l1_decayMode!=0) && l1_againstMuonTight>0.5 && l1_againstElectronLoose>0.5 && l1_dxy<0.045 && l1_dz<0.2 && l1_pt>{pt1}'.format(pt1=pt1))
 #inc_sig_tau = Cut('l1_looseMvaIso>0.5 && l1_againstMuonTight>0.5 && l1_againstElectronLoose>0.5 && l1_dxy<0.045 && l1_dz<0.2 && l1_pt>{pt1}'.format(pt1=pt1))
 
 # NEW one - to be implemented as soon as trees are there
 inc_sig_tau = Cut('leptonAccept && thirdLeptonVeto && l1_threeHitIso<1.5 && l1_againstMuonTight>0.5 && l1_againstElectronLoose>0.5 && l1_dxy<0.045 && l1_dz<0.2 && l1_pt>{pt1}'.format(pt1=pt1))
-inc_sig_mu = Cut('l1_relIso05<0.1 && l1_tightId>0.5 && l1_dxy<0.045 && l1_dz<0.2')
-inc_sig_ele = Cut('l2_relIso05<0.1 && l2_tightId>0.5 && l2_dxy<0.045 && l2_dz<0.2')
+inc_sig_mu = Cut('l1_relIso05<0.1 && l1_tightId>0.5 && TMath::Abs(l1_dxy)<0.045 && TMath::Abs(l1_dz)<0.2 && l1_pt>{pt1}'.format(pt1=pt1))
+inc_sig_ele = Cut('l2_relIso05<0.1 && l2_tightId>0.5 && TMath::Abs(l2_dxy)<0.045 && TMath::Abs(l2_dz)<0.2 && l2_pt>{pt2}'.format(pt2=pt2))
+inc_common = Cut('leptonAccept && thirdLeptonVeto')
 
-inc_sig = inc_sig_mu & inc_sig_ele
+inc_sig = inc_sig_mu & inc_sig_ele & inc_common
+
 
 
 inc_sig_mu_elelike = Cut('l2_relIso05<0.1 && l2_tightId>0.5 && l2_dxy<0.045 && l2_dz<0.2 && l2_pt>{pt2}'.format(pt2=24.))
@@ -68,14 +67,7 @@ cat_Inc = str(inc_sig)
 cat_Inc_elelike = str(inc_sig_elelike)
 
 # Yuta added
-cat_J0_high = cat_J0_oldhigh.replace('l1_pt>40.','l1_pt>35.')
-cat_J0_low  = cat_J0_oldlow.replace('l1_pt<=40.','l1_pt<=35.')
 
-cat_J1_high = cat_J1_oldhigh.replace('l1_pt>40.','l1_pt>35.')
-cat_J1_low = cat_J1_oldlow.replace('l1_pt<=40.','l1_pt<=35.')
-
-cat_VBF_tight.replace('l1_pt>30.','l1_pt>20.')
-cat_VBF_loose.replace('l1_pt>30.','l1_pt>20.')
 
 #import pdb; pdb.set_trace()
 
@@ -94,3 +86,23 @@ categories = {
     }
 
 categories.update( categories_common )
+
+#update categories
+
+categories['Xcat_J0_oldhighX'] = categories['Xcat_J0_oldhighX'].replace('l1_pt>40.','l1_pt>35. && mva_emu>-0.5')
+categories['Xcat_J0_oldlowX']  = categories['Xcat_J0_oldlowX'].replace('l1_pt<=40.','l1_pt<=35.&& mva_emu>-0.5 ')
+
+categories['Xcat_J1_oldhighX'] = categories['Xcat_J1_oldhighX'].replace('l1_pt>40.','l1_pt>35. && mva_emu>-0.5')
+categories['Xcat_J1_oldlowX']  = categories['Xcat_J1_oldlowX'].replace('l1_pt<=40.','l1_pt<=35.&& mva_emu>-0.5')
+
+categories['Xcat_VBF_tightX']  = categories['Xcat_VBF_tightX'].replace('l1_pt>30.','(l1_pt>10. || l2_pt>10.) && mva_emu>-0.5')
+categories['Xcat_VBF_looseX']  = categories['Xcat_VBF_looseX'].replace('l1_pt>30.','(l1_pt>10. || l2_pt>10.) && mva_emu>-0.5')
+
+#cat_J0_high = str(cat_J0_oldhigh).replace('l1_pt>40.','l1_pt>35.')
+#cat_J0_low  = str(cat_J0_oldlow).replace('l1_pt<=40.','l1_pt<=35.')
+#
+#cat_J1_oldhigh = str(cat_J1_oldhigh).replace('l1_pt>40.','l1_pt>35.')
+#cat_J1_oldlow = str(cat_J1_oldlow).replace('l1_pt<=40.','l1_pt<=35.')
+#
+#cat_VBF_tight = str(cat_VBF_tight).replace('l1_pt>30.','l1_pt>20.')
+#cat_VBF_loose = str(cat_VBF_loose).replace('l1_pt>30.','l1_pt>20.')
