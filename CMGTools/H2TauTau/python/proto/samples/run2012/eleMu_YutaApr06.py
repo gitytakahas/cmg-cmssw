@@ -166,5 +166,5 @@ for embed in embed_list:
         embed.triggers = embed_triggers
         # No trigger requirements for embedded samples
 for c in allsamples:
-    c.splitFactor = splitFactor(c, 1e4)
-#    c.splitFactor = splitFactor(c, 1e3)
+#    c.splitFactor = splitFactor(c, 1e4)
+    c.splitFactor = splitFactor(c, 1e3)
