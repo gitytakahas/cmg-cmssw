@@ -3,11 +3,13 @@ import copy
 from ROOT import TChain, TH1F
 from CMGTools.H2TauTau.proto.plotter.categories_TauMu import cat_Inc
 from CMGTools.H2TauTau.proto.plotter.categories_TauEle import cat_Inc as cat_Inc_Ele
-
+from CMGTools.H2TauTau.proto.plotter.categories_EleMu import cat_Inc as cat_Inc_MuEle
 
 def embedScaleFactor(selComps, channel='TauMu'):
     embedChain = TChain()
     zttChain = None
+
+#    import pdb; pdb.set_trace()
     for comp in selComps.values():
         if comp.isEmbed:
             #if embedChain is None:
@@ -21,6 +23,8 @@ def embedScaleFactor(selComps, channel='TauMu'):
     cut = cat_Inc 
     if channel == 'TauEle':
         cut = cat_Inc_Ele
+    if channel == 'MuEle':
+        cut = cat_Inc_MuEle
     cut += ' && diTau_charge==0'
     embcut = cut 
     zttcut = ' && '.join( [cut, 'isFake==0'] )

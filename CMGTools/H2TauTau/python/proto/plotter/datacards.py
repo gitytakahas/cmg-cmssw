@@ -119,6 +119,30 @@ def datacards(plot, cutstring, shift, channel='muTau', prefix=None, energy='8TeV
     if cutstring.find('Xcat_IncX')!=-1:
         category = 'inclusive'
 
+    lepton_pt = -1
+    print 'cut = ', cutstring
+    if cutstring.find('l2_pt>20')!=-1:
+        lepton_pt = 20
+    elif cutstring.find('l2_pt>21')!=-1:
+        lepton_pt = 21
+    elif cutstring.find('l2_pt>24')!=-1:
+        lepton_pt = 24
+    elif cutstring.find('l2_pt>27')!=-1:
+        lepton_pt = 27
+    elif cutstring.find('l2_pt>30')!=-1:
+        lepton_pt = 30
+    elif cutstring.find('l2_pt>33')!=-1:
+        lepton_pt = 33
+    elif cutstring.find('l2_pt>36')!=-1:
+        lepton_pt = 36
+    elif cutstring.find('l2_pt>39')!=-1:
+        lepton_pt = 39
+    elif cutstring.find('l2_pt>42')!=-1:
+        lepton_pt = 42
+#    else:       
+#        print 'info : no pt threshold applied to the lepton'
+
+
     # Moriond categories
     if cutstring.find('Xcat_J1X')!=-1:
         category = 'boosted'
@@ -142,6 +166,17 @@ def datacards(plot, cutstring, shift, channel='muTau', prefix=None, energy='8TeV
         category = '0jet_medium'
     elif cutstring.find('Xcat_J0_highX')!=-1:
         category = '0jet_high'
+
+    if cutstring.find('Xcat_J0_oldlowX')!=-1:
+        category = '0jet_low'
+    elif cutstring.find('Xcat_J0_oldhighX')!=-1:
+        category = '0jet_high'
+
+    if cutstring.find('Xcat_J1_oldlowX')!=-1:
+        category = '1jet_low'
+    elif cutstring.find('Xcat_J1_oldhighX')!=-1:
+        category = '1jet_high'
+
 
     if cutstring.find('Xcat_J1_high_mediumhiggsX')!=-1:
         category = '1jet_high_mediumhiggs'
@@ -173,12 +208,29 @@ def datacards(plot, cutstring, shift, channel='muTau', prefix=None, energy='8TeV
     elif shift:
         ext = shift
 
-    fileName = '{channel}_{category}.root'.format(channel=channel,
-                                                  category=category)
+    fileName = '{channel}_{category}_{lep}.root'.format(channel=channel,
+                                                        category=category,
+                                                        lep=lepton_pt)
     if ext:
-        fileName = '{channel}_{category}_{ext}.root'.format(channel=channel,
-                                                          category=category,
-                                                          ext=ext)
+        fileName = '{channel}_{category}_{ext}_{lep}.root'.format(channel=channel,
+                                                                  category=category,
+                                                                  ext=ext,
+                                                                  lep=lepton_pt)
+
+
+    if lepton_pt == -1:
+        fileName = '{channel}_{category}.root'.format(channel=channel,
+                                                      category=category
+                                                      )
+        if ext:
+            fileName = '{channel}_{category}_{ext}.root'.format(channel=channel,
+                                                                category=category,
+                                                                ext=ext)
+
+
+
+
+
     if prefix:
         fileName = '_'.join([prefix, fileName])
         
@@ -242,6 +294,9 @@ def merge( fileNames, prefix=None ):
     lastchan = None
     files = []
     categories = {}
+
+#    import pdb; pdb.set_trace()
+
     for fnam in fileNames:
         name = fnam
         if prefix:
@@ -263,6 +318,7 @@ def merge( fileNames, prefix=None ):
             obj = file.Get(key.GetName())
             if type(obj) is TDirectoryFile:
                 # subdir = output.mkdir(key.GetName())
+#                import pdb; pdb.set_trace()
                 subdir = output.mkdir(lastchan + '_' + key.GetName())
                 subdir.cd()
                 subobjs = getobjs( obj )
@@ -270,8 +326,13 @@ def merge( fileNames, prefix=None ):
                     subobj.Write()
             else:
                 if categdir is None:
+#                    import pdb; pdb.set_trace()
                     # categdir = output.mkdir( categories[file.GetName()] )
-                    categdir = output.mkdir(lastchan + '_' + categories[file.GetName()] )
+                    if file.GetName().find('1jet_high')!=-1:
+                        categdir = output.mkdir(lastchan + '_' + categories[file.GetName()].split('_')[0] + '_' + categories[file.GetName()].split('_')[1] + '_' + categories[file.GetName()].split('_')[2])
+                    else:
+                        categdir = output.mkdir(lastchan + '_' + categories[file.GetName()].split('_')[0] + '_' + categories[file.GetName()].split('_')[1])
+
                 categdir.cd()
                 obj.Write(key.GetName())
     output.Close()

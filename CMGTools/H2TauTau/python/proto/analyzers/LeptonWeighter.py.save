@@ -51,6 +51,8 @@ class LeptonWeighter( Analyzer ):
         lep.idWeight = 1
         lep.isoWeight = 1
 
+        import pdb; pdb.set_trace()
+
         if (self.cfg_comp.isMC or self.cfg_comp.isEmbed) and \
            not ( hasattr(self.cfg_ana,'disable') and self.cfg_ana.disable is True ) and lep.pt() < 9999.:
             assert( self.trigEff is not None )
@@ -86,16 +88,7 @@ class LeptonWeighter( Analyzer ):
                 lep.isoWeight = self.cfg_ana.isoWeight.weight(lep.pt(), abs(lep.eta()) ).weight.value
             
         lep.recEffWeight = lep.idWeight * lep.isoWeight
-
-        if hasattr( self.cfg_ana, 'isMuEle'):
-            
-            # If the channel is mu-ele channel, force the trigger weight to be 1.
-            # as it is included already to the idweight (ID && trigger)
-            lep.triggerWeight = 1.
-
         lep.weight = lep.triggerWeight * lep.recEffWeight
-
-            
 
         event.eventWeight *= lep.weight
 	if not hasattr(event,"triggerWeight"): event.triggerWeight=1.0

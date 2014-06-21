@@ -24,6 +24,8 @@ def prepareComponents(dir, config, aliases=None, embed=True,
     totIntLumi = 0
     newSelComps = {}
     embedComps = []
+
+#    import pdb; pdb.set_trace()
     
     # loop on all components
     for comp in selComps.values():

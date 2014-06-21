@@ -159,7 +159,7 @@ class TauEleAnalyzer( DiLeptonAnalyzer ):
             event.isSignal = (True and event.leptonAccept and event.thirdLeptonVeto)
        
         event.genMatched = None
-        event.pattern = None
+        event.pattern = -99
 
         if self.cfg_comp.isMC:
             # print event.eventId
@@ -184,11 +184,11 @@ class TauEleAnalyzer( DiLeptonAnalyzer ):
             elif len(WH)>=1:
                 event.pattern = 1
             else:
-                print 'numbers for Z, W and t', len(ZH), len(WH), len(TTH)
-                for a in event.genParticles:
-                    print a
-                    for i in range(a.numberOfDaughters()):
-                        print '\t', a.daughter(i).pdgId(), a.daughter(i).status()
+#                print 'numbers for Z, W and t', len(ZH), len(WH), len(TTH)
+#                for a in event.genParticles:
+#                    print a
+#                    for i in range(a.numberOfDaughters()):
+#                        print '\t', a.daughter(i).pdgId(), a.daughter(i).status()
                 event.pattern = -1
 
 #        for dil in event.diLeptons :

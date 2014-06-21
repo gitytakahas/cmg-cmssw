@@ -26,12 +26,14 @@ def getMuCuts( leg, channel='tauMu'):
 
     id = cms.PSet(
         isGlobal = cms.string('{leg}().isGlobalMuon()'.format(leg=leg)),
-        isTracker = cms.string('{leg}().isTracker()'.format(leg=leg)),
+#        isTracker = cms.string('{leg}().isTrackerMuon()'.format(leg=leg)),
         normalizedChi2 = cms.string('{leg}().normalizedChi2() < 10'.format(leg=leg)),
         numberOfValidMuonHits = cms.string('{leg}().numberOfValidMuonHits() > 0'.format(leg=leg)),
         numberOfMatchedStations = cms.string('{leg}().numberOfMatchedStations() > 1'.format(leg=leg)),
-        numberOfValidPixelHits = cms.string('{leg}().sourcePtr().innerTrack().hitPattern().numberOfValidPixelHits() > 0'.format(leg=leg)),
-        trackerLayersWithMeasurement = cms.string('{leg}().trackerLayersWithMeasurement() > 5'.format(leg=leg)),
+
+        # remove this to avoid the crush
+#        numberOfValidPixelHits = cms.string('{leg}().sourcePtr().innerTrack().hitPattern().numberOfValidPixelHits() > 0'.format(leg=leg)),
+        trackerLayersWithMeasurement = cms.string('{leg}().trackerLayersWithMeasurement() > 5'.format(leg=leg)),        
         dxy = cms.string('abs({leg}().dxy()) < 0.045'.format(leg=leg)),
         dz = cms.string('abs({leg}().dz()) < 0.2'.format(leg=leg))
         )
@@ -42,6 +44,7 @@ def getMuCuts( leg, channel='tauMu'):
     
     muCuts = cms.PSet(
         kinematics = kinematics.clone(),
+        id = id.clone()
         )
 
     return muCuts

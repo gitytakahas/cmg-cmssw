@@ -1,0 +1,305 @@
+macros/tests/Template/analysis_Dec2_cfg.py:    mc.jetScale = mc_jet_scale
+macros/DiMuDataMC.py:            self.Hist(name).Scale( dyYield / embedYield ) 
+macros/Loop2.py:                scale = random.gauss( self.cmp.jetScale, self.cmp.jetSmear)
+macros/H2TauTauDataMC.py:            self.Hist(name).Scale( dyYield / embedYield ) 
+macros/H2TauTauDataMC.py:def wJetScale( mtplot, dataName ):
+macros/H2TauTauDataMC.py:    # mtplot.Hist('WJets').Scale(scale_WJets)
+macros/H2TauTauDataMC.py:    qcdOS.Scale( 1.11 )
+macros/H2TauTauDataMC.py:def makePlot( hist, weights, wJetScaleSS, wJetScaleOS,
+macros/H2TauTauDataMC.py:    osign.Hist('WJets').Scale( wJetScaleOS ) 
+macros/H2TauTauDataMC.py:    ssign.Hist('WJets').Scale( wJetScaleSS ) 
+macros/H2TauTauDataMC.py:    wJetScaleSS = wJetScale( mtSS, dataName)
+macros/H2TauTauDataMC.py:    wJetScaleOS = wJetScale( mtOS, dataName)
+macros/H2TauTauDataMC.py:        ssign,osign = makePlot( hist, weights, wJetScaleSS, wJetScaleOS,
+macros/DiMuAnalyzer.py:                scale = random.gauss( self.cmp.jetScale, self.cmp.jetSmear)
+proto/plot_H2TauTauDataMC.py:def wJetScale( mtplot, dataName ):
+proto/plot_H2TauTauDataMC.py:    # mtplot.Hist('WJets').Scale(scale_WJets)
+proto/plot_H2TauTauDataMC.py:    qcdOS.Scale( 1.11 )
+proto/plot_H2TauTauDataMC.py:def makePlot( hist, weights, wJetScaleSS, wJetScaleOS,
+proto/plot_H2TauTauDataMC.py:    osign.Hist('WJets').Scale( wJetScaleOS ) 
+proto/plot_H2TauTauDataMC.py:    ssign.Hist('WJets').Scale( wJetScaleSS ) 
+proto/plot_H2TauTauDataMC.py:    wJetScaleSS = wJetScale( mtSS, dataName)
+proto/plot_H2TauTauDataMC.py:    wJetScaleOS = wJetScale( mtOS, dataName)
+proto/plot_H2TauTauDataMC.py:    ssign, osign, ssQCD, osQCD = makePlot( options.hist, weights, wJetScaleSS, wJetScaleOS, NBINS, XMIN, XMAX, options.cut, weight=weight, embed=options.embed)
+proto/QCDShapeUncertainty_diTau.py:        hist.Scale(hist1.Integral()/hist.Integral())
+proto/QCDShapeUncertaintyFit_diTau.py:        hist.Scale(hist1.Integral()/hist.Integral())
+proto/QCDShapeUncertaintyFit_diTau.py:            hist2.Scale(hist1.Integral()/hist2.Integral())
+proto/H2TauTauDataMC_MuEle.py:            self.Hist(newName).Scale( dyYield / embedYield ) 
+proto/H2TauTauDataMC_MuEle.py:def wJetScale( plot, dataName, min, max ):
+proto/H2TauTauDataMC_MuEle.py:    # plot.Hist('WJets').Scale(scale_WJets)
+proto/H2TauTauDataMC_MuEle.py:    qcdOS.Scale( 1.11 )
+proto/H2TauTauDataMC_MuEle.py:def makePlot( hist, weights, wJetScaleSS, wJetScaleOS,
+proto/H2TauTauDataMC_MuEle.py:    osign.Hist('WJets').Scale( wJetScaleOS ) 
+proto/H2TauTauDataMC_MuEle.py:    ssign.Hist('WJets').Scale( wJetScaleSS ) 
+proto/H2TauTauDataMC_MuEle.py:    wJetScaleSS = wJetScale( mtSS, dataName, -200, -40)
+proto/H2TauTauDataMC_MuEle.py:    wJetScaleOS = wJetScale( mtOS, dataName, -200, -40)
+proto/H2TauTauDataMC_MuEle.py:        ssign,osign = makePlot( hist, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:def makePlot( var, anaDir, selComps, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:    osign.Hist(EWK).Scale( wJetScaleOS ) # * w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:        osign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:    ssign.Hist(EWK).Scale( wJetScaleSS )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:        ssign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_ss  ) 
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:        qcd_shape.Scale(qcd_yield)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_Colin.py:        # qcd_shape.Scale( qcd_yield )
+proto/plotter/plot_H2TauTauDataMC_diTau.py:    embeddedScaleFactor(anaDir, selCompsNoSignal, weightsNoSignal, selCompsDataMass, weightsDataMass, weight, options.prong, susy=susy)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:    zeeScaleFactor(anaDir, selCompsNoSignal, weightsNoSignal, selCompsDataMass, weightsDataMass, weight, embed=False, susy=False)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:        QCDShapeVBF, QCDScaleVBF, QCDlooseSSVBF, QCDtightSSVBF, tightLooseVBF, tightLooseErrVBF = QCDEstimate2( prefix, prefix1, var, xmin, xmax,
+proto/plotter/plot_H2TauTauDataMC_diTau.py:        QCDScaleVBF = 0.
+proto/plotter/plot_H2TauTauDataMC_diTau.py:      QCDShape, QCDScale, QCDlooseSS, QCDtightSS, tightLoose, tightLooseErr = QCDEstimate2( prefix, prefix1, var, xmin, xmax,
+proto/plotter/plot_H2TauTauDataMC_diTau.py:      if 'VBF' in prefix and QCDScaleVBF>0. :
+proto/plotter/plot_H2TauTauDataMC_diTau.py:        QCDScale *= QCDScaleVBF
+proto/plotter/plot_H2TauTauDataMC_diTau.py:        print 'Scaling QCD down by',QCDScale, '=', QCDScale/QCDScaleVBF,'*', QCDScaleVBF
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          WJetsScale    = scaleFromMuTau  
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          WJetsScaleSS  = scaleFromMuTau 
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist("WJets").Scale(WJetsScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoSS.Hist('WJets').Scale(WJetsScaleSS)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScale    = scaleFromMuTau * LooseIsoOS_VBF.Hist('WJets').Integral() / LooseIsoOS_relVBF.Hist('WJets').Integral() * TightIsoOS_relVBF.Hist('WJets').Integral() / LooseIsoOS_relVBF.Hist('WJets').Integral() 
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScaleSS  = scaleFromMuTau * LooseIsoSS_VBF.Hist('WJets').Integral() / LooseIsoSS_relVBF.Hist('WJets').Integral() * TightIsoSS_relVBF.Hist('WJets').Integral() / LooseIsoSS_relVBF.Hist('WJets').Integral() 
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScale    = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScaleSS  = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScale    = scaleFromMuTau * TightIsoOS.Hist('WJets').Integral() / LooseIsoOS.Hist('WJets').Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScaleSS  = scaleFromMuTau * TightIsoSS.Hist('WJets').Integral() / LooseIsoSS.Hist('WJets').Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScale    = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              WJetsScaleSS  = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist("WJets").Scale(WJetsScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoSS.Hist('WJets').Scale(WJetsScaleSS)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:        qcdshape.Scale(QCDScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              DYJetsScale = TightIsoOS.Hist(dy).Integral() / TightIsoOS_relVBF.Hist(dy).Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              DYJetsScale = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:            TightIsoOS.Hist(dy).Scale(DYJetsScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              DYJetsScale = TightIsoOS.Hist(dy).Integral() / LooseIsoOS.Hist(dy).Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              DYJetsScale = 1.e-7 / LooseIsoOS.Hist(dy).Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:            TightIsoOS.Hist(dy).Scale(DYJetsScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              VVJetsScale = TightIsoOS.Hist(vv).Integral() / TightIsoOS_relVBF.Hist(vv).Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              VVJetsScale = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:            TightIsoOS.Hist(vv).Scale(VVJetsScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              TTJetsScale = TightIsoOS.Hist(tt).Integral() / TightIsoOS_relVBF.Hist(tt).Integral()
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              TTJetsScale = 1.e-7
+proto/plotter/plot_H2TauTauDataMC_diTau.py:            TightIsoOS.Hist(tt).Scale(TTJetsScale)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              h.Scale(1./selCompsDataMass[mIndex][comp_name].xSection)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:              h.Scale(selCompsDataMass[mIndex][comp_name].xSection)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist(str('HiggsSUSYBB'    +str(mIndex))).Scale(5)#10*18.4*3.10879477334919284e+04*1.19457997381687164e-01/999408)  
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist(str('HiggsSUSYGluGlu'+str(mIndex))).Scale(5)#10*18.4*3.39277529716491699e+03*1.19457997381687164e-01/985855)  
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist(str('HiggsGGH'+str(mIndex))).Scale(5)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist(str('HiggsVBF'+str(mIndex))).Scale(5)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:          TightIsoOS.Hist(str('HiggsVH' +str(mIndex))).Scale(5)
+proto/plotter/plot_H2TauTauDataMC_diTau.py:            TightIsoOS.Hist(h).Scale(scales[h][0])
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:    wjshape.Scale( osign.Hist('WJets').Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:    qcd.Scale(qcdyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:##     ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:    qcdOS.Scale( 1.11 )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:    qcdOS.Scale( factor_QCD_nonIsoToIso() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:##     wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose.py:    zjshape.Scale(zjyield)
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDCERN.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS, vbf_qcd_yield,
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDCERN.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDCERN.py:    wjshape.Scale( osign.Hist('WJets').Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDCERN.py:    qcd_shape.Scale( vbf_qcd_yield/qcd_shape.Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    # osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    #    osign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    osign.Hist('WJets').Scale(w_yield)
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:        nshape.Scale( osign.Hist(compName).Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    zlshape.Scale( vbf_zl_yield / zlshape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    zjshape.Scale( vbf_zj_yield / zjshape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    zttshape.Scale( osign.Hist('Ztt').Integral() / zttshape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_Colin.py:    qcd_shape.Scale( vbf_qcd_yield/qcd_shape.Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:    qcd.Scale(qcdyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:    qcdOS.Scale( 1.11 )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:    qcdOS.Scale( factor_QCD_nonIsoToIso() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:    wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Swanson.py:    zjshape.Scale(zjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:    qcd.Scale(qcdyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:##     ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:    qcdOS.Scale( 1.11 )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:    qcdOS.Scale( factor_QCD_nonIsoToIso() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:    wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_Jose.py:    zjshape.Scale(zjyield)
+proto/plotter/plotmod.py:        qcdOS.Scale( qcd_yield / qcdOS.Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose_QCDJosh.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS, vbf_qcd_yield,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose_QCDJosh.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose_QCDJosh.py:    wjshape.Scale( osign.Hist('WJets').Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3JetsJose_QCDJosh.py:    qcd_shape.Scale( vbf_qcd_yield/qcd_shape.Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_1.py:##     wjshape.Scale( wjyield * effnum / float(effdenom))
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_1.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_1.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_1.py:    ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_1.py:    wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_1.py:    zjshape.Scale(zjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:    ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:    qcdOS.Scale( 1.11 )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:    qcdOS.Scale( factor_QCD_nonIsoToIso() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:    wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD_goodA.py:    zjshape.Scale(zjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:    wjshape.Scale( osign.Hist('WJets').Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:    qcd.Scale(qcdyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:##     ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:    qcdOS.Scale( 1.11 )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:    qcdOS.Scale( factor_QCD_nonIsoToIso() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:##     wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_W3Jets.py:    zjshape.Scale(zjyield)
+proto/plotter/plot_H2TauTauDataMC_TauEle_WJets.py:    FULL_mt_ss.Hist('WJets').Scale( fw_ss )
+proto/plotter/plot_H2TauTauDataMC_TauEle_WJets.py:    FULL_mt_os.Hist('WJets').Scale( fw_os )
+proto/plotter/plot_WJets.py:    hN.Scale(1/hN.GetEntries())
+proto/plotter/plot_WJets.py:    hD.Scale(1/hD.GetEntries())
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    # osign.Hist(EWK).Scale( wJetScaleOS )
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    osign.Hist(EWK).Scale(wJetYieldOS)    
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    # ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    ssign.Hist(EWK).Scale(wJetYieldSS)    
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    # ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    qcd_shape.Scale(qcd_yield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:    # qcd_shape.Scale( qcd_yield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1_official.py:        osQCD.Hist('QCD').Scale( 1618. / 1860.)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    # osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    #    osign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    osign.Hist('WJets').Scale(w_yield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:        nshape.Scale( osign.Hist(compName).Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    zlshape.Scale( vbf_zl_yield / zlshape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    zjshape.Scale( vbf_zj_yield / zjshape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    zttshape.Scale( osign.Hist('Ztt').Integral() / zttshape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF.py:    qcd_shape.Scale( vbf_qcd_yield/qcd_shape.Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:def makePlot( var, anaDir, selComps, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:    osign.Hist(EWK).Scale( wJetScaleOS )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        osign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:    ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        ssign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_ss  ) 
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        qcd_shape.Scale(qcd_yield)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        osQ.Hist ('HiggsVBF125').Scale (scaleFactor)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        osQ.Hist ('HiggsGGH125').Scale (scaleFactor)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        osQ.Hist ('HiggsVH125').Scale  (scaleFactor)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        ssQ.Hist ('HiggsVBF125').Scale (scaleFactor)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        ssQ.Hist ('HiggsGGH125').Scale (scaleFactor)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive.py:        ssQ.Hist ('HiggsVH125').Scale  (scaleFactor)
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_TauFake.py:def fakePlots( opt, var, anaDir, selComps, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_TauFake.py:                                           wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_TauFake.py:                                                        wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauEle_Inclusive_TauFake.py:                                                        wJetScaleSS, wJetScaleOS,
+proto/plotter/cuts_diTau.py:tauScale   = '0.03'
+proto/plotter/cuts_diTau.py:shiftedMet = 'sqrt(pow(mex+'+tauScale+'*l1Px+'+tauScale+'*l2Px,2)+pow(mey+'+tauScale+'*l1Py+'+tauScale+'*l2Py,2))' 
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive_TauFake.py:def fakePlots( opt, var, anaDir, selComps, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive_TauFake.py:                                           wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive_TauFake.py:                                                        wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive_TauFake.py:                                                        wJetScaleSS, wJetScaleOS,
+proto/plotter/massShape.py:    h.Scale(1/h.Integral())
+proto/plotter/DYEstimate_diTau.py:def embeddedScaleFactor(anaDir, selCompsNoSignal, weightsNoSignal, selCompsDataMass, weightsDataMass, weight, prong, trigMatch=True, susy=False):
+proto/plotter/DYEstimate_diTau.py:    embeddedScaleFactor = inclusiveForEmbeddedNormalizationDY.Hist("DYJets").weighted.Integral(0,35)/embeddedHist.weighted.Integral(0,35)
+proto/plotter/DYEstimate_diTau.py:    print "embeddedScaleFactor", embeddedScaleFactor
+proto/plotter/DYEstimate_diTau.py:    embeddedHist.Scale(embeddedScaleFactor)
+proto/plotter/DYEstimate_diTau.py:	     comp.embedFactor = embeddedScaleFactor
+proto/plotter/DYEstimate_diTau.py:	     comp.embedFactor = embeddedScaleFactor
+proto/plotter/DYEstimate_diTau.py:def zeeScaleFactor(anaDir, selCompsNoSignal, weightsNoSignal, selCompsDataMass, weightsDataMass, weight, embed, susy=False):
+proto/plotter/DYEstimate_diTau.py:    zeeScaleFactor = inclusiveForEmbeddedNormalizationZeeBB.Hist("Data").weighted.Integral()/ \
+proto/plotter/DYEstimate_diTau.py:    #zeeScaleFactor = 1.
+proto/plotter/DYEstimate_diTau.py:    print "zeeScaleFactor", zeeScaleFactor, "+-", math.sqrt(pow(0.2,2)+pow(0.2,2))*zeeScaleFactor
+proto/plotter/plot_H2TauTauDataMC_TauMu_MC.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        shape.Scale( osign.Hist(compName).Integral() / shape.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    wJetScaleSS, wJetScaleOS, w_mt_ratio_ss, w_mt_ratio_os, w_mt_ratio = wInfo
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    osign.Hist(EWK).Scale( wJetScaleOS )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    print 'USING wJetScaleOS', wJetScaleOS
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        osign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    ssign.Hist(EWK).Scale( wJetScaleSS )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    #         ssign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_ss  )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        osQCD.Hist('QCD').Scale(qcd_cat_eff*incQCDYield/osQCD.Hist('QCD').Integral())
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        qcd_shape.Scale(qcd_yield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        # qcd_shape.Scale( qcd_yield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:    # Scale QCD yield in first three bins by factor 1.1 in one-jet categories unless tau iso is relaxed
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        osQCD.Hist('Ztt_ZL').Scale(zttYieldVBFloose/zttYield2Jet * zlYield2Jet/zlYieldVBFloose)
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        osQCD.Hist('Ztt').Scale(0.985)
+proto/plotter/plot_H2TauTauDataMC_TauMu_All.py:        # osQCD.Hist('TTJets').Scale(scaleTTNew/scaleTT)
+proto/plotter/vbfMvaEff.py:    h.Scale(1/h.Integral())
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    ssQCD, osQCD = getQCD_VBF( ssign, osign, 'Data', var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:def getQCD_VBF( plotSS, plotOS, dataName, var, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    ssignrel.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    qcdOS.Scale( qcdyield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    # qcdOS.Scale( 1.11 )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    # qcdOS.Scale( factor_QCD_nonIsoToIso() )
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    wjshape.Scale(wjyield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_VBF_QCD.py:    zjshape.Scale(zjyield)
+proto/plotter/prepareComponents.py:from CMGTools.H2TauTau.proto.plotter.embed import embedScaleFactor
+proto/plotter/prepareComponents.py:        eh, zh, embedFactor = embedScaleFactor(newSelComps, channel)
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    # osign.Hist(EWK).Scale( wJetScaleOS )
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    osign.Hist(EWK).Scale(wJetYieldOS)    
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    # ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    ssign.Hist(EWK).Scale(wJetYieldSS)    
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    # ssign.Hist(EWK).Scale( wJetScaleSS ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    qcd_shape.Scale(qcd_yield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:    # qcd_shape.Scale( qcd_yield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_J1.py:        osQCD.Hist('QCD').Scale( 1618. / 1860.)
+proto/plotter/embed.py:def embedScaleFactor(selComps, channel='TauMu'):
+proto/plotter/embed.py:        plot.Hist(newName).Scale( scaleFactor ) 
+proto/plotter/H2TauTauDataMC.py:            self.Hist(newName).Scale( embedFactor * self.weights['Ztt'].GetWeight() ) 
+proto/plotter/H2TauTauDataMC.py:            self.Hist('Ztt_TL').Scale(0.) # FIXME: need better solution
+proto/plotter/plotmod.py~:    qcdOS.Scale( qcd_yield / qcdOS.Integral() )
+proto/plotter/H2TauTauDataMC_diTau.py:            self.Hist(newName).Scale( embedFactor ) 
+proto/plotter/QCDEstimation_diTau.py:      #QCDScale=tightLoosem*osSSm
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=tightOSLooseSSm
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseSS,QCDScale
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=osSSm*tightLoose
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseSS,QCDScale
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=tightLoose
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseOS, QCDScale, QCDlooseSS, QCDtightSS, tightLoose, tightLooseErr/tightLoose
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=tightLoose
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseOS, QCDScale, QCDlooseSS, QCDtightSS
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=osSSm*tightLoose
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseSS,QCDScale
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=tightLoose
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseOS,QCDScale
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=OSSS
+proto/plotter/QCDEstimation_diTau.py:      return QCDtightSS,QCDScale
+proto/plotter/QCDEstimation_diTau.py:      QCDScale = OSoverSS
+proto/plotter/QCDEstimation_diTau.py:      return QCDtightSS, QCDScale, QCDlooseSS, QCDtightSS
+proto/plotter/QCDEstimation_diTau.py:      QCDScale=tightLoose*OSSS
+proto/plotter/QCDEstimation_diTau.py:      return QCDlooseSS, QCDScale, QCDlooseOS, QCDtightSS, tightLooseErr/tightLoose
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:    wjshape.Scale( wjyield )
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:def makePlot( var, anaDir, selComps, weights, wJetScaleSS, wJetScaleOS,
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:    osign.Hist(EWK).Scale( wJetScaleOS ) # * w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:        osign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_os )
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:    ssign.Hist(EWK).Scale( wJetScaleSS )
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:        ssign.Hist(EWK).Scale( w_mt_ratio / w_mt_ratio_ss  ) 
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:        qcd_shape.Scale(qcd_yield)
+proto/plotter/plot_H2TauTauDataMC_TauMu_Inclusive.py:        # qcd_shape.Scale( qcd_yield )
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDLorenzo.py:def makePlot( var, weights, wJetScaleSS, wJetScaleOS, vbf_qcd_yield,
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDLorenzo.py:    osign.Hist(EWK).Scale( wJetScaleOS ) 
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDLorenzo.py:    wjshape.Scale( osign.Hist('WJets').Integral() )
+proto/plotter/plot_H2TauTauDataMC_TauEle_VBF_W3JetsJose_QCDLorenzo.py:    qcd_shape.Scale( vbf_qcd_yield/qcd_shape.Integral() )
+proto/plotter/H2TauTauDataMC.py~:            self.Hist(newName).Scale( embedFactor * self.weights['Ztt'].GetWeight() ) 
+proto/plotter/H2TauTauDataMC.py~:            self.Hist('Ztt_TL').Scale(0.) # FIXME: need better solution
+proto/samples/tauEle_Up_ColinDec6.py:pat = '%TAUELE_MetCorInTauScale_Up_Colin_Dec6'
+proto/samples/tauEle_Down_ColinDec6.py:pat = '%TAUELE_MetCorInTauScale_Down_Colin_Dec6'
+proto/samples/tauEle_Sync_Colin.py:# pat = '%TAUELE_MetCorInTauScale_Up_Colin_Dec6'
+proto/analysis_dimus_cfg.py:    mc.jetScale = mc_jet_scale
+proto/H2TauTauDataMC.py:            self.Hist(newName).Scale( dyYield / embedYield ) 
+proto/analyzers/H2TauTauSyncTree.py:            fill( tr, 'jptunc_1', j1.uncOnFourVectorScale())
+proto/analyzers/H2TauTauSyncTree.py:            fill( tr, 'jptunc_2', j2.uncOnFourVectorScale())
+proto/analyzers/VBFAnalyzer.py:            if self.cfg_comp.isMC and hasattr( self.cfg_comp, 'jetScale'):
+proto/analyzers/VBFAnalyzer.py:                scale = random.gauss( self.cfg_comp.jetScale,
+proto/analyzers/VBFAnalyzer.py:                totalScale = (pt + deltaPt) / pt
+proto/analyzers/VBFAnalyzer.py:                if totalScale < 0.:
+proto/analyzers/VBFAnalyzer.py:                    totalScale = 0.
+proto/analyzers/VBFAnalyzer.py:                jet.scaleEnergy(totalScale)
+proto/analyzers/H2TauTauSyncTreeTauTau.py:            fill( tr, 'jptunc_1', j1.uncOnFourVectorScale())
+proto/analyzers/H2TauTauSyncTreeTauTau.py:            fill( tr, 'jptunc_2', j2.uncOnFourVectorScale())
+proto/analyzers/TauTauAnalyzer.py:        self.shiftEnergyScale(event)
+proto/analyzers/H2TauTauSyncTreeMuEle.py:            fill( tr, 'jptunc_1', j1.uncOnFourVectorScale())
+proto/analyzers/H2TauTauSyncTreeMuEle.py:            fill( tr, 'jptunc_2', j2.uncOnFourVectorScale())
+proto/analysis_taumu_cfg.py:    mc.jetScale = mc_jet_scale
+proto/old_cfg.py:    mc.jetScale = mc_jet_scale
+tools/joseFlatNtpSample_cfi.py:    recoiliScale = cms.double(0.),

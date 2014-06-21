@@ -216,3 +216,15 @@ V5.extend(
     'drop recoGenJets_*_*_*'
     ]
     )
+
+
+V7 = [
+    'drop *',
+    'keep *_EventAuxilary_*_*',
+    'keep *_offlinePrimaryVertices_*_*',
+    'drop *_offlinePrimaryVerticesWithBS_*_*',
+#    'keep recoCaloTau*_*_*_*',
+    'keep recoPFTau*_*_*_*',
+#    'keep recoGenJets_*_*_*'
+    ]
+

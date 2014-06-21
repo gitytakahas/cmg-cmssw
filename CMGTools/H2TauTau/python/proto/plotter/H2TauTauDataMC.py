@@ -165,7 +165,7 @@ class H2TauTauDataMC( AnalysisDataMC ):
 #                import pdb; pdb.set_trace()
                 self._BuildHistogram(tfile, comp, compName, self.varName,
                                      self.cut + '', layer)
-                
+               
                 fakeCompName = 'HiggsZH125'
                 self._BuildHistogram(tfile, comp, fakeCompName, self.varName,
                                      self.cut + ' && genPattern==0', layer)
@@ -208,6 +208,7 @@ class H2TauTauDataMC( AnalysisDataMC ):
                 
 
     def setupEmbedding(self, doEmbedding ):
+ #       import pdb; pdb.set_trace()
         name = 'Ztt'
         try:
             dyHist = self.Hist(name)

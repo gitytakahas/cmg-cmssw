@@ -87,6 +87,7 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         if hasattr(event, 'diLepton')==False:
             return False
 
+#        import pdb; pdb.set_trace()
         # retrieve dilepton"s" for the further scrutinizations...
         event.diLeptons = self.buildDiLeptons( self.handles['diLeptons'].product(), event )
 

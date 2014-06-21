@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from CMGTools.H2TauTau.objects.gen_cff import *
 from CMGTools.H2TauTau.objects.tauMuObjectsMVAMET_cff import *
 from CMGTools.H2TauTau.objects.tauEleObjectsMVAMET_cff import *
+from CMGTools.H2TauTau.objects.muEleObjectsMVAMET_cff import *
 from CMGTools.H2TauTau.objects.diTauObjectsMVAMET_cff import *
 from CMGTools.H2TauTau.skims.skim_cff import *
 
@@ -25,6 +26,14 @@ tauElePath = cms.Path(
     genSequence + 
     tauEleSequence + 
     tauEleFullSelSkimSequence     
+    )
+
+
+# full selection
+muElePath = cms.Path(
+    genSequence + 
+    muEleSequence + 
+    muEleFullSelSkimSequence     
     )
 
 

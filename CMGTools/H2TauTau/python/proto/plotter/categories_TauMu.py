@@ -8,6 +8,7 @@ from CMGTools.Common.Tools.cmsswRelease import cmsswIs44X,cmsswIs52X
 pt1 = 30
 pt2 = 17 # 2011
 if cmsswIs52X():
+#    pt2 = 18 # 2012, check that
     pt2 = 20 # 2012, check that
 
 #inc_sig_tau = Cut('l1_looseMvaIso>0.5 && (l1_EOverp>0.2 || l1_decayMode!=0) && l1_againstMuonTight>0.5 && l1_againstElectronLoose>0.5 && l1_dxy<0.045 && l1_dz<0.2 && l1_pt>{pt1}'.format(pt1=pt1))

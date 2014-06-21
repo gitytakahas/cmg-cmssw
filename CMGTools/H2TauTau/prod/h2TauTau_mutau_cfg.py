@@ -58,7 +58,7 @@ dataset_user = 'cmgtools'
 
 # /GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_14_0
 
-#dataset_user = 'cmgtools_group'
+dataset_user = 'cmgtools_group'
 #dataset_name = '/WH_ZH_TTH_HToTauTau_M-125_8TeV-pythia6-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_14_0'
 
 #dataset_name = '/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_PFembedded_trans1_tau116_ptmu1_16had1_18_v1-5ef1c0fd428eb740081f19333520fdc8/USER/V5_B/PAT_CMG_V5_16_0'
@@ -66,11 +66,17 @@ dataset_name = '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X
 
 #dataset_name = '/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_16_0'
 
-dataset_user = 'steggema'
+#dataset_user = 'steggema'
 # dataset_name = '/Radion_hh_tautaubb_LR3tevLHC8_glufusion_MR300_GENSIM_19082013/caber-Radion_hh_tautaubb_LR3tevLHC8_glufusion_MR300_20082013_AODSIM-c8f8ed334db8a7d6f56c62266b1dfa5b/USER/PAT_CMG_V5_16_0'
-dataset_name = '/AbelianZprime_hh_TauTauBB_LHC8_M700_GENSIM_29082012/caber-Radion_hh_TauTauBB_LHC8_M700_31082013_AODSIM-c8f8ed334db8a7d6f56c62266b1dfa5b/USER/PAT_CMG_V5_16_0'
+#dataset_name = '/AbelianZprime_hh_TauTauBB_LHC8_M700_GENSIM_29082012/caber-Radion_hh_TauTauBB_LHC8_M700_31082013_AODSIM-c8f8ed334db8a7d6f56c62266b1dfa5b/USER/PAT_CMG_V5_16_0'
 
 dataset_files = 'cmgTuple.*root'
+dataset_user = 'htautau_group'
+#dataset_user = 'ytakahas'
+dataset_name = '/DoubleMu/StoreResults-Run2012A_22Jan2013_v1_PFembedded_trans1_tau123_pttau1_18tau2_8_v1-5ef1c0fd428eb740081f19333520fdc8/USER/V5_B/PAT_CMG_V5_18_0'
+#dataset_name = '/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PRE_PAT_CMG_5_18_0'
+dataset_files = '.*root'
+
 
 # creating the source
 from CMGTools.Production.datasetToSource import *

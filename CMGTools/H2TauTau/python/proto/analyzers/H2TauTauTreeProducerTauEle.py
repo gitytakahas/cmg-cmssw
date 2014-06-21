@@ -48,6 +48,47 @@ class H2TauTauTreeProducerTauEle( TreeAnalyzerNumpy ):
        var( tr, 'NJetWeight')
        var( tr, 'zllWeight')
 
+       var( tr, 'tauTriggerWeight')
+       var( tr, 'tauTriggerEffData')
+       var( tr, 'tauTriggerEffMC')
+
+       var( tr, 'tauTriggerNewWeight')
+       var( tr, 'tauTriggerNewWeight_18')
+       var( tr, 'tauTriggerNewWeight_20')
+       var( tr, 'tauTriggerNewWeight_21')
+       var( tr, 'tauTriggerNewWeight_24')
+       var( tr, 'tauTriggerNewWeight_27')
+       var( tr, 'tauTriggerNewWeight_30')
+       var( tr, 'tauTriggerNewWeight_33')
+       var( tr, 'tauTriggerNewWeight_36')
+       var( tr, 'tauTriggerNewWeight_39')
+       var( tr, 'tauTriggerNewWeight_42')
+
+       var( tr, 'tauTriggerNew21Weight')
+       var( tr, 'tauTriggerNew21Weight_18')
+       var( tr, 'tauTriggerNew21Weight_20')
+       var( tr, 'tauTriggerNew21Weight_21')
+       var( tr, 'tauTriggerNew21Weight_24')
+       var( tr, 'tauTriggerNew21Weight_27')
+       var( tr, 'tauTriggerNew21Weight_30')
+       var( tr, 'tauTriggerNew21Weight_33')
+       var( tr, 'tauTriggerNew21Weight_36')
+       var( tr, 'tauTriggerNew21Weight_39')
+       var( tr, 'tauTriggerNew21Weight_42')
+
+
+       var( tr, 'tauTriggerOldWeight')
+       var( tr, 'tauTriggerOldWeight_18')
+       var( tr, 'tauTriggerOldWeight_20')
+       var( tr, 'tauTriggerOldWeight_21')
+       var( tr, 'tauTriggerOldWeight_24')
+       var( tr, 'tauTriggerOldWeight_27')
+       var( tr, 'tauTriggerOldWeight_30')
+       var( tr, 'tauTriggerOldWeight_33')
+       var( tr, 'tauTriggerOldWeight_36')
+       var( tr, 'tauTriggerOldWeight_39')
+       var( tr, 'tauTriggerOldWeight_42')
+
        var( tr, 'tauFakeRateWeight')
        var( tr, 'tauFakeRateWeightUp')
        var( tr, 'tauFakeRateWeightDown')
@@ -93,6 +134,169 @@ class H2TauTauTreeProducerTauEle( TreeAnalyzerNumpy ):
        # import pdb; pdb.set_trace()
        pfmet = self.handles['pfmetraw'].product()[0]
        fill(tr, 'pfmet', pfmet.pt())
+
+       fill( tr, 'tauTriggerWeight', event.diLepton.leg1().triggerWeight)
+       fill( tr, 'tauTriggerEffData', event.diLepton.leg1().triggerEffData)
+       fill( tr, 'tauTriggerEffMC', event.diLepton.leg1().triggerEffMC)
+       fill( tr, 'tauTriggerNewWeight', event.tauTriggerNewWeight)
+       fill( tr, 'tauTriggerNew21Weight', event.tauTriggerNew21Weight)
+       fill( tr, 'tauTriggerOldWeight', event.tauTriggerOldWeight)
+
+       tweight = event.diLepton.leg1().triggerEffMC
+       
+       if event.diLepton.leg2().pt()>18:
+           fill( tr, 'tauTriggerNewWeight_18', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_18', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>20:
+           fill( tr, 'tauTriggerNewWeight_20', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_20', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>21:
+           fill( tr, 'tauTriggerNewWeight_21', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_21', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>24:
+           fill( tr, 'tauTriggerNewWeight_24', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_24', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>27:
+           fill( tr, 'tauTriggerNewWeight_27', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_27', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>30:
+           fill( tr, 'tauTriggerNewWeight_30', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_30', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>33:
+           fill( tr, 'tauTriggerNewWeight_33', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_33', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>36:
+           fill( tr, 'tauTriggerNewWeight_36', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_36', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>39:
+           fill( tr, 'tauTriggerNewWeight_39', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_39', event.tauTriggerNewWeight)
+
+       if event.diLepton.leg2().pt()>42:
+           fill( tr, 'tauTriggerNewWeight_42', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNewWeight_42', event.tauTriggerNewWeight)
+
+
+       if event.diLepton.leg2().pt()>18:
+           fill( tr, 'tauTriggerNew21Weight_18', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_18', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>20:
+           fill( tr, 'tauTriggerNew21Weight_20', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_20', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>21:
+           fill( tr, 'tauTriggerNew21Weight_21', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_21', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>24:
+           fill( tr, 'tauTriggerNew21Weight_24', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_24', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>27:
+           fill( tr, 'tauTriggerNew21Weight_27', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_27', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>30:
+           fill( tr, 'tauTriggerNew21Weight_30', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_30', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>33:
+           fill( tr, 'tauTriggerNew21Weight_33', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_33', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>36:
+           fill( tr, 'tauTriggerNew21Weight_36', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_36', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>39:
+           fill( tr, 'tauTriggerNew21Weight_39', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_39', event.tauTriggerNew21Weight)
+
+       if event.diLepton.leg2().pt()>42:
+           fill( tr, 'tauTriggerNew21Weight_42', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerNew21Weight_42', event.tauTriggerNew21Weight)
+
+
+
+
+       if event.diLepton.leg2().pt()>18:
+           fill( tr, 'tauTriggerOldWeight_18', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_18', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>20:
+           fill( tr, 'tauTriggerOldWeight_20', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_20', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>21:
+           fill( tr, 'tauTriggerOldWeight_21', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_21', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>24:
+           fill( tr, 'tauTriggerOldWeight_24', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_24', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>27:
+           fill( tr, 'tauTriggerOldWeight_27', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_27', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>30:
+           fill( tr, 'tauTriggerOldWeight_30', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_30', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>33:
+           fill( tr, 'tauTriggerOldWeight_33', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_33', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>36:
+           fill( tr, 'tauTriggerOldWeight_36', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_36', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>39:
+           fill( tr, 'tauTriggerOldWeight_39', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_39', event.tauTriggerOldWeight)
+
+       if event.diLepton.leg2().pt()>42:
+           fill( tr, 'tauTriggerOldWeight_42', 1./tweight)
+       else:
+           fill( tr, 'tauTriggerOldWeight_42', event.tauTriggerOldWeight)
 
        
        fillParticle(tr, 'diTau', event.diLepton)

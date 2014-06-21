@@ -41,7 +41,14 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
 
        bookVBF( tr, 'VBF' )
        #bookJet(tr, 'cjet') # leading central veto jet from VBF
-       
+
+       var( tr, 'l1_hcaliso')
+       var( tr, 'l1_ecaliso')
+       var( tr, 'l1_trkiso')
+       var( tr, 'l2_hcaliso')
+       var( tr, 'l2_ecaliso')
+       var( tr, 'l2_trkiso')
+                     
        var( tr, 'weight')
        var( tr, 'vertexWeight')
        var( tr, 'embedWeight')
@@ -132,6 +139,16 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
            fillVBF( tr, 'VBF', event.vbf )
            #if len(event.vbf.centralJets) > 0:
            #    fillJet(tr, 'cjet', event.vbf.centralJets[0])
+
+
+       # dedicated for the fake estimation 
+       fill( tr, 'l1_hcaliso', event.diLepton.leg1().sourcePtr().hcalIso())
+       fill( tr, 'l1_ecaliso', event.diLepton.leg1().sourcePtr().ecalIso())
+       fill( tr, 'l1_trkiso', event.diLepton.leg1().sourcePtr().userIsolation(7))
+       fill( tr, 'l2_hcaliso', event.diLepton.leg2().sourcePtr().hcalIso())
+       fill( tr, 'l2_ecaliso', event.diLepton.leg2().sourcePtr().ecalIso())
+       fill( tr, 'l2_trkiso', event.diLepton.leg2().sourcePtr().userIsolation(7))
+
 
        fill(tr, 'weight', event.eventWeight)
 #       fill(tr, 'embedWeight', event.embedWeight)
