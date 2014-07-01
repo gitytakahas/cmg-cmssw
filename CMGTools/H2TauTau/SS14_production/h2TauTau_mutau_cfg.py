@@ -159,7 +159,7 @@ process.tauMuPath.remove(process.cmgTauMuCorSVFitPreSel)
 process.tauMuPath.remove(process.cmgTauMuCorSVFitFullSel)
 process.tauMuPath.remove(process.mvaMETTauMu)
 
-process.tauMuPath.remove(process.cmgTauMu)
+#process.tauMuPath.remove(process.cmgTauMu)
 process.tauMuPath.remove(process.cmgTauMuPreSel)
 process.tauMuPath.remove(process.goodPVFilter)
 process.tauMuPath.remove(process.mvaMETTauMu)
