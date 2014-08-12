@@ -23,15 +23,27 @@ def fillParticle( tree, pName, particle ):
     fill(tree, '{pName}_m'.format(pName=pName), particle.mass() )
     fill(tree, '{pName}_charge'.format(pName=pName), particle.charge() )
 
+def fillPseudoParticle( tree, pName, particle ):
+    fill(tree, '{pName}_pt'.format(pName=pName), particle.pt() )
+    fill(tree, '{pName}_eta'.format(pName=pName), particle.eta() )
+    fill(tree, '{pName}_phi'.format(pName=pName), particle.phi() )
+    fill(tree, '{pName}_m'.format(pName=pName), particle.mass() )
+    fill(tree, '{pName}_charge'.format(pName=pName), -1. )
+
 def bookGenParticle(tree, pName):
     bookParticle(tree, pName)
-    var(tree, '{pName}_mass'.format(pName=pName))
+#    var(tree, '{pName}_mass'.format(pName=pName))
     var(tree, '{pName}_pdgId'.format(pName=pName))
     
 def fillGenParticle( tree, pName, particle ):
     fillParticle( tree, pName, particle )
-    fill(tree, '{pName}_mass'.format(pName=pName), particle.mass() )
+#    fill(tree, '{pName}_mass'.format(pName=pName), particle.mass() )
     fill(tree, '{pName}_pdgId'.format(pName=pName), particle.pdgId() )
+
+def fillPseudoGenParticle( tree, pName, particle ):
+    fillPseudoParticle( tree, pName, particle )
+#    fill(tree, '{pName}_mass'.format(pName=pName), particle.mass() )
+    fill(tree, '{pName}_pdgId'.format(pName=pName), -1 )
 
 # di-tau
 
@@ -253,6 +265,7 @@ def bookJet( tree, pName ):
     var(tree, '{pName}_btagMVA'.format(pName=pName))
     var(tree, '{pName}_area'.format(pName=pName))
     var(tree, '{pName}_genJetPt'.format(pName=pName))
+    var(tree, '{pName}_partonFlavour'.format(pName=pName))
 
 def fillJet( tree, pName, jet ):
     fillParticle(tree, pName, jet )
@@ -263,8 +276,10 @@ def fillJet( tree, pName, jet ):
     fill(tree, '{pName}_looseJetId'.format(pName=pName), jet.looseJetId())
     fill(tree, '{pName}_btagMVA'.format(pName=pName), jet.btagMVA)
     fill(tree, '{pName}_area'.format(pName=pName), jet.jetArea())
-    if hasattr(jet, 'genJet') and jet.genJet:
-        fill(tree, '{pName}_genJetPt'.format(pName=pName), jet.genJet.pt())
+
+    if hasattr(jet, 'matchedGenJet') and jet.matchedGenJet:
+        fill(tree, '{pName}_genJetPt'.format(pName=pName), jet.matchedGenJet.pt())
+    fill(tree, '{pName}_partonFlavour'.format(pName=pName), jet.partonFlavour())
 
 # vbf
 
