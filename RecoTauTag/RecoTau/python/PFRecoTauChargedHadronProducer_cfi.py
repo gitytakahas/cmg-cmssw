@@ -5,8 +5,8 @@ import RecoTauTag.RecoTau.PFRecoTauChargedHadronQualityPlugins_cfi as ranking
 
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
-ak5PFJetsRecoTauChargedHadrons = cms.EDProducer("PFRecoTauChargedHadronProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+ak5PFJetsCHSRecoTauChargedHadrons = cms.EDProducer("PFRecoTauChargedHadronProducer",
+    jetSrc = cms.InputTag("ak5PFJetsCHS"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     outputSelection = cms.string('pt > %1.1f' % PFTauQualityCuts.signalQualityCuts.minTrackPt.value()), # CV: apply minimum Pt cut as sanity check
     builders = cms.VPSet(

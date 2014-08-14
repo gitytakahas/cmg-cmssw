@@ -116,10 +116,21 @@ class PFTau : public BaseTau {
     float isolationPFChargedHadrCandsPtSum() const;
     void setisolationPFChargedHadrCandsPtSum(const float&);
 
+    /// Sum of neutral hadron candidate PT in isolation cone; returns NaN
+    /// if isolation region is undefined.
+    float isolationPFNeutralHadrCandsPtSum() const;
+    void setisolationPFNeutralHadrCandsPtSum(const float&);
+
     /// Sum of gamma candidate PT in isolation cone; returns NaN
     /// if isolation region is undefined.
     float isolationPFGammaCandsEtSum() const;
     void setisolationPFGammaCandsEtSum(const float&);
+
+    /// Sum of PU candidate PT in isolation cone; returns NaN
+    /// if isolation region is undefined.
+    float isolationPFPUCandsEtSum() const;
+    void setisolationPFPUCandsEtSum(const float&);
+
 
     /// Et of the highest Et HCAL PFCluster
     float maximumHCALPFClusterEt() const;
@@ -207,6 +218,8 @@ class PFTau : public BaseTau {
     // Isolation variables
     float isolationPFChargedHadrCandsPtSum_;
     float isolationPFGammaCandsEtSum_;
+    float isolationPFNeutralHadrCandsPtSum_;
+    float isolationPFPUCandsEtSum_;
     float maximumHCALPFClusterEt_;
 
     // Electron rejection variables

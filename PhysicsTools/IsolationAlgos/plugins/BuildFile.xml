@@ -6,4 +6,5 @@
   <use   name="DataFormats/TauReco"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="PhysicsTools/IsolationAlgos"/>
+  <use   name="RecoTauTag/RecoTau"/>
 </library>

@@ -63,6 +63,32 @@ class PFPileUp : public edm::EDProducer {
   /// use the closest z vertex if a track is not in a vertex
   bool   checkClosestZVertex_;
 
+  /// use jets ?
+  bool  useJets_;
+
+  /// jets
+  edm::EDGetTokenT<edm::View<reco::Candidate> >  tokenJets_;
+
+  /// minimum jet Pt
+  double  minJetPt_;
+
+  /// maximum dR to the jet axis
+  double  maxJetDeltaR_;
+
+  /// maximum distance to the jet axis
+  double  maxDistanceToJetAxis_;
+
+  /// use muons ?
+  bool  useMuons_;
+
+  /// minimum muon Pt
+  double  minMuonPt_;
+
+  /// maximum dR to the muon
+  double  maxMuonDeltaR_;
+
+  /// maximum distance to the muon track
+  double  maxDistanceToMuon_;
 };
 
 #endif

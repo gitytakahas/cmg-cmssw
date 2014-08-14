@@ -17,6 +17,8 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+
 class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
 {
  public:
@@ -37,14 +39,15 @@ class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
 
   /// configuration parameters
   edm::EDGetTokenT<reco::PFTauCollection> tauSourceToken_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > candidateSourceToken_;
+  edm::EDGetTokenT<reco::PFCandidateCollection > candidateSourceToken_;
   double maxDxyTrack_;
   double maxDzTrack_;
   double dRmatchPFTau_;
   double dRVetoCone_;
   double dRIsoCone_;
   double dRvetoPFTauSignalConeConstituents_;
-
+  edm::ParameterSet isolationQCuts;
+  std::auto_ptr<reco::tau::RecoTauQualityCuts> qcuts_;
   /// private member function for computing the IsoDeposits
   /// in case of reco::Track as well as in case of reco::Canididate input
   template<typename T>

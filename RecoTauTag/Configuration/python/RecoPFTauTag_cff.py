@@ -19,18 +19,18 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
       RecoTauJetRegionProducer
 recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
-    src = cms.InputTag("ak5PFJets")
+    src = cms.InputTag("ak5PFJetsCHS")
 )
 
 
 
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-         ak5PFJetsLegacyHPSPiZeros
-ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
+         ak5PFJetsCHSLegacyHPSPiZeros
+ak5PFJetsCHSLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJetsCHS")
 # import charged hadrons
 from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
-          ak5PFJetsRecoTauChargedHadrons
+          ak5PFJetsCHSRecoTauChargedHadrons
 
 #-------------------------------------------------------------------------------
 #------------------ Produce combinatoric base taus------------------------------
@@ -42,7 +42,7 @@ from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
         combinatoricRecoTaus
 
-combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
+combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJetsCHS")
 
 
 #-------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import *
 
-combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
+combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsCHSLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
 #------------------ PFTauTagInfo workaround ------------------------------------
@@ -62,7 +62,7 @@ from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import \
 from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
         import ic5PFJetTracksAssociatorAtVertex
 ak5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
-ak5PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
+ak5PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJetsCHS")
 tautagInfoModifer = cms.PSet(
     name = cms.string("TTIworkaround"),
     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
@@ -87,14 +87,12 @@ recoTauCommonSequence = cms.Sequence(
     pfRecoTauTagInfoProducer
 )
 
-
-
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
-    ak5PFJetsLegacyHPSPiZeros *
-    ak5PFJetsRecoTauChargedHadrons *
+    ak5PFJetsCHSLegacyHPSPiZeros *
+    ak5PFJetsCHSRecoTauChargedHadrons *
     combinatoricRecoTaus *
-    produceAndDiscriminateHPSPFTaus
+    produceAndDiscriminateHPSPFTaus 
 )
 
 

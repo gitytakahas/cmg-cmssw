@@ -12,13 +12,15 @@
 PFTauExtractor::PFTauExtractor(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC)
 {
   tauSourceToken_ = iC.consumes<reco::PFTauCollection>(cfg.getParameter<edm::InputTag>("tauSource"));
-  candidateSourceToken_ = iC.mayConsume<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("candidateSource"));
+  candidateSourceToken_ = iC.mayConsume<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("candidateSource"));
   maxDxyTrack_ = cfg.getParameter<double>("Diff_r");
   maxDzTrack_ = cfg.getParameter<double>("Diff_z");
   dRmatchPFTau_ = cfg.getParameter<double>("dRmatchPFTau");
   dRVetoCone_ = cfg.getParameter<double>("DR_Veto");
   dRIsoCone_ = cfg.getParameter<double>("DR_Max");
   dRvetoPFTauSignalConeConstituents_ = cfg.getParameter<double>("dRvetoPFTauSignalConeConstituents");
+  isolationQCuts = cfg.getParameterSet("isolationQualityCuts");
+  qcuts_.reset(new reco::tau::RecoTauQualityCuts(isolationQCuts));
 }
 
 template<typename T>
@@ -47,14 +49,17 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
 
 //--- compute IsoDeposit for matched PFTau
   if ( pfTau_matched != 0 && dR_min < dRmatchPFTau_ ) {
-    edm::Handle<edm::View<reco::Candidate> > candidates;
+    edm::Handle<reco::PFCandidateCollection > candidates;
     evt.getByToken(candidateSourceToken_, candidates);
 
     const reco::Particle::Point& tauVertex = pfTau_matched->vertex();
     double dRsignalCone_max = 0.;
-    for ( edm::View<reco::Candidate>::const_iterator candidate = candidates->begin();
+    for ( reco::PFCandidateCollection::const_iterator candidate = candidates->begin();
 	  candidate != candidates->end(); ++candidate ) {
       double dR = deltaR(candidate->momentum(), pfTau_matched->momentum());
+
+//--- check that candidate passes tau quality requirements:
+      if(!qcuts_->filterCand(*candidate)) continue;
 
 //--- check that candidate is inbetween veto and isolation cone,
 //    and is compatible with originating from the same primary event vertex as the PFTau

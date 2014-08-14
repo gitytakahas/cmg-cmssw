@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauPiZeroBuilderPlugins_cfi as builders
 import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
 
-ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
+ak5PFJetsCHSRecoTauGreedyPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak5PFJetsCHS"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
@@ -16,9 +16,9 @@ ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsRecoTauPiZeros = cms.EDProducer(
+ak5PFJetsCHSRecoTauPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak5PFJetsCHS"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
@@ -33,9 +33,9 @@ ak5PFJetsRecoTauPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
+ak5PFJetsCHSLegacyTaNCPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak5PFJetsCHS"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
@@ -47,9 +47,9 @@ ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
+ak5PFJetsCHSLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak5PFJetsCHS"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 0'),
     builders = cms.VPSet(

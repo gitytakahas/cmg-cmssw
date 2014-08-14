@@ -3,12 +3,15 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 
 using namespace std;
@@ -35,9 +38,63 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
     checkClosestZVertex_ = false;
   }
 
+  if ( iConfig.exists("Jets") )
+  {
+    useJets_
+      = iConfig.getParameter<bool>("useJets");
+
+    tokenJets_
+      = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<InputTag>("Jets"));
+
+    minJetPt_
+      = iConfig.getParameter<double>("minJetPt");
+
+    maxJetDeltaR_
+      = iConfig.getParameter<double>("maxJetDeltaR");
+
+    maxDistanceToJetAxis_
+      = iConfig.getParameter<double>("maxDistanceToJetAxis");
+  }
+  else
+  {
+    useJets_ = false;
+    minJetPt_ = 0.;
+    maxJetDeltaR_ = 999.;
+    maxDistanceToJetAxis_ = 999.;
+  }
+
+  if ( iConfig.exists("useMuons") )
+  {
+    useMuons_
+      = iConfig.getParameter<bool>("useMuons");
+
+    minMuonPt_
+      = iConfig.getParameter<double>("minMuonPt");
+
+    maxMuonDeltaR_
+      = iConfig.getParameter<double>("maxMuonDeltaR");
+
+    maxDistanceToMuon_
+      = iConfig.getParameter<double>("maxDistanceToMuon");
+  }
+  else
+  {
+    useMuons_ = false;
+    minMuonPt_ = 0.;
+    maxMuonDeltaR_ = 999.;
+    maxDistanceToMuon_ = 999.;
+  }
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
+  pileUpAlgo_.setUseJets(useJets_);
+  pileUpAlgo_.setMinJetPt(minJetPt_);
+  pileUpAlgo_.setMaxJetDeltaR(maxJetDeltaR_);
+  pileUpAlgo_.setMaxDistanceToJetAxis(maxDistanceToJetAxis_);
+  pileUpAlgo_.setUseMuons(useMuons_);
+  pileUpAlgo_.setMinMuonPt(minMuonPt_);
+  pileUpAlgo_.setMaxMuonDeltaR(maxMuonDeltaR_);
+  pileUpAlgo_.setMaxDistanceToMuon(maxDistanceToMuon_);
 
   //produces<reco::PFCandidateCollection>();
   produces< PFCollection > ();
@@ -72,6 +129,16 @@ void PFPileUp::produce(Event& iEvent,
     Handle<VertexCollection> vertices;
     iEvent.getByToken( tokenVertices_, vertices);
 
+    // get jets
+    Handle<edm::View<reco::Candidate> > jets;
+    if( useJets_ )
+      iEvent.getByToken( tokenJets_, jets);
+
+    // get TransientTrackBuilder
+    ESHandle<TransientTrackBuilder> builder;
+    if( useJets_ || useMuons_ )
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+
     // get PF Candidates
     Handle<PFCollection> pfCandidates;
     PFCollection const * pfCandidatesRef = 0;
@@ -105,7 +172,7 @@ void PFPileUp::produce(Event& iEvent,
 
 
 
-    pileUpAlgo_.process(*pfCandidatesRef,*vertices);
+    pileUpAlgo_.process(*pfCandidatesRef,*vertices,*jets,*builder);
     pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
 
     // for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
