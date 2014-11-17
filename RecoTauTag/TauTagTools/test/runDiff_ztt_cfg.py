@@ -22,11 +22,9 @@ sEvents=0
 if options.skipEvents:
     sEvents=options.skipEvents
 
-#discName2='LooseCombinedIsolationDBSumPtCorr3Hits'
 discName2='DecayModeFindingNewDMs'
 discriminator2="hpsPFTauDiscriminationBy"+discName2
 
-#discName='LooseCombinedIsolationDBSumPtCorr3Hits'
 discName='DecayModeFindingNewDMs'
 discriminator="hpsPFTauDiscriminationBy"+discName
 
@@ -356,8 +354,8 @@ process.source = cms.Source("PoolSource",
 )
 
 ## Maximal Number of Events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eMax) )
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eMax) )
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 #### included from standard pat template
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
@@ -393,19 +391,22 @@ process.tauDifferenceAnalyzer = cms.EDFilter("RecoTauDifferenceAnalyzer",
                                              disc2 = cms.InputTag(discriminator2, "", "RECO"),
                                              chIso1 = cms.InputTag("hpsPFTauMVA3IsolationChargedIsoPtSum","",procName),
                                              chIso2 = cms.InputTag("hpsPFTauMVA3IsolationChargedIsoPtSum","","RECO"),
+                                             chIso3 = cms.InputTag("hpsPFTauMVA3IsolationChargedIsoPtSum2","",procName),
                                              nIso1 = cms.InputTag("hpsPFTauMVA3IsolationNeutralIsoPtSum","",procName),
                                              nIso2 = cms.InputTag("hpsPFTauMVA3IsolationNeutralIsoPtSum","","RECO"),
+                                             nIso3 = cms.InputTag("hpsPFTauMVA3IsolationNeutralIsoPtSum2","",procName),
                                              PUIso1 = cms.InputTag("hpsPFTauMVA3IsolationPUcorrPtSum","",procName),
                                              PUIso2 = cms.InputTag("hpsPFTauMVA3IsolationPUcorrPtSum","","RECO"),
+                                             PUIso3 = cms.InputTag("hpsPFTauMVA3IsolationPUcorrPtSum2","",procName),
                                              cmbIso1 = cms.InputTag("hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits","",procName),
                                              cmbIso2 = cms.InputTag("hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits","","RECO"),
                                              genSrc = cms.InputTag("genParticles"),
                                              genTauSrc = cms.InputTag("tauGenJets"),
                                              jetSrc = cms.InputTag("ak5PFJets"),
                                              jetSrcCHS = cms.InputTag("ak5PFJetsCHS"),
+                                             muon = cms.InputTag("muons"),
                                              primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
-                                             matchingDistance = cms.double(0.1),
-#                                             checkMother = cms.bool(False),
+                                             matchingDistance = cms.double(0.5),
                                              qualityCuts=PFTauQualityCuts)
 
 process.tauDifferenceAnalyzer.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)

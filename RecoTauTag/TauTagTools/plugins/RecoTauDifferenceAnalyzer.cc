@@ -162,6 +162,7 @@ private:
 
   TTree* debugTuple_;
   Int_t _evt_;
+  Float_t _matchingDistance_;
   std::vector<int> d_vtx_isfake;
   std::vector<float> d_vtx_x;
   std::vector<float> d_vtx_y;
@@ -176,11 +177,25 @@ private:
   std::vector<float> d_tau_jet_pt;
   std::vector<float> d_tau_jet_eta;
   std::vector<float> d_tau_jet_phi;
-  std::vector<float> d_tau_track_pt;
-  std::vector<float> d_tau_track_eta;
-  std::vector<float> d_tau_track_phi;
-  std::vector<float> d_tau_track_z;
+  std::vector<int> d_tau_ncharged;
+  std::vector<int> d_tau_npizero;
+  std::vector<int> d_tau_ngamma;
   std::vector<int> d_tau_dmf;
+  std::vector<int> d_tau_id;
+  std::vector<int> d_tau_pf_id;
+  std::vector<float> d_tau_pf_eta;
+  std::vector<float> d_tau_pf_phi;
+  std::vector<float> d_tau_pf_pt;
+  std::vector<int> d_tau_pf_type;
+  std::vector<float> d_tau_pf_dz;
+  std::vector<float> d_tau_pf_dzmin;
+  std::vector<int> d_tau_jet_pf_id;
+  std::vector<float> d_tau_jet_pf_eta;
+  std::vector<float> d_tau_jet_pf_phi;
+  std::vector<float> d_tau_jet_pf_pt;
+  std::vector<int> d_tau_jet_pf_type;
+  std::vector<float> d_tau_jet_pf_dz;
+  std::vector<float> d_tau_jet_pf_dzmin;
   
   std::vector<float> d_tauchs_pt;
   std::vector<float> d_tauchs_eta;
@@ -189,10 +204,9 @@ private:
   std::vector<float> d_tauchs_jet_pt;
   std::vector<float> d_tauchs_jet_eta;
   std::vector<float> d_tauchs_jet_phi;
-  std::vector<float> d_tauchs_track_pt;
-  std::vector<float> d_tauchs_track_eta;
-  std::vector<float> d_tauchs_track_phi;
-  std::vector<float> d_tauchs_track_z;
+  std::vector<int> d_tauchs_ncharged;
+  std::vector<int> d_tauchs_npizero;
+  std::vector<int> d_tauchs_ngamma;
   std::vector<int> d_tauchs_dmf;
   
   std::vector<float> d_jet_pt;
@@ -202,6 +216,15 @@ private:
   std::vector<float> d_jetchs_pt;
   std::vector<float> d_jetchs_eta;
   std::vector<float> d_jetchs_phi;
+  std::vector<int> d_jetchs_id;
+  std::vector<int> d_jetchs_pf_id;
+  std::vector<float> d_jetchs_pf_eta;
+  std::vector<float> d_jetchs_pf_phi;
+  std::vector<float> d_jetchs_pf_pt;
+  std::vector<int> d_jetchs_pf_type;
+  std::vector<float> d_jetchs_pf_dz;
+  std::vector<float> d_jetchs_pf_dzmin;
+
 
   std::vector<float> d_gen_pt;
   std::vector<float> d_gen_eta;
@@ -224,6 +247,64 @@ Int_t decaymodeid(std::string str){
   else if(str=="threeProngOther") return 8;
   else if(str=="rare") return 9;
   else return -1;
+}
+
+std::string decaymodeName(Int_t dm){
+
+  std::string dm_string;
+  if      ( dm == reco::PFTau::kOneProng0PiZero   ) dm_string = "OneProng0PiZero";
+  else if ( dm == reco::PFTau::kOneProng1PiZero   ) dm_string = "OneProng1PiZero";
+  else if ( dm == reco::PFTau::kOneProng2PiZero   ) dm_string = "OneProng2PiZero";
+  else if ( dm == reco::PFTau::kTwoProng0PiZero   ) dm_string = "TwoProng0PiZero";
+  else if ( dm == reco::PFTau::kTwoProng1PiZero   ) dm_string = "TwoProng1PiZero";
+  else if ( dm == reco::PFTau::kThreeProng0PiZero ) dm_string = "ThreeProng0PiZero";
+  else if ( dm == reco::PFTau::kThreeProng0PiZero ) dm_string = "ThreeProng1PiZero";
+  else dm_string = "Rare";
+  return dm_string;
+}
+
+
+
+std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType){
+  if ( pfCandidateType == reco::PFCandidate::X ) return "undefined";
+  else if ( pfCandidateType == reco::PFCandidate::h ) return "PFChargedHadron";
+  else if ( pfCandidateType == reco::PFCandidate::e ) return "PFElectron";
+  else if ( pfCandidateType == reco::PFCandidate::mu ) return "PFMuon";
+  else if ( pfCandidateType == reco::PFCandidate::gamma ) return "PFGamma";
+  else if ( pfCandidateType == reco::PFCandidate::h0 ) return "PFNeutralHadron";
+  else if ( pfCandidateType == reco::PFCandidate::h_HF ) return "HF_had";
+  else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
+  else assert(0);
+}
+
+
+int getPFCandidateTypeID(reco::PFCandidate::ParticleType pfCandidateType){
+  if ( pfCandidateType == reco::PFCandidate::X ) return -1;
+  else if ( pfCandidateType == reco::PFCandidate::h ) return 0;
+  else if ( pfCandidateType == reco::PFCandidate::e ) return 1;
+  else if ( pfCandidateType == reco::PFCandidate::mu ) return 2;
+  else if ( pfCandidateType == reco::PFCandidate::gamma ) return 3;
+  else if ( pfCandidateType == reco::PFCandidate::h0 ) return 4;
+  else if ( pfCandidateType == reco::PFCandidate::h_HF ) return 5;
+  else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return 6;
+  else assert(0);
+}
+
+
+
+void printPFCandidates(const std::vector<reco::PFCandidatePtr>& pfCandidates, 
+		       const reco::Vertex::Point& evtVertexPos){
+  int idx = 0;
+
+  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = pfCandidates.begin();
+	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+
+    std::cout << getPFCandidateType((*pfCandidate)->particleId()) << " #" << idx << ": Pt = " << (*pfCandidate)->pt() << ","
+	      << " eta = " << (*pfCandidate)->eta() << ", phi = " << (*pfCandidate)->phi() << ", mass = " << (*pfCandidate)->mass() << std::endl;
+
+    std::cout << std::endl;
+    ++idx;
+  }
 }
 
 
@@ -339,6 +420,7 @@ RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(const edm::ParameterSet& ps
 
   debugTuple_= new TTree("debugTuple","debugTuple");
   debugTuple_->Branch("evt",&_evt_,"_evt_/I");
+  debugTuple_->Branch("matchingDistance",&_matchingDistance_,"_matchingDistance_/F");
   debugTuple_->Branch("success",&_success_,"_success_/I");
   debugTuple_->Branch("d_vtx_x", &d_vtx_x);
   debugTuple_->Branch("d_vtx_y", &d_vtx_y);
@@ -351,14 +433,29 @@ RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(const edm::ParameterSet& ps
   debugTuple_->Branch("d_tau_eta",&d_tau_eta);
   debugTuple_->Branch("d_tau_phi",&d_tau_phi);
   debugTuple_->Branch("d_tau_z",&d_tau_z);
+  debugTuple_->Branch("d_tau_npizero",&d_tau_npizero);
+  debugTuple_->Branch("d_tau_ncharged",&d_tau_ncharged);
+  debugTuple_->Branch("d_tau_ngamma",&d_tau_ngamma);
   debugTuple_->Branch("d_tau_jet_pt",&d_tau_jet_pt);
   debugTuple_->Branch("d_tau_jet_eta",&d_tau_jet_eta);
   debugTuple_->Branch("d_tau_jet_phi",&d_tau_jet_phi);
-  debugTuple_->Branch("d_tau_track_pt",&d_tau_track_pt);
-  debugTuple_->Branch("d_tau_track_eta",&d_tau_track_eta);
-  debugTuple_->Branch("d_tau_track_phi",&d_tau_track_phi);
-  debugTuple_->Branch("d_tau_track_z",&d_tau_track_z);
   debugTuple_->Branch("d_tau_dmf",&d_tau_dmf);
+  debugTuple_->Branch("d_tau_id",&d_tau_id);
+  debugTuple_->Branch("d_tau_pf_id",&d_tau_pf_id);
+  debugTuple_->Branch("d_tau_pf_eta",&d_tau_pf_eta);
+  debugTuple_->Branch("d_tau_pf_phi",&d_tau_pf_phi);
+  debugTuple_->Branch("d_tau_pf_pt",&d_tau_pf_pt);
+  debugTuple_->Branch("d_tau_pf_type",&d_tau_pf_type);
+  debugTuple_->Branch("d_tau_pf_dz",&d_tau_pf_dz);
+  debugTuple_->Branch("d_tau_pf_dzmin",&d_tau_pf_dzmin);
+  debugTuple_->Branch("d_tau_jet_pf_id",&d_tau_jet_pf_id);
+  debugTuple_->Branch("d_tau_jet_pf_eta",&d_tau_jet_pf_eta);
+  debugTuple_->Branch("d_tau_jet_pf_phi",&d_tau_jet_pf_phi);
+  debugTuple_->Branch("d_tau_jet_pf_pt",&d_tau_jet_pf_pt);
+  debugTuple_->Branch("d_tau_jet_pf_type",&d_tau_jet_pf_type);
+  debugTuple_->Branch("d_tau_jet_pf_dz",&d_tau_jet_pf_dz);
+  debugTuple_->Branch("d_tau_jet_pf_dzmin",&d_tau_jet_pf_dzmin);
+
   
   debugTuple_->Branch("d_tauchs_pt",&d_tauchs_pt);
   debugTuple_->Branch("d_tauchs_eta",&d_tauchs_eta);
@@ -367,12 +464,11 @@ RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(const edm::ParameterSet& ps
   debugTuple_->Branch("d_tauchs_jet_pt",&d_tauchs_jet_pt);
   debugTuple_->Branch("d_tauchs_jet_eta",&d_tauchs_jet_eta);
   debugTuple_->Branch("d_tauchs_jet_phi",&d_tauchs_jet_phi);
-  debugTuple_->Branch("d_tauchs_track_pt",&d_tauchs_track_pt);
-  debugTuple_->Branch("d_tauchs_track_eta",&d_tauchs_track_eta);
-  debugTuple_->Branch("d_tauchs_track_phi",&d_tauchs_track_phi);
-  debugTuple_->Branch("d_tauchs_track_z",&d_tauchs_track_z);
   debugTuple_->Branch("d_tauchs_dmf",&d_tauchs_dmf);
-  
+  debugTuple_->Branch("d_tauchs_npizero",&d_tauchs_npizero);
+  debugTuple_->Branch("d_tauchs_ncharged",&d_tauchs_ncharged);
+  debugTuple_->Branch("d_tauchs_ngamma",&d_tauchs_ngamma);
+
   debugTuple_->Branch("d_jet_pt",&d_jet_pt);
   debugTuple_->Branch("d_jet_eta",&d_jet_eta);
   debugTuple_->Branch("d_jet_phi",&d_jet_phi);
@@ -380,6 +476,15 @@ RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(const edm::ParameterSet& ps
   debugTuple_->Branch("d_jetchs_pt",&d_jetchs_pt);
   debugTuple_->Branch("d_jetchs_eta",&d_jetchs_eta);
   debugTuple_->Branch("d_jetchs_phi",&d_jetchs_phi);
+  debugTuple_->Branch("d_jetchs_id",&d_jetchs_id);
+  debugTuple_->Branch("d_jetchs_pf_id",&d_jetchs_pf_id);
+  debugTuple_->Branch("d_jetchs_pf_eta",&d_jetchs_pf_eta);
+  debugTuple_->Branch("d_jetchs_pf_phi",&d_jetchs_pf_phi);
+  debugTuple_->Branch("d_jetchs_pf_pt",&d_jetchs_pf_pt);
+  debugTuple_->Branch("d_jetchs_pf_type",&d_jetchs_pf_type);
+  debugTuple_->Branch("d_jetchs_pf_dz",&d_jetchs_pf_dz);
+  debugTuple_->Branch("d_jetchs_pf_dzmin",&d_jetchs_pf_dzmin);
+
 
   debugTuple_->Branch("d_gen_pt",&d_gen_pt);
   debugTuple_->Branch("d_gen_eta",&d_gen_eta);
@@ -525,7 +630,7 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
 	
 	for (reco::VertexCollection::const_iterator vit=verticesH_->begin(); vit!=verticesH_->end(); vit++){
 	  Float_t _dz_ = TMath::Abs(vit->position().Z() - _tau_z_);
-	  if(_dz_ < 0.3){
+	  if(_dz_ < 0.5){
 	    nvtx_close ++;
 	  }
 	}
@@ -533,6 +638,9 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
     }
 
     if(match_gen==false) continue;
+
+    std::cout << "tau_dmf : " << ((*disc2)[tau2] < 0.5) << std::endl;
+
     if((*disc2)[tau2] < 0.5) continue;
 
     bool match_tau1 = false;
@@ -556,7 +664,7 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
     reco::PFJet bestMatchJet;
     for(size_t i = 0; i < ak5jetCHS->size(); ++ i) {
       const reco::PFJet &jet = (*ak5jetCHS)[i];
-      
+           
       double dR_jet = deltaR(tau2->p4(), jet.p4());
       
       if(dR_jet < min_dr_jet){
@@ -741,7 +849,7 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
 
     isoTuple_->Fill();
   }
- 
+  
 
   if(debugmode==false) debug_counter += 1;
 
@@ -749,6 +857,7 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
   if(debugmode==true || debug_counter <= 1){
     
     _evt_ = Int_t(evt.id().event());
+    _matchingDistance_ = matchingDistance_;
     _success_ = !debugmode;
     
     d_vtx_x.clear();
@@ -775,15 +884,67 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
     d_tau_jet_pt.clear();
     d_tau_jet_eta.clear();
     d_tau_jet_phi.clear();
-    d_tau_track_pt.clear();
-    d_tau_track_eta.clear();
-    d_tau_track_phi.clear();
-    d_tau_track_z.clear();
     d_tau_dmf.clear();
+    d_tau_npizero.clear();
+    d_tau_ncharged.clear();
+    d_tau_ngamma.clear();
+    
+    d_tau_id.clear();
+    d_tau_pf_id.clear();
+    d_tau_pf_eta.clear();
+    d_tau_pf_phi.clear();
+    d_tau_pf_pt.clear();
+    d_tau_pf_type.clear();
+    d_tau_pf_dz.clear();
+    d_tau_pf_dzmin.clear();
+
+    d_tau_jet_pf_id.clear();
+    d_tau_jet_pf_eta.clear();
+    d_tau_jet_pf_phi.clear();
+    d_tau_jet_pf_pt.clear();
+    d_tau_jet_pf_type.clear();
+    d_tau_jet_pf_dz.clear();
+    d_tau_jet_pf_dzmin.clear();
+    
+
+    Int_t counter_tau = 0;
 
     for (size_t iTau = 0; iTau < taus2->size(); ++iTau) { // PFtau
       reco::PFTauRef tau(taus2, iTau);
       reco::PFJetRef ass_jet = getJetRef(*tau);
+
+
+      bool match_gen = false;
+
+      for(size_t i = 0; i < genTaus->size(); ++ i){
+      
+	const reco::GenJet & TauCand = (*genTaus)[i];
+	reco::Particle::LorentzVector visibleP4 = ((*genTaus)[i]).p4();
+      
+	if(visibleP4.pt() < 5.0) continue;
+	if(TMath::Abs(visibleP4.eta()) > 2.3) continue;
+
+	const std::vector <const reco::GenParticle*> mRefs = TauCand.getGenConstituents();
+	unsigned int decayMode = 0; // 0 = hadronic, 1=electron, 2=muon 
+
+	for(size_t igTauD =0; igTauD < mRefs.size(); igTauD++) {
+	  if(abs(mRefs[igTauD]->pdgId())==11) decayMode = 1;
+	  if(abs(mRefs[igTauD]->pdgId())==13) decayMode = 2;
+	}
+      
+	if(decayMode!=0) continue; 
+
+
+	double dR_MC = deltaR(tau->p4(),((*genTaus)[i]).p4());
+
+
+	if(dR_MC < matchingDistance_) match_gen = true;
+
+      }
+
+      if(match_gen==false) continue;
+      if((*disc2)[tau] < 0.5) continue;
+
 
       d_tau_pt.push_back(tau->pt());
       d_tau_eta.push_back(tau->eta());
@@ -793,20 +954,92 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
       d_tau_jet_eta.push_back(ass_jet->eta());
       d_tau_jet_phi.push_back(ass_jet->phi());
 
+      std::vector <reco::PFCandidatePtr> jetConstituents = ass_jet->getPFConstituents();
+      for ( std::vector <reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
+	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
+	
+	d_tau_jet_pf_id.push_back(counter_tau);
+	d_tau_jet_pf_eta.push_back((*jetConstituent)->eta());
+	d_tau_jet_pf_phi.push_back((*jetConstituent)->phi());
+	d_tau_jet_pf_pt.push_back((*jetConstituent)->pt());
+	d_tau_jet_pf_type.push_back(getPFCandidateTypeID((*jetConstituent)->particleId()));
+	
+	if ((*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable()){
+	  d_tau_jet_pf_dz.push_back((*jetConstituent)->trackRef()->dz(evtVertexPos)); 
+
+	  Float_t min_vtx_dz = 1000;
+	  Int_t vtxid = -99;
+	  Int_t counter_vtx = 0;
+
+	  for (reco::VertexCollection::const_iterator vit=verticesH_->begin(); vit!=verticesH_->end(); vit++){	    
+	    reco::Vertex::Point _vtx_ = vit->position(); 
+	    
+	    Float_t _dz_ = TMath::Abs((*jetConstituent)->trackRef()->dz(_vtx_));
+	    if(min_vtx_dz > _dz_){
+	      min_vtx_dz = _dz_;
+	      vtxid = counter_vtx;
+	    }
+	    counter_vtx += 1;
+	  }
+	  d_tau_jet_pf_dzmin.push_back(vtxid);
+
+
+	}else{
+	  d_tau_jet_pf_dz.push_back(-99);
+	  d_tau_jet_pf_dzmin.push_back(-99);
+	}
+
+      }
+
+
       d_tau_z.push_back(tau->vertex().z());
       d_tau_dmf.push_back(Int_t((*disc2)[tau] > 0.5));
+      d_tau_npizero.push_back(tau->signalPFChargedHadrCands().size());
+      d_tau_ncharged.push_back(tau->signalPiZeroCandidates().size());
+      d_tau_ngamma.push_back(tau->signalPFGammaCands().size());
 
-      if(tau->leadPFChargedHadrCand().isNonnull() && tau->leadPFChargedHadrCand()->trackRef().isNonnull()){
-	d_tau_track_z.push_back(tau->leadPFChargedHadrCand()->trackRef()->vz());
-	d_tau_track_pt.push_back(tau->leadPFChargedHadrCand()->trackRef()->pt());
-	d_tau_track_eta.push_back(tau->leadPFChargedHadrCand()->trackRef()->eta());
-	d_tau_track_phi.push_back(tau->leadPFChargedHadrCand()->trackRef()->phi());
-      }else{
-	d_tau_track_z.push_back(-99);
-	d_tau_track_pt.push_back(-99);
-	d_tau_track_eta.push_back(-99);
-	d_tau_track_phi.push_back(-99);
+
+      d_tau_id.push_back(counter_tau);
+
+
+      const std::vector<reco::PFCandidatePtr> &pfCandidates = tau->signalPFCands();
+
+      for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = pfCandidates.begin();
+	    pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+	
+	d_tau_pf_id.push_back(counter_tau);
+	d_tau_pf_eta.push_back((*pfCandidate)->eta());
+	d_tau_pf_phi.push_back((*pfCandidate)->phi());
+	d_tau_pf_pt.push_back((*pfCandidate)->pt());
+	d_tau_pf_type.push_back(getPFCandidateTypeID((*pfCandidate)->particleId()));
+
+	if ((*pfCandidate)->trackRef().isNonnull() && (*pfCandidate)->trackRef().isAvailable()){
+	  d_tau_pf_dz.push_back((*pfCandidate)->trackRef()->dz(evtVertexPos)); 
+
+	  Float_t min_vtx_dz = 1000;
+	  Int_t vtxid = -99;
+	  Int_t counter_vtx = 0;
+
+	  for (reco::VertexCollection::const_iterator vit=verticesH_->begin(); vit!=verticesH_->end(); vit++){	    
+	    reco::Vertex::Point _vtx_ = vit->position(); 
+	    
+	    Float_t _dz_ = TMath::Abs((*pfCandidate)->trackRef()->dz(_vtx_));
+	    if(min_vtx_dz > _dz_){
+	      min_vtx_dz = _dz_;
+	      vtxid = counter_vtx;
+	    }
+	    counter_vtx += 1;
+	  }
+	  d_tau_pf_dzmin.push_back(vtxid);
+
+	}else{
+	  d_tau_pf_dz.push_back(-99);
+	  d_tau_pf_dzmin.push_back(-99);
+	}
+
       }
+
+      counter_tau ++;
     }
 
   
@@ -817,12 +1050,12 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
     d_tauchs_jet_pt.clear();
     d_tauchs_jet_eta.clear();
     d_tauchs_jet_phi.clear();
-    d_tauchs_track_pt.clear();
-    d_tauchs_track_eta.clear();
-    d_tauchs_track_phi.clear();
-    d_tauchs_track_z.clear();
     d_tauchs_dmf.clear();
+    d_tauchs_npizero.clear();
+    d_tauchs_ncharged.clear();
+    d_tauchs_ngamma.clear();
     
+
 
     for (size_t iTau = 0; iTau < taus1->size(); ++iTau) { // PFtau
       reco::PFTauRef tau(taus1, iTau);
@@ -839,23 +1072,16 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
       d_tauchs_z.push_back(tau->vertex().z());
       d_tauchs_dmf.push_back(Int_t((*disc1)[tau] > 0.5));
 
-      if(tau->leadPFChargedHadrCand().isNonnull() && tau->leadPFChargedHadrCand()->trackRef().isNonnull()){
-	d_tauchs_track_z.push_back(tau->leadPFChargedHadrCand()->trackRef()->vz());
-	d_tauchs_track_pt.push_back(tau->leadPFChargedHadrCand()->trackRef()->pt());
-	d_tauchs_track_eta.push_back(tau->leadPFChargedHadrCand()->trackRef()->eta());
-	d_tauchs_track_phi.push_back(tau->leadPFChargedHadrCand()->trackRef()->phi());
-      }else{
-	d_tauchs_track_z.push_back(-99);
-	d_tauchs_track_pt.push_back(-99);
-	d_tauchs_track_eta.push_back(-99);
-	d_tauchs_track_phi.push_back(-99);
-      }
+      d_tauchs_npizero.push_back(tau->signalPFChargedHadrCands().size());
+      d_tauchs_ncharged.push_back(tau->signalPiZeroCandidates().size());
+      d_tauchs_ngamma.push_back(tau->signalPFGammaCands().size());
     }
 
 
     d_jet_pt.clear();
     d_jet_eta.clear();
     d_jet_phi.clear();
+
 
     for(size_t i = 0; i < ak5jet->size(); ++ i) {
       const reco::PFJet &jet = (*ak5jet)[i];
@@ -867,12 +1093,63 @@ bool RecoTauDifferenceAnalyzer::filter(edm::Event& evt, const edm::EventSetup& e
     d_jetchs_pt.clear();
     d_jetchs_eta.clear();
     d_jetchs_phi.clear();
+    d_jetchs_id.clear();
+    d_jetchs_pf_id.clear();
+    d_jetchs_pf_eta.clear();
+    d_jetchs_pf_phi.clear();
+    d_jetchs_pf_pt.clear();
+    d_jetchs_pf_type.clear();
+    d_jetchs_pf_dz.clear();
+    d_jetchs_pf_dzmin.clear();
+
+    Int_t counter_jet = 0;
 
     for(size_t i = 0; i < ak5jetCHS->size(); ++ i) {
       const reco::PFJet &jet = (*ak5jetCHS)[i];
       d_jetchs_pt.push_back( jet.pt());
       d_jetchs_eta.push_back( jet.eta());
       d_jetchs_phi.push_back( jet.phi());
+      d_jetchs_id.push_back(counter_jet);
+
+      // Yuta
+      std::vector <reco::PFCandidatePtr> jetConstituents = jet.getPFConstituents();
+      for ( std::vector <reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
+	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
+	
+	d_jetchs_pf_id.push_back(counter_jet);
+	d_jetchs_pf_eta.push_back((*jetConstituent)->eta());
+	d_jetchs_pf_phi.push_back((*jetConstituent)->phi());
+	d_jetchs_pf_pt.push_back((*jetConstituent)->pt());
+	d_jetchs_pf_type.push_back(getPFCandidateTypeID((*jetConstituent)->particleId()));
+
+	if ((*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable()){
+	  d_jetchs_pf_dz.push_back((*jetConstituent)->trackRef()->dz(evtVertexPos)); 
+
+	  Float_t min_vtx_dz = 1000;
+	  Int_t vtxid = -99;
+	  Int_t counter_vtx = 0;
+
+	  for (reco::VertexCollection::const_iterator vit=verticesH_->begin(); vit!=verticesH_->end(); vit++){	    
+	    reco::Vertex::Point _vtx_ = vit->position(); 
+	    
+	    Float_t _dz_ = TMath::Abs((*jetConstituent)->trackRef()->dz(_vtx_));
+	    if(min_vtx_dz > _dz_){
+	      min_vtx_dz = _dz_;
+	      vtxid = counter_vtx;
+	    }
+	    counter_vtx += 1;
+	  }
+	  d_jetchs_pf_dzmin.push_back(vtxid);
+	  
+
+	}else{
+	  d_jetchs_pf_dz.push_back(-99);
+	  d_jetchs_pf_dzmin.push_back(-99);
+	}
+
+      }
+
+      counter_jet ++;
     }
     
 
