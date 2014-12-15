@@ -48,8 +48,11 @@ print '[INFO] Select the event list = ', options.select
 #mva_muon_barrel = 0.0337
 #mva_muon_endcap = -0.0171
 
-mva_muon_barrel = 0.
-mva_muon_endcap = 0.
+#mva_muon_barrel = 0.
+#mva_muon_endcap = 0.
+
+mva_muon_barrel = 0.2
+mva_muon_endcap = 0.2
 
 
 mva_muonreader = TMVA.Reader("!Color:Silent=T:Verbose=F")

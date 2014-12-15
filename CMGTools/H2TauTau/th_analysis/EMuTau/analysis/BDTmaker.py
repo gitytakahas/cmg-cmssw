@@ -69,7 +69,7 @@ useTT = False
 
 region = ['signal','antiE','antiMu','antiEMu']
 
-directory = 'root_process'
+directory = 'root_process_BDT0.2/'
 #directory = 'root_process_tauiso_0.75'
 #directory = 'root_process_tauiso_0.5'
 #directory = 'root_process_tauiso_1'
@@ -122,23 +122,8 @@ def returnkNN(iregion, iprocess, weight_electron, weight_muon):
 
 for index, pn in enumerate(process):
 
-    e_xml = 'kNN_training/weights/KNN_' + pn + '_electron_' + options.kNN + '.xml'
-    m_xml = 'kNN_training/weights/KNN_' + pn + '_muon_' + options.kNN + '.xml'
-
-#    e_xml = 'weights_btag/KNN_' + pn + '_electron_' + options.kNN + '.xml'
-#    m_xml = 'weights_btag/KNN_' + pn + '_muon_' + options.kNN + '.xml'
-
-#    if pn in ['WZ','ZZ','tt1l','tt2l','data']:
-    if pn in ['data']:
-        pass
-    else:
-        print '[INFO] The process', pn, 'uses the kNN weight for data ...'
-        e_xml = 'kNN_training/weights/KNN_data_electron_' + options.kNN + '.xml'
-        m_xml = 'kNN_training/weights/KNN_data_muon_' + options.kNN + '.xml'
-
-#        e_xml = 'weights_btag/KNN_data_electron_' + options.kNN + '.xml'
-#        m_xml = 'weights_btag/KNN_data_muon_' + options.kNN + '.xml'
-        
+    e_xml = 'kNN_training/weights_BDT0.2/KNN_data_electron_' + options.kNN + '.xml'
+    m_xml = 'kNN_training/weights_BDT0.2/KNN_data_muon_' + options.kNN + '.xml'
 
     print '[INFO] electron xml file = ', e_xml
     print '[INFO] muon xml file = ', m_xml

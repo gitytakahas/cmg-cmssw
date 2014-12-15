@@ -55,10 +55,10 @@ filedict = db.returnFile()
 #mva_muon_endcap = -0.3761
 #mva_electron_endcap = -0.2377 
 
-mva_muon_barrel = 0.
-mva_electron_barrel = 0.
-mva_muon_endcap = 0.
-mva_electron_endcap = 0.
+mva_muon_barrel = 0.2
+mva_electron_barrel = 0.2
+mva_muon_endcap = 0.2
+mva_electron_endcap = 0.2
 
 
 mva_muonreader = TMVA.Reader("!Color:Silent=T:Verbose=F")
@@ -764,7 +764,8 @@ if __name__ == '__main__':
 #            var_dict['evt_njet'][0] = main.nJets
             var_dict['evt_njet'][0] = len(veto_jet)
             var_dict['evt_njet_or'][0] = len(veto_jet)
-            var_dict['evt_nbjet'][0] = nbjets
+#            var_dict['evt_nbjet'][0] = nbjets
+            var_dict['evt_nbjet'][0] = len(veto_bjet)
             var_dict['evt_id'][0] = ptype
             var_dict['evt_isMC'][0] = isMC
             var_dict['evt_isMCw'][0] = isMCw

@@ -664,7 +664,7 @@ for rindex, iregion in enumerate(region):
             kNN_weight = returnkNN(iregion, iprocess, weight_muon, weight_smuon, main.muon_flag, main.smuon_flag)
 
             weight_total = main.evt_weight*kNN_weight*nsf[rindex]
-            print 'region, process, weight_muon, weight_smuon, flag, sflag, total = ', iregion, iprocess, weight_muon, weight_smuon, main.muon_flag, main.smuon_flag, weight_total
+#            print 'region, process, weight_muon, weight_smuon, flag, sflag, total = ', iregion, iprocess, weight_muon, weight_smuon, main.muon_flag, main.smuon_flag, weight_total
             
             if iregion=='antiMuMu':
                 weight_total *= -1.
