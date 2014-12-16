@@ -67,6 +67,9 @@ process = ['WW',
 useTT = False
 #useTT = True
 
+cf_muon = 0.85
+cf_electron = 0.8
+
 region = ['signal','antiE','antiMu','antiEMu']
 
 directory = 'root_process_BDT0.2/'
@@ -678,7 +681,7 @@ for rindex, iregion in enumerate(region):
                 
                 mvaname = 'muon_' + iprocess
 
-                weight_muon = muonreader[index].EvaluateMVA(mvaname)
+                weight_muon = cf_muon*muonreader[index].EvaluateMVA(mvaname)
                 
             if iregion=='antiE' or iregion=='antiEMu':
 
@@ -688,7 +691,7 @@ for rindex, iregion in enumerate(region):
                 evar_map['evt_njet'][0] = main.evt_njet_or
                 
                 mvaname = 'electron_' + iprocess
-                weight_electron = electronreader[index].EvaluateMVA(mvaname)
+                weight_electron = cf_electron*electronreader[index].EvaluateMVA(mvaname)
 
                
             kNN_weight = returnkNN(iregion, iprocess, weight_electron, weight_muon)
