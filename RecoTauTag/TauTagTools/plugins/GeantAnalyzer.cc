@@ -220,6 +220,8 @@ private:
   vector<int> SecondariesGenParticles;
   vector<int> SecondariesParents;
   vector<int> SecondariesPdgId;
+      map<unsigned int, vector<unsigned int> > SimTrackHistory;  // (simTrackId, vector or processIds) for the history of the track
+
 
   bool doPrintSimHits;
   bool doPrintCaloHits;
@@ -457,7 +459,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   SecondariesPdgId.clear();
   SecondariesSimTrackR.clear();
   SecondariesSimTrackpt.clear();
-
+  SimTrackHistory.clear();
 
   SimTrackContainer::const_iterator iterSimTracks;
   for ( iterSimTracks = simTrackHandle->begin();
@@ -477,10 +479,28 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const math::XYZTLorentzVectorD tksurfMom =  iterSimTracks -> trackerSurfaceMomentum() ;
     float rdist = sqrt( pow( tksurfPos.x(), 2) + pow( tksurfPos.y(), 2) );
     float zdist = tksurfPos.z();
+    const math::XYZTLorentzVectorD& Vtx_position =theSimVertex.position();
+    unsigned int processType = theSimVertex.processType();
+    float vtxR = sqrt( pow( Vtx_position.x(), 2) + pow(Vtx_position.y(), 2) ) ;
 
-    cout << " a SimTrack : trackId " << trackId << " type " << iterSimTracks->type() << " genpartIndex  " << genpartIndex << " vertexId " << vertexId << " parentIndex " << parentIndex << " R " << rdist  <<  " Z " << zdist << " momentum " << tksurfMom.px() << " " << tksurfMom.py() << " " << tksurfMom.pz() << endl;
+        cout << "SimTrack trackId " << trackId << " type " << iterSimTracks->type() << " processType " << processType << " genpartIndex  " << genpartIndex << " vertexId " << vertexId << " parentIndex " << parentIndex << " R " << rdist  <<  " Z " << zdist << " pxyz " << tksurfMom.px() << " " << tksurfMom.py() << " " << tksurfMom.pz() <<  " vertexR " << vtxR << endl;
 
     if ( genpartIndex != -1 ) PrimariesSimTrackId.push_back( trackId );
+
+        vector<unsigned int> p0;
+        p0.push_back( processType );
+        SimTrackHistory.insert( pair<unsigned int, vector<unsigned int> >(trackId, p0) ) ;
+        // update the history of the parent track
+                   map< unsigned int, vector<unsigned int> >::iterator phis = SimTrackHistory.find( (unsigned int)parentIndex );
+        if ( phis != SimTrackHistory.end() ) {
+           vector<unsigned int> vtmp = phis -> second;
+           vtmp.push_back( processType  );
+           SimTrackHistory[ trackId ] = vtmp;
+        }
+        else {
+           if (parentIndex != -1) cout << " ... problem in updating SimTrackHistory : trackId " << parentIndex << " (parent of " << trackId << ") has not been entered yet. " << endl;
+        }
+
 
     SecondariesSimTrackId.push_back( trackId );
     SecondariesGenParticles.push_back(genpartIndex);
@@ -630,13 +650,15 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 
     int nEcal = 0;
     int nbadEcal = 0;
-    for(unsigned iEle=0; iEle<elements.size(); iEle++) {
+    for(unsigned jEle=0; jEle<theElements.size(); jEle++) { 	// bugfix
+     unsigned int iEle = theElements[jEle].second;
       PFBlockElement::Type type = elements[iEle].type();
       if (type == PFBlockElement::ECAL) {
 	nEcal ++;
 	const reco::PFBlockElementCluster& et =
 	  dynamic_cast<const reco::PFBlockElementCluster &>( elements[iEle] );
 	float eclu = et.clusterRef()->energy();
+        float etclu = et.clusterRef()->pt();
 	map<float, unsigned int>::iterator cmp = ClusterMap.find( eclu );
 	if ( cmp == ClusterMap.end() ) {
 	  cout << " ..... WEIRD. constituent cluster was not found in cluster list... " << endl ;
@@ -656,16 +678,32 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 
 	TString stPrimary;
 	if ( find( PrimariesSimTrackId.begin(), PrimariesSimTrackId.end(), simTrackId) != PrimariesSimTrackId.end() ) {
-	  stPrimary = " Primary " ;
+	  stPrimary = " [Primary] " ;
 	}
-	else stPrimary = " Secondary ";
-	cout << "\t cluster number " << nEcal << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << endl;
+	else stPrimary = " [Secondary] ";
+
+                        // retrieve the vector of processIds, i.e. the history
+                vector<unsigned int> vHistory;
+                map<unsigned int, vector<unsigned int> >::iterator phis;
+                phis = SimTrackHistory.find( simTrackId );
+                if ( phis != SimTrackHistory.end() ) {
+                    vHistory = phis -> second;
+                }
+                else {
+                    cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackHistory " << endl;
+                }
+
+	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary ;
+                 for (unsigned int vit = 0; vit < vHistory.size(); ++vit) {
+                   cout << vHistory.at( vit) << " " ;
+                 }
+                 cout << endl;
 	
 	
 	int _gen_ = simTrackpdgId;
 	int _trackid_ = (int)simTrackId;
 	
-	if(stPrimary==" Secondary "){
+	if(stPrimary==" [Secondary] "){
 	  _gen_ = 999;
 	  _trackid_ = 999;
 	  traceParent(SecondariesSimTrackId, SecondariesGenParticles, SecondariesParents, SecondariesPdgId, simTrackId, _gen_);
