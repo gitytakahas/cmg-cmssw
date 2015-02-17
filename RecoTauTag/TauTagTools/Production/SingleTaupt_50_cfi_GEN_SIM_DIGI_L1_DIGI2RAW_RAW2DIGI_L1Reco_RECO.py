@@ -60,6 +60,21 @@ process.maxEvents = cms.untracked.PSet(
 
 
 #import pdb; pdb.set_trace()
+process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
+                                    MaxZ = cms.double(0.0),
+                                    MaxX = cms.double(0.0),
+                                    MaxY = cms.double(0.0),
+                                    MinX = cms.double(0.0),
+                                    MinY = cms.double(0.0),
+                                    MinZ = cms.double(0.0),
+                                    TimeOffset = cms.double(0.0),
+                                    src = cms.InputTag("generator"),
+                                    readDB = cms.bool(False)
+)
+
+
+
+#import pdb; pdb.set_trace()
 #print process.RandomNumberGeneratorService.generator
 process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(options.seed)
 
@@ -250,6 +265,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.AODSIMoutput_step = cms.EndPath(process.AODSIMoutput)
 
 addWeightedIsolation(process)
+
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.AODSIMoutput_step)
