@@ -1,0 +1,516 @@
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+#include "PhysicsTools/JetMCUtils/src/JetMCTag.cc"
+
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
+#include <vector>
+#include <string>
+#include <sstream>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH1.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
+#include "TH1F.h"
+#include "TH2D.h"
+#include "TH1D.h"
+#include "TTree.h"
+#include "TFile.h"
+#include "TMath.h"
+
+typedef edm::View<reco::GenJet> GenJetView;
+
+class RecoTauAnalyzer : public edm::EDFilter {
+
+public:
+  explicit RecoTauAnalyzer(const edm::ParameterSet& pset);
+  virtual ~RecoTauAnalyzer() {}
+  virtual bool filter(edm::Event& evt, const edm::EventSetup& es);
+  virtual void endJob();
+
+private:
+  reco::tau::RecoTauQualityCuts qcuts_;
+  std::auto_ptr<reco::tau::RecoTauVertexAssociator> vertexAssociator_;
+  edm::InputTag src_;
+  edm::InputTag disc_;
+  edm::InputTag discNew_;
+  edm::InputTag discOld_;
+  edm::InputTag pflow_;
+  edm::InputTag genTauSrc_;
+  edm::InputTag vertexTag_;
+  edm::InputTag chIso_;
+  edm::InputTag nIso_;
+  edm::InputTag nIso_weight_;
+  //  edm::InputTag nIso_weight1_;
+  //  edm::InputTag nIso_weight2_;
+  //  edm::InputTag nIso_weight1NQ_;
+  //  edm::InputTag nIso_weight2NQ_;
+  edm::InputTag PUIso_;
+  edm::InputTag cmbIso_;
+  edm::InputTag muon_;
+  double matchingDistance_;
+
+  /* branch definition */
+
+  TFile* file_;
+  TTree* isoTuple_;
+  Int_t _eventNum_;
+  Float_t _gen_tau_z_;
+  Int_t _gen_dm_;
+  Int_t _nvtx_;
+  Float_t _vtx_z_;
+  Float_t  _tauvispt_;
+  Float_t  _tauviseta_;
+  Float_t  _jet_pt_;
+  Float_t  _jet_eta_;
+  Float_t  _jet_phi_;
+  Float_t  _pt_;
+  Float_t _eta_;
+  Float_t _phi_;
+  Float_t _z_;
+  Float_t _chIso_;
+  Float_t _nIso_;
+  Float_t _puIso_;
+  Float_t _nIso_weight_;
+  //  Float_t _nIso_weight1_;
+  //  Float_t _nIso_weight2_;
+  //  Float_t _nIso_weight1NQ_;
+  //  Float_t _nIso_weight2NQ_;
+  Float_t _cmbIso_;
+  Float_t _vz_;
+  Float_t _track_pt_;
+  Float_t _track_eta_;
+  Float_t _track_phi_;
+  Int_t _track_nhit_;
+  Int_t  _dmf_;
+  Int_t  _dmfOld_;
+  Int_t  _dmfNew_;
+  Int_t  _ncharged_;
+  Int_t  _npizero_;
+
+  std::vector<float> d_tau_jet_pf_dr;
+  std::vector<float> d_tau_jet_pf_eta;
+  std::vector<float> d_tau_jet_pf_phi;
+  std::vector<float> d_tau_jet_pf_pt;
+  std::vector<float> d_tau_jet_pf_wpt;
+  std::vector<int> d_tau_jet_pf_type;
+  std::vector<int> d_tau_jet_pf_isSignal;
+
+  
+};
+
+
+//Int_t decaymodeid(std::string str){
+//  if(str=="electron") return 0;
+//  else if(str=="muon") return 1;
+//  else if(str=="oneProng0Pi0") return 2;
+//  else if(str=="oneProng1Pi0") return 3;
+//  else if(str=="oneProng2Pi0") return 4;
+//  else if(str=="oneProngOther") return 5;  
+//  else if(str=="threeProng0Pi0") return 6;
+//  else if(str=="threeProng1Pi0") return 7;
+//  else if(str=="threeProngOther") return 8;
+//  else if(str=="rare") return 9;
+//  else return -1;
+//}
+
+
+Int_t decaymodeid(std::string str){
+  if(str=="electron") return 0;
+  else if(str=="muon") return 1;
+  else if(str=="oneProng0Pi0") return 2;
+  else if(str=="oneProng1Pi0") return 3;
+  else if(str=="oneProng2Pi0") return 4;
+  else if(str=="oneProngOther") return 5;  
+  else if(str=="threeProng0Pi0") return 6;
+  else if(str=="threeProng1Pi0") return 7;
+  else if(str=="threeProngOther") return 8;
+  else if(str=="rare") return 9;
+  else return -1;
+}
+
+int getPFCandidateTypeID(reco::PFCandidate::ParticleType pfCandidateType){
+  if ( pfCandidateType == reco::PFCandidate::X ) return -1;
+  else if ( pfCandidateType == reco::PFCandidate::h ) return 0;
+  else if ( pfCandidateType == reco::PFCandidate::e ) return 1;
+  else if ( pfCandidateType == reco::PFCandidate::mu ) return 2;
+  else if ( pfCandidateType == reco::PFCandidate::gamma ) return 3;
+  else if ( pfCandidateType == reco::PFCandidate::h0 ) return 4;
+  else if ( pfCandidateType == reco::PFCandidate::h_HF ) return 5;
+  else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return 6;
+  else assert(0);
+}
+
+
+RecoTauAnalyzer::RecoTauAnalyzer(const edm::ParameterSet& pset): 
+
+  qcuts_(pset.exists("qualityCuts") ? pset.getParameterSet("qualityCuts").getParameterSet("isolationQualityCuts") : pset.getParameterSet("qualityCuts")){
+
+  
+  //  vertexAssociator_.reset(new reco::tau::RecoTauVertexAssociator(pset.getParameterSet("qualityCuts"),consumesCollector()));
+  
+
+  src_ = pset.getParameter<edm::InputTag>("src");
+  disc_ = pset.getParameter<edm::InputTag>("disc");
+  discOld_ = pset.getParameter<edm::InputTag>("discOld");
+  discNew_ = pset.getParameter<edm::InputTag>("discNew");
+  pflow_= pset.getParameter<edm::InputTag>("pflow");
+  genTauSrc_ = pset.getParameter<edm::InputTag>("genTauSrc");
+  matchingDistance_ = pset.getParameter<double>("matchingDistance");
+  vertexTag_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");  
+  chIso_ = pset.getParameter<edm::InputTag>("chIso");
+  nIso_ = pset.getParameter<edm::InputTag>("nIso");
+  PUIso_ = pset.getParameter<edm::InputTag>("PUIso");
+  nIso_weight_ = pset.getParameter<edm::InputTag>("nIso_weight");
+  //  nIso_weight1_ = pset.getParameter<edm::InputTag>("nIso_weight1");
+//  nIso_weight2_ = pset.getParameter<edm::InputTag>("nIso_weight2");
+//  nIso_weight1NQ_ = pset.getParameter<edm::InputTag>("nIso_weight1NQ");
+//  nIso_weight2NQ_ = pset.getParameter<edm::InputTag>("nIso_weight2NQ");
+  cmbIso_ = pset.getParameter<edm::InputTag>("cmbIso");
+
+  file_ = new TFile("ntuple.root", "recreate");
+  isoTuple_= new TTree("isoTuple","isoTuple");
+  isoTuple_->Branch("nvtx",&_nvtx_, "_nvtx_/I");
+  isoTuple_->Branch("eventNum",&_eventNum_,"_eventNum_/I");
+  isoTuple_->Branch("gen_dm",&_gen_dm_,"_gen_dm_/I");
+  isoTuple_->Branch("vtx_z",&_vtx_z_, "_vtx_z_/F");
+  isoTuple_->Branch("pt",&_pt_,"_pt_/F");
+  isoTuple_->Branch("eta", &_eta_,"_eta_/F");
+  isoTuple_->Branch("phi",&_phi_, "_phi_/F");
+  isoTuple_->Branch("tauvispt",&_tauvispt_, "_tauvispt_/F");
+  isoTuple_->Branch("tauviseta",&_tauviseta_, "_tauviseta_/F");
+  isoTuple_->Branch("jet_pt",&_jet_pt_,"_jet_pt_/F");
+  isoTuple_->Branch("jet_eta",&_jet_eta_,"_jet_eta_/F");
+  isoTuple_->Branch("jet_phi",&_jet_phi_,"_jet_phi_/F");
+  isoTuple_->Branch("z",&_z_, "_z_/F");
+  isoTuple_->Branch("chIso",&_chIso_, "_chIso_/F");
+  isoTuple_->Branch("nIso",&_nIso_, "_nIso_/F");
+  isoTuple_->Branch("puIso",&_puIso_, "_puIso_/F");
+  isoTuple_->Branch("nIso_weight",&_nIso_weight_, "_nIso_weight_/F");
+//  isoTuple_->Branch("nIso_weight1",&_nIso_weight1_, "_nIso_weight1_/F");
+//  isoTuple_->Branch("nIso_weight2",&_nIso_weight2_, "_nIso_weight2_/F");
+//  isoTuple_->Branch("nIso_weight1NQ",&_nIso_weight1NQ_, "_nIso_weight1NQ_/F");
+//  isoTuple_->Branch("nIso_weight2NQ",&_nIso_weight2NQ_, "_nIso_weight2NQ_/F");
+  isoTuple_->Branch("cmbIso",&_cmbIso_, "_cmbIso_/F");
+  isoTuple_->Branch("vz",&_vz_, "_vz_/F");
+  isoTuple_->Branch("track_pt",&_track_pt_, "_track_pt_/F");
+  isoTuple_->Branch("track_eta",&_track_eta_, "_track_eta_/F");
+  isoTuple_->Branch("track_phi",&_track_phi_, "_track_phi_/F");
+  isoTuple_->Branch("track_nhit",&_track_nhit_, "_track_nhit_/I");
+  isoTuple_->Branch("dmf",&_dmf_, "_dmf_/I");
+  isoTuple_->Branch("dmfOld",&_dmfOld_, "_dmfOld_/I");
+  isoTuple_->Branch("dmfNew",&_dmfNew_, "_dmfNew_/I");
+  isoTuple_->Branch("ncharged",&_ncharged_, "_ncharged_/I");
+  isoTuple_->Branch("npizero",&_npizero_, "_npizero_/I");
+
+  isoTuple_->Branch("d_tau_jet_pf_dr",&d_tau_jet_pf_dr);
+  isoTuple_->Branch("d_tau_jet_pf_eta",&d_tau_jet_pf_eta);
+  isoTuple_->Branch("d_tau_jet_pf_phi",&d_tau_jet_pf_phi);
+  isoTuple_->Branch("d_tau_jet_pf_pt",&d_tau_jet_pf_pt);
+  isoTuple_->Branch("d_tau_jet_pf_wpt",&d_tau_jet_pf_wpt);
+  isoTuple_->Branch("d_tau_jet_pf_type",&d_tau_jet_pf_type);
+  isoTuple_->Branch("d_tau_jet_pf_isSignal",&d_tau_jet_pf_isSignal);
+
+}
+
+namespace {
+  reco::PFJetRef getJetRef(const reco::PFTau& tau) {
+    if (tau.jetRef().isNonnull()){
+      return tau.jetRef();
+    }else if (tau.pfTauTagInfoRef()->pfjetRef().isNonnull()){
+      std::cout << "This is pftautaginforef" << std::endl;
+      return tau.pfTauTagInfoRef()->pfjetRef();
+    }else{
+      throw cms::Exception("cant find jet ref");
+    }
+  }
+}
+
+bool RecoTauAnalyzer::filter(edm::Event& evt, const edm::EventSetup& es) {
+
+
+  edm::Handle<reco::PFTauCollection> taus;
+  evt.getByLabel(src_, taus);
+  edm::Handle<std::vector<reco::GenJet> > genTaus;
+  evt.getByLabel(genTauSrc_, genTaus);
+  edm::Handle<reco::PFCandidateCollection> pflow;
+  evt.getByLabel(pflow_, pflow);
+  edm::Handle<reco::PFTauDiscriminator> disc;
+  evt.getByLabel(disc_, disc);
+  edm::Handle<reco::PFTauDiscriminator> discOld;
+  evt.getByLabel(discOld_, discOld);
+  edm::Handle<reco::PFTauDiscriminator> discNew;
+  evt.getByLabel(discNew_, discNew);
+  edm::Handle<reco::PFTauDiscriminator> chIso;
+  evt.getByLabel(chIso_,chIso);
+  edm::Handle<reco::PFTauDiscriminator> nIso;
+  evt.getByLabel(nIso_,nIso);
+  edm::Handle<reco::PFTauDiscriminator> PUIso;
+  evt.getByLabel(PUIso_,PUIso);
+  edm::Handle<reco::PFTauDiscriminator> nIso_weight;
+  evt.getByLabel(nIso_weight_,nIso_weight);
+
+//  edm::Handle<reco::PFTauDiscriminator> nIso_weight1;
+//  evt.getByLabel(nIso_weight1_,nIso_weight1);
+//  edm::Handle<reco::PFTauDiscriminator> nIso_weight2;
+//  evt.getByLabel(nIso_weight2_,nIso_weight2);
+//  edm::Handle<reco::PFTauDiscriminator> nIso_weight1NQ;
+//  evt.getByLabel(nIso_weight1NQ_,nIso_weight1NQ);
+//  edm::Handle<reco::PFTauDiscriminator> nIso_weight2NQ;
+//  evt.getByLabel(nIso_weight2NQ_,nIso_weight2NQ);
+  edm::Handle<reco::PFTauDiscriminator> cmbIso;
+  evt.getByLabel(cmbIso_,cmbIso);
+
+
+  edm::Handle<reco::VertexCollection> verticesH_;
+  evt.getByLabel(vertexTag_, verticesH_);
+  int nvtx = verticesH_->size();
+  
+  Float_t vtx_z = -999;
+  //  std::cout << " start vtx " << std::endl;
+
+  for (reco::VertexCollection::const_iterator vit=verticesH_->begin(); vit!=verticesH_->end(); vit++){
+    if(vtx_z==-999){
+      vtx_z = vit->position().Z();
+    }else{
+      break;
+    }
+    //    std::cout << vtx_z << std::endl;
+  }
+
+  //  vertexAssociator_->setEvent(evt);
+  //  reco::Vertex::Point evtVertexPos;
+  //  if ( verticesH_->size() > 0 ) evtVertexPos = verticesH_->front().position();
+
+
+
+
+
+  for (size_t iTau = 0; iTau < taus->size(); ++iTau) { // PFtau
+
+    reco::PFTauRef tau(taus, iTau);
+
+    bool match_gen = false;
+    Float_t match_gen_pt = -1;
+    Float_t match_gen_eta = -1;
+    Int_t gen_dm = -1;
+
+    //    std::cout << iTau << " reco tau pT, eta, dmf, dmfnew = " << tau->pt() << " " << tau->eta() << " " << (*disc)[tau]  << " " << (*discNew)[tau] << std::endl;
+
+
+    if(!(tau->pt() > 20 && TMath::Abs(tau->eta()) < 2.3)) continue;
+      
+    for(size_t i = 0; i < genTaus->size(); ++ i){
+      
+
+      const reco::GenJet & TauCand = (*genTaus)[i];
+      reco::Particle::LorentzVector visibleP4 = ((*genTaus)[i]).p4();
+      
+      //      if(visibleP4.pt() < 5.0) continue;
+      if(visibleP4.pt() < 20) continue;
+      if(TMath::Abs(visibleP4.eta()) > 2.3) continue;
+
+      const std::vector <const reco::GenParticle*> mRefs = TauCand.getGenConstituents();
+      unsigned int decayMode = 0; // 0 = hadronic, 1=electron, 2=muon 
+
+      for(size_t igTauD =0; igTauD < mRefs.size(); igTauD++) {
+	if(abs(mRefs[igTauD]->pdgId())==11) decayMode = 1;
+	if(abs(mRefs[igTauD]->pdgId())==13) decayMode = 2;
+      }
+      
+      if(decayMode!=0) continue; 
+
+
+      //      double dR_MC = deltaR(tau->p4(),((*genTaus)[i]).p4());
+      double dR_MC = deltaR(tau->p4(), ((*genTaus)[i]).p4());
+
+
+      if(dR_MC < matchingDistance_){
+	match_gen = true;
+	match_gen_pt = visibleP4.pt();
+	match_gen_eta = visibleP4.eta();
+	gen_dm = decaymodeid(genTauDecayMode(TauCand));
+
+
+	std::cout << "\t" << i << " -- Matching between gen and reco. tau : dR = " << dR_MC << " / " << matchingDistance_ << std::endl;
+	std::cout << "\t" << i << " -- vis pT, eta, decaymode = " << match_gen_pt << " " << match_gen_eta << " " << genTauDecayMode(TauCand) << std::endl;
+	//	for(size_t igTauD =0; igTauD < mRefs.size(); igTauD++) {
+	//	  std::cout << "\t " <<  mRefs[igTauD]->pdgId() << " " << mRefs[igTauD]->status() << " " << mRefs[igTauD]->p4().pt() << " " << mRefs[igTauD]->p4().eta() << std::endl;
+	//	}
+
+
+      }
+    }
+
+    if(match_gen==false) continue;
+    if((*disc)[tau] < 0.5) continue;
+
+
+    reco::PFJetRef ass_jet = getJetRef(*tau);
+
+    double vz1 = -99;
+    double track_pt1 = -99;
+    double track_eta1 = -99;
+    double track_phi1 = -99;
+    int track_nhit1 = -99;
+    
+    
+    if(tau->leadPFChargedHadrCand().isNonnull() && tau->leadPFChargedHadrCand()->trackRef().isNonnull()){
+      vz1 = tau->leadPFChargedHadrCand()->trackRef()->vz();
+      track_pt1 = tau->leadPFChargedHadrCand()->trackRef()->pt();
+      track_eta1 = tau->leadPFChargedHadrCand()->trackRef()->eta();
+      track_phi1 = tau->leadPFChargedHadrCand()->trackRef()->phi();
+      track_nhit1 = tau->leadPFChargedHadrCand()->trackRef()->hitPattern().numberOfValidTrackerHits();
+    }
+  
+  
+    _eventNum_ = Int_t(evt.id().event());
+    _nvtx_  = Int_t(nvtx);
+    _vtx_z_ = vtx_z;
+    _gen_dm_ = Int_t(gen_dm);    
+    _tauvispt_ = match_gen_pt;
+    _tauviseta_ = match_gen_eta;
+    _pt_ = tau->pt();
+    _eta_  = tau->eta();
+    _phi_  = tau->phi();
+    _jet_pt_ = ass_jet->pt();
+    _jet_eta_  = ass_jet->eta();
+    _jet_phi_  = ass_jet->phi();
+    _z_    = tau->vertex().z();
+    _chIso_ = (*chIso)[tau];
+    _nIso_ = (*nIso)[tau];
+    _puIso_ = (*PUIso)[tau];
+    _nIso_weight_ = (*nIso_weight)[tau];
+//    _nIso_weight1_ = (*nIso_weight1)[tau];
+//    _nIso_weight2_ = (*nIso_weight2)[tau];
+//    _nIso_weight1NQ_ = (*nIso_weight1NQ)[tau];
+//    _nIso_weight2NQ_ = (*nIso_weight2NQ)[tau];
+    _cmbIso_ = (*cmbIso)[tau];
+    _vz_ = Float_t(vz1);
+    _dmf_ = Int_t((*disc)[tau] > 0.5);
+    _dmfOld_ = Int_t((*discOld)[tau] > 0.5);
+    _dmfNew_ = Int_t((*discNew)[tau] > 0.5);
+    _ncharged_ = tau->signalPFChargedHadrCands().size();
+    _npizero_ = tau->signalPiZeroCandidates().size(); 
+    _track_pt_ = Float_t(track_pt1);
+    _track_eta_ = Float_t(track_eta1);
+    _track_phi_ = Float_t(track_phi1);
+    _track_nhit_ = Int_t(track_nhit1);
+ 
+
+    std::vector<float> signal_phi;
+    std::vector<float> signal_eta;
+  
+
+    const std::vector<reco::PFCandidatePtr> &pfCandidates = tau->signalPFCands();
+
+    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = pfCandidates.begin();
+	  pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+      
+      //      if(getPFCandidateTypeID((*pfCandidate)->particleId())==0 ||
+      //	 getPFCandidateTypeID((*pfCandidate)->particleId())==3 
+      //	 ){
+	
+	std::cout << "signal : " << (*pfCandidate)->eta() << " " << (*pfCandidate)->phi() << std::endl;
+	
+	signal_phi.push_back((float)(*pfCandidate)->phi());
+	signal_eta.push_back((float)(*pfCandidate)->eta());
+	//      }
+    }
+
+
+    if(d_tau_jet_pf_dr.size()!=0){
+      d_tau_jet_pf_dr.clear();
+      d_tau_jet_pf_eta.clear();
+      d_tau_jet_pf_phi.clear();
+      d_tau_jet_pf_pt.clear();
+      d_tau_jet_pf_wpt.clear();
+      d_tau_jet_pf_type.clear();
+      d_tau_jet_pf_isSignal.clear();
+    }
+
+    for(reco::PFCandidateCollection::const_iterator pfCandidate = pflow->begin();
+          pfCandidate != pflow->end(); ++pfCandidate){
+
+      double _dR_ = deltaR(tau->p4(), pfCandidate->p4());
+
+      if(getPFCandidateTypeID(pfCandidate->particleId())==3 || 
+	 getPFCandidateTypeID(pfCandidate->particleId())==0){
+
+	if(pfCandidate->pt() < 1.) continue;
+
+	//	if(pfCandidate->pt() > 1.5){
+
+	  Bool_t flag = false;
+
+	  for(int isignal=0; isignal < (int)signal_phi.size(); isignal++){
+
+	    if(signal_phi.at(isignal) == pfCandidate->phi() && 
+	       signal_eta.at(isignal) == pfCandidate->eta()) flag = true;
+	  }
+
+	  std::cout << "reco : " << pfCandidate->eta() << " " << pfCandidate->phi() << std::endl;
+
+	  //	  if(flag==true){
+	  //	    continue;
+	  //	  }
+
+	  
+	  d_tau_jet_pf_dr.push_back(_dR_);
+	  d_tau_jet_pf_eta.push_back(pfCandidate->eta());
+	  d_tau_jet_pf_phi.push_back(pfCandidate->phi());
+	  d_tau_jet_pf_pt.push_back(pfCandidate->pt());
+	  d_tau_jet_pf_wpt.push_back((pfCandidate->pt())/(2*_dR_*TMath::Pi()));
+	  d_tau_jet_pf_type.push_back(getPFCandidateTypeID(pfCandidate->particleId()));
+	  d_tau_jet_pf_isSignal.push_back((int)flag);
+	  
+
+	  //	}
+      }
+    }
+
+    isoTuple_->Fill();
+  }
+  
+
+  return true;
+}
+
+void RecoTauAnalyzer::endJob() {
+
+  file_->Write();
+  file_->Close();
+
+  //  TTree *savetree = isoTuple_->CloneTree();
+  //  TFile* file = new TFile("ntuple.root","recreate");
+  //  savetree->Write();
+  //  file->Close();
+
+  //  delete savetree;
+  //  delete isoTuple_;
+
+}
+
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(RecoTauAnalyzer);
