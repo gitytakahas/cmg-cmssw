@@ -72,6 +72,17 @@ def dmname(dm):
         return "Unknown"
 
 
+def returnRough(dm):
+    if dm in [0]:
+        return 0
+    elif dm in [1,2]:
+        return 1
+    elif dm in [10]:
+        return 2
+    else:
+        return -1
+
+
 def p4sumvis(particles):
     visparticles = [p for p in particles if abs(p.pdgId()) not in [12, 14, 16]]
     p4 = visparticles[-1].p4() if particles else 0.
