@@ -266,14 +266,15 @@ class DisplayManager(object):
         self.CH[-1].SetMarkerColor(col)
 
     def addRecoTau(self, particle):
+
+        if(particle.pt()!=0):
+            rcircle = max(0.05, min(0.10, 3.0/particle.pt()))
         
-        rcircle = max(0.05, min(0.10, 3.0/particle.pt()))
-        
-        self.recoTau.append(ROOT.TEllipse(particle.eta(), particle.phi(), rcircle, rcircle))
-        self.recoTau[-1].SetFillStyle(0)
-        self.recoTau[-1].SetLineColor(ROOT.kAzure)
-        self.recoTau[-1].SetLineStyle(2)
-        self.recoTau[-1].SetLineWidth(2)
+            self.recoTau.append(ROOT.TEllipse(particle.eta(), particle.phi(), rcircle, rcircle))
+            self.recoTau[-1].SetFillStyle(0)
+            self.recoTau[-1].SetLineColor(ROOT.kAzure)
+            self.recoTau[-1].SetLineStyle(2)
+            self.recoTau[-1].SetLineWidth(2)
 
 
         self.recoTau.append(ROOT.TEllipse(particle.eta(), particle.phi(), 0.5, 0.5))
@@ -402,5 +403,5 @@ class DisplayManager(object):
 
         self.etaPhiView.Update()
         self.etaPhiView.SaveAs('event_display/' + fname + '.gif')
-        self.etaPhiView.SaveAs('event_display/' + fname + '.pdf')
+#        self.etaPhiView.SaveAs('event_display/' + fname + '.pdf')
         

@@ -29,14 +29,17 @@ def createProfile(hist):
     return _hist1d_
 
 
-def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, leglabel = None, header='', ispt = True):
+def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, leglabel = None, header='', ispt = 'pt'):
    
     c = TCanvas()
     binning = [0,20,40,60,80,100,120,140,160,180,200,220,250,300,350,400]
+    binning_e = [0,20,40,60,80,100,120,140,160,180,200,220,250,300,350,400,600,800,1000,1500]
 
-    if ispt:
+    if ispt == 'pt':
         _hist_ = TH2F('h_effp', 'h_effp', len(binning)-1, array('d',binning), nbiny, ymin, ymax)
-    else:
+    elif ispt == 'e':
+        _hist_ = TH2F('h_effp', 'h_effp', len(binning_e)-1, array('d',binning_e), nbiny, ymin, ymax)
+    elif ispt == 'eta':
         _hist_ = TH2F('h_effp', 'h_effp', 20,-2.5,2.5, nbiny, ymin, ymax)
 
     dname = vary + ':' + varx + ' >> ' + _hist_.GetName()
@@ -44,7 +47,9 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, l
 
     hist = _hist_.ProfileX()
 
+    print '='*60
     print header, '# of entries = ', hist.GetEntries()
+    print '='*60
 
     hist.GetXaxis().SetTitle(xtitle)
     hist.GetYaxis().SetTitle(ytitle)
@@ -55,7 +60,7 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, l
     func = ROOT.TF1("func", "[0]*x+[1]",hist.GetXaxis().GetXmin(), hist.GetXaxis().GetXmax())
     func_low = ROOT.TF1("func_low", "[0]*x+[1]")
 
-    if ispt:
+    if ispt != 'eta':
         hist.Fit("func")
         _f_ = hist.GetFunction("func")
         _f_.SetLineColor(1)
@@ -64,7 +69,7 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, l
     hist.Draw("")
     hist.SetMinimum(0.)
 
-    if ispt:
+    if ispt != 'eta':
         _f_.Draw('same')
     
         func_low.SetParameter(0, func.GetParameter(0))
@@ -82,7 +87,7 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, l
 
     hist.Draw("axissame")
 
-    if ispt:
+    if ispt != 'eta':
         _f_.Draw('same')
 
 
@@ -97,7 +102,7 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, l
         leg.AddEntry(hist, leglabel, "")
         leg.Draw()
 
-    if ispt:
+    if ispt != 'eta':
         leg2 = TLegend(0.3,0.2,0.9,0.3)
         LegendSettings(leg2,1)
         lstr = 'slope : ' + '{0:.5f}'.format(func.GetParameter(0)) + ' #pm ' + '{0:.5f}'.format(func.GetParError(0))
@@ -114,7 +119,9 @@ if __name__ == '__main__':
 
     nbin = 1000
 
-    ddict = {'1p0pi0':0, '1p1pi0':1, '3p0pi0':2, 'Inclusive':-1}
+#    ddict = {'1p0pi0':0, '1p1pi0':1, '3p0pi0':2, 'Inclusive':-1}
+#    ddict = {'1p0pi0':0, '3p0pi0':2, 'Inclusive':-1}
+    ddict = {'1p0pi0':0}
     
     tfile = TFile('Myroot.root')
     tree = tfile.Get('per_tau')
@@ -127,12 +134,18 @@ if __name__ == '__main__':
             selection += '&& tau_gendm_rough == ' + str(dm)
 
         print dkey, selection
-        makeEffPlotsVars(tree, 'tau_geneta', '(tau_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau #eta^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_eta_ecanvas_' + dkey, False)
+        makeEffPlotsVars(tree, 'tau_geneta', '(tau_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau #eta^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_eta_ecanvas_' + dkey, 'eta')
 
-#        makeEffPlotsVars(tree, 'tau_genpt', '(tau_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau p_{T}^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_pt_ecanvas_' + dkey, True)
+        makeEffPlotsVars(tree, 'tau_genpt', '(tau_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau p_{T}^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_pt_ecanvas_' + dkey, 'pt')
+
+        makeEffPlotsVars(tree, 'tau_genenergy', '(tau_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau energy', '#varepsilon (# of photons #geq 1)', dkey, 'eff_energy_ecanvas_' + dkey, 'e')
+
+        makeEffPlotsVars(tree, 'tau_genpt', '(tau_nphoton > 0)', selection + ' && abs(tau_geneta) < 1.', 2, -0.5,1.5, 'gen. tau p_{T}^{vis}', '#varepsilon (# of photons #geq 1) with |#eta|<1', dkey, 'eff_pt_barrel_ecanvas_' + dkey, 'pt')
+
+        makeEffPlotsVars(tree, 'tau_genenergy', '(tau_nphoton > 0)', selection + ' && abs(tau_geneta) < 1.', 2, -0.5,1.5, 'gen. tau energy', '#varepsilon (# of photons #geq 1) with |#eta|<1', dkey, 'eff_energy_barrel_ecanvas_' + dkey, 'pt') # option pt for restricting to be the range
         
 
-#        makeEffPlotsVars(tree, 'tau_geneta', '(tau_nphoton > 0)', selection + ' && tau_nphoton > 0', 2, -0.5,1.5, 'gen. tau #eta^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_eta_ecanvas_' + dkey, False)
+#        makeEffPlotsVars(tree, 'tau_geneta', '(tau_nphoton > 0)', selection + ' && tau_nphoton > 0', 2, -0.5,1.5, 'gen. tau #eta^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_eta_ecanvas_pass_' + dkey, False)
 
 #        makeEffPlotsVars(tree, 'tau_genpt', '(tau_nphoton > 0)', selection + ' && tau_nphoton > 0', 2, -0.5,1.5, 'gen. tau p_{T}^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_pt_ecanvas_' + dkey, True)
         

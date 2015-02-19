@@ -9,6 +9,7 @@ eventsPerJob=argList[2]
 numberOfJobs=argList[3]
 batchScript='ak4Job_ztt.sh'
 cfgScript='SingleTaupt_50_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO.py'
+#cfgScript='SinglePi.py'
 currDir=os.getcwd()
 
 print 'This job will run from dir '+jobName

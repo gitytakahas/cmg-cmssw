@@ -191,26 +191,17 @@ if __name__ == '__main__':
 
     ddict = {'1p0pi0':0, '1p1pi0':1, '3p0pi0':10, 'Inclusive':-1}
     
-    tfile = TFile('Myroot_limit.root')
-    tree = tfile.Get('per_tau')
+    tfile = TFile('Myroot.root')
+    tree = tfile.Get('per_photon')
     
     for key, tool in vardict.iteritems():
         for dkey, dm in sorted(ddict.items()):
 
-            selection = ''
+            selection = 'photon_dm_rough == photon_gendm_rough'
 
-            if dkey=='1p1pi0':
-                selection += '(t_dm==1 || t_dm==2) && (t_gendm==1 || t_gendm==2)'
-            elif dkey in ['1p0pi0', '3p0pi0']:
-                selection += 't_dm == t_gendm && t_gendm == ' + str(dm)
-            elif dkey=='Inclusive':
-                selection += '1'
-            else:
-                print 'Invalid decaymode !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-
-            yval = key.replace('t_dphi','abs(t_dphi)').replace('t_deta','abs(t_deta)')
+            yval = key.replace('photon_dphi','abs(photon_dphi)').replace('photon_deta','abs(photon_deta)')
            
-            makeEffPlotsVars(tree, 't_geneta', yval, selection, tool['nbin'], tool['min'], tool['max'], 'gen. tau eta^{vis} (GeV)', tool['title'], dkey, 'canvas_' + dkey + '_')
+            makeEffPlotsVars(tree, 'photon_geneta', yval, selection, tool['nbin'], tool['min'], tool['max'], 'gen. tau eta^{vis} (GeV)', tool['title'], dkey, 'canvas_' + dkey + '_')
 
 
     evardict = {
@@ -220,25 +211,24 @@ if __name__ == '__main__':
 
 
     
-    tree = tfile.Get('per_event')
+    tree = tfile.Get('per_tau')
     
         
     for key, tool in evardict.iteritems():
         for dkey, dm in sorted(ddict.items()):
 
-            selection = 'e_total!=0 &&'
-#            selection = '1 &&'
+            selection = 'tau_total!=0 && tau_dm_rough == tau_gendm_rough && tau_dm_rough == ' + str(dm)
 
             if dkey=='1p1pi0':
-                selection += '(e_dm==1 || e_dm==2) && (e_gendm==1 || e_gendm==2)'
+                selection += '(tau_dm==1 || tau_dm==2) && (tau_gendm==1 || tau_gendm==2)'
             elif dkey in ['1p0pi0', '3p0pi0']:
-                selection += 'e_dm == e_gendm && e_gendm == ' + str(dm)
+                selection += 'tau_dm == tau_gendm && tau_gendm == ' + str(dm)
             elif dkey=='Inclusive':
                 selection += '1'
             else:
                 print 'Invalid decaymode !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
-            makeEffPlotsVars(tree, 'e_geneta', key, selection, tool['nbin'], tool['min'], tool['max'], 'gen. tau #eta^{vis}', tool['title'], dkey, 'ecanvas_' + dkey + '_')
+            makeEffPlotsVars(tree, 'tau_geneta', key, selection, tool['nbin'], tool['min'], tool['max'], 'gen. tau #eta^{vis}', tool['title'], dkey, 'ecanvas_' + dkey + '_')
 
  
     for dkey, dm in sorted(ddict.items()):
@@ -246,14 +236,14 @@ if __name__ == '__main__':
         selection = ''
 
         if dkey=='1p1pi0':
-            selection += '(e_dm==1 || e_dm==2) && (e_gendm==1 || e_gendm==2)'
+            selection += '(tau_dm==1 || tau_dm==2) && (tau_gendm==1 || tau_gendm==2)'
         elif dkey in ['1p0pi0', '3p0pi0']:
-            selection += 'e_dm == e_gendm && e_gendm == ' + str(dm)
+            selection += 'tau_dm == tau_gendm && tau_gendm == ' + str(dm)
         elif dkey=='Inclusive':
             selection += '1'
         else:
             print 'Invalid decaymode !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
         print key, selection
-        makeEffPlotsVars(tree, 'e_geneta', '(e_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau #eta^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_ecanvas_' + dkey + '_')
+        makeEffPlotsVars(tree, 'tau_geneta', '(tau_nphoton > 0)', selection, 2, -0.5,1.5, 'gen. tau #eta^{vis}', '#varepsilon (# of photons #geq 1)', dkey, 'eff_ecanvas_' + dkey + '_')
         
