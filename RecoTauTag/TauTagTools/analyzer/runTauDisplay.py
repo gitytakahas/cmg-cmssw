@@ -18,8 +18,8 @@ tauH_disc = Handle('reco::PFTauDiscriminator')
 
 filelist = []
 
-for ii in range(250):
-#for ii in range(1):
+#for ii in range(250):
+for ii in range(4):
     filename = '/afs/cern.ch/user/y/ytakahas/work/TauIsolation/CMSSW_7_2_3/src/RecoTauTag/TauTagTools/Production/TauGun_20150218_only1Prong/job_' + str(ii) + '/step.root'
     if os.path.exists(filename):
         filelist.append(filename)
@@ -140,11 +140,17 @@ photon_tree.Branch('photon_tau_ecalStripSumEOverPLead', photon_tau_ecalStripSumE
 photon_tree.Branch('photon_tau_maximumHCALPFClusterEt', photon_tau_maximumHCALPFClusterEt, 'photon_tau_maximumHCALPFClusterEt/D')
 
 counter = 0
-evtid = -1
+evtid = 0
 
 for event in events:
     
     evtid += 1  
+
+    if evtid > 1000: break
+
+    print '-'*80
+    print 'Event ', evtid
+    print '-'*80
 
     event.getByLabel('offlinePrimaryVertices',vertex)
     event.getByLabel('particleFlowRecHitECAL',ecalH)
@@ -287,10 +293,9 @@ for event in events:
             print 'ZZ : recoTau is not one !', len(recoTau)
             continue
 
-#        if recoTau[0].ntotal!=0:
-#            print "Interesting events ! ", evtid
+        if recoTau[0].ntotal!=0:
+            print "Interesting events ! ", evtid
 
-#        import pdb; pdb.set_trace()
         tau_id[0] = evtid
         tau_z[0] = recoTau[0].vertex().z()
         tau_pvz[0] = vtx[0].z()
@@ -348,8 +353,8 @@ for event in events:
 
 
         if counter < 200 and recoTau[0].ntotal!=0:
-#            displayHCAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'HCAL_' + str(evtid-1), counter, recoTau[0].ntotal)
-            displayECAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'ECAL_' + str(evtid-1), counter, recoTau[0].ntotal)
+#            displayHCAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'HCAL_' + str(evtid), counter, recoTau[0].ntotal)
+            displayECAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'ECAL_' + str(evtid), counter, recoTau[0].ntotal)
         
             counter += 1
 
@@ -362,7 +367,7 @@ for event in events:
 
 
 
-print evtid + 1, 'events are processed !'
+print evtid, 'events are processed !'
 
 file.Write()
 file.Close()

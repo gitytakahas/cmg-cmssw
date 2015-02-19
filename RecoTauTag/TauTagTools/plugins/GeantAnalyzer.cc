@@ -112,9 +112,8 @@ void traceParent(std::vector<int> trackid,
 
       //      std::cout << "Internal : " << is << " track ID = " << trackid.at(is) << ", gen. pdgId = " << gen.at(is) << ", parent ID = " << parent.at(is) << std::endl;
 
-      //      if(gen.at(is) != -1 && parent.at(is)==-1){
       if(gen.at(is) != -1){
-	std::cout << "found genparticle = " << gen.at(is) << ", pdg = " << pdg.at(is)  << std::endl;
+	//	std::cout << "found genparticle = " << gen.at(is) << ", pdg = " << pdg.at(is)  << std::endl;
 	_gen_ = pdg.at(is);
 
       }else{
@@ -137,7 +136,6 @@ void traceTrack(std::vector<int> trackid,
   for(int is=0; is < (int)trackid.size(); is++){
     if(original==trackid.at(is)){
       if(gen.at(is) != -1){
-	std::cout << "found genparticle = " << gen.at(is) << ", pdg = " << pdg.at(is)  << std::endl;
 	_track_ = trackid.at(is);
       }else{
 	int next = parent.at(is);
@@ -206,10 +204,10 @@ private:
   void PrintPFTaus(reco::PFTauRef PFTau, const edm::Event& iEvent, Int_t counter, Int_t dm) ;
 
   void EnergyLossAlongTrack(const SimTrack* itrack,
-                                edm::Handle<edm::SimTrackContainer>   simTrackHandle,
-                                edm::Handle<edm::SimVertexContainer>  simVtxHandle ,
-                                vector<float>& VectorOfMomenta ,
-                                TString offset="" );
+			    edm::Handle<edm::SimTrackContainer>   simTrackHandle,
+			    edm::Handle<edm::SimVertexContainer>  simVtxHandle ,
+			    vector<float>& VectorOfMomenta ,
+			    TString offset="" );
 
 
   map<unsigned int, unsigned int> PCaloHitMap;   // ( detId, SimTrackId )
@@ -228,9 +226,9 @@ private:
   vector<int> SecondariesPdgId;
   map<unsigned int, vector<unsigned int> > SimTrackHistory;  // (simTrackId, vector or processIds) for the history of the track
 
-      map<unsigned int, vector<int> > SimTrackVertexHistory;  // (simTrackId, vector or simVtxIds) for the history of the track
-      map<unsigned int, unsigned int> TrackIdMapIndexInHandle;   // (simTrackId, index in simTrackHandle)
-      map<unsigned int, vector<float> > SimTrackMomentaHistory;   // ( simTrackId, vector of Ptrack along the track)
+  map<unsigned int, vector<int> > SimTrackVertexHistory;  // (simTrackId, vector or simVtxIds) for the history of the track
+  map<unsigned int, unsigned int> TrackIdMapIndexInHandle;   // (simTrackId, index in simTrackHandle)
+  map<unsigned int, vector<float> > SimTrackMomentaHistory;   // ( simTrackId, vector of Ptrack along the track)
 
 
   bool doPrintSimHits;
@@ -243,6 +241,9 @@ private:
   edm::InputTag nIso_;
 
   Int_t counter = -1;
+
+  edm::Service<TFileService> fs_;
+  TH2F* history;
 
   TFile* file;
   TTree* tree;
@@ -273,6 +274,7 @@ private:
   std::vector<float> pseed_R;
   std::vector<int> isPrimary;
   std::vector<int> cluster_id;
+  std::vector<int> nprocess;
 
 };
 
@@ -288,7 +290,6 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
 
 {
   //now do what ever initialization is needed
-  //edm::Service<TFileService> fs;
 
   src_ = iConfig.getParameter<edm::InputTag>("src");
   genTauSrc_ = iConfig.getParameter<edm::InputTag>("genTauSrc");
@@ -299,9 +300,9 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   //doPrintCaloHits = true;
   //doPrintRecHits = true;
   
- doPrintSimHits = false;
- doPrintCaloHits = false;
- doPrintRecHits = false;
+  doPrintSimHits = false;
+  doPrintCaloHits = false;
+  doPrintRecHits = false;
 
   file = new TFile("Myroot.root","recreate");
   tree = new TTree("tree","tree");
@@ -332,7 +333,7 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("pseed_pt",&pseed_pt);
   tree->Branch("pseed_R",&pseed_R);
   tree->Branch("isPrimary",&isPrimary);
-
+  tree->Branch("nprocess",&nprocess);
 
 }
 
@@ -382,15 +383,14 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::PFTauRef tau(taus, iTau);
 
     bool match_gen = false;
-    //    Float_t match_gen_pt = -1;
-    //    Float_t match_gen_eta = -1;
 
-    //    std::cout << "reco Tau pT = " << tau->pt() << ", eta = " << tau->eta() << ", decaymode = " << tau->decayMode() << std::endl;
-
-    if(!(tau->decayMode() == 0 || 
+    if(!(tau->decayMode() == 0 ||
 	 tau->decayMode() == 1 || 
 	 tau->decayMode() == 2 || 
-	 tau->decayMode() == 10)) continue;
+	 tau->decayMode() == 10)){
+      std::cout << "Gen. info not available !" << std::endl;
+      continue;
+    }
 
 
     for(size_t i = 0; i < genTaus->size(); ++ i){      
@@ -419,10 +419,10 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 
       if(dR_MC < 0.5){
 	match_gen = true;
-	//	match_gen_pt = visibleP4.pt();
-	//	match_gen_eta = visibleP4.eta();
 	gendm = id;
 
+	//	match_gen_pt = visibleP4.pt();
+	//	match_gen_eta = visibleP4.eta();
 	//	std::cout << "\t" << i << " -- Matching between gen and reco. tau : dR = " << dR_MC << " / 0.5 : " << std::endl;
 	//	std::cout << "\t" << i << " -- vis pT, eta, decaymode = " << match_gen_pt << " " << match_gen_eta << " " << genTauDecayMode(TauCand) << " " << gendm<< std::endl;
 
@@ -438,8 +438,9 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //	      << "# of pion = " << tau->isolationPFChargedHadrCands().size()
     //	      << " nIso = " << niso << " " << ((*disc)[tau] < 0.5) << std::endl;
 
-    if(tau->isolationPFGammaCands().size() ==0 ) continue;
+    //    if(tau->isolationPFGammaCands().size() ==0 ) continue;
     if(niso==0) continue;
+
     ispass += 1;
 
     _tau_ = tau;
@@ -449,14 +450,11 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(ispass!=1) return;
   
 
-  //  cout << endl << endl << " a new event --- " << iEvent.id().run() << " " << iEvent.id().event() << endl;
-
   edm::Handle< vector<reco::GenParticle> > GenParticleHandle;
   iEvent.getByLabel("genParticles","",GenParticleHandle);
   if (! GenParticleHandle.isValid() ) return;
  
 
-  // GET SIMTRACKS 
   edm::Handle<edm::SimTrackContainer>   simTrackHandle;
   edm::Handle<edm::SimVertexContainer>  simVtxHandle;
   iEvent.getByLabel( "g4SimHits", simTrackHandle );
@@ -503,31 +501,31 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     unsigned int processType = theSimVertex.processType();
     float vtxR = sqrt( pow( Vtx_position.x(), 2) + pow(Vtx_position.y(), 2) ) ;
 
-        cout << "SimTrack trackId " << trackId << " type " << iterSimTracks->type() << " processType " << processType << " genpartIndex  " << genpartIndex << " vertexId " << vertexId << " parentIndex " << parentIndex << " R " << rdist  <<  " Z " << zdist << " pxyz " << tksurfMom.px() << " " << tksurfMom.py() << " " << tksurfMom.pz() <<  " vertexR " << vtxR << endl;
+    cout << "SimTrack trackId " << trackId << " type " << iterSimTracks->type() << " processType " << processType << " genpartIndex  " << genpartIndex << " vertexId " << vertexId << " parentIndex " << parentIndex << " R " << rdist  <<  " Z " << zdist << " pxyz " << tksurfMom.px() << " " << tksurfMom.py() << " " << tksurfMom.pz() <<  " vertexR " << vtxR << endl;
 
     if ( genpartIndex != -1 ) PrimariesSimTrackId.push_back( trackId );
 
-        vector<unsigned int> p0;
-        p0.push_back( processType );
-        SimTrackHistory.insert( pair<unsigned int, vector<unsigned int> >(trackId, p0) ) ;
- 	vector<int> q0;
-        q0.push_back( vertexIndex );
-        SimTrackVertexHistory.insert( pair<unsigned int, vector<int> >(trackId, q0 ) ) ;
+    vector<unsigned int> p0;
+    p0.push_back( processType );
+    SimTrackHistory.insert( pair<unsigned int, vector<unsigned int> >(trackId, p0) ) ;
+    vector<int> q0;
+    q0.push_back( vertexIndex );
+    SimTrackVertexHistory.insert( pair<unsigned int, vector<int> >(trackId, q0 ) ) ;
 
-        // update the history of the parent track
-        map< unsigned int, vector<unsigned int> >::iterator phis = SimTrackHistory.find( (unsigned int)parentIndex );
-        map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( (unsigned int)parentIndex );
-        if ( phis != SimTrackHistory.end() ) {
-           vector<unsigned int> vtmp = phis -> second;
-           vtmp.push_back( processType  );
-           SimTrackHistory[ trackId ] = vtmp;
-	   vector<int> wtmp = phisVtx -> second;
-           wtmp.push_back( vertexIndex );
-           SimTrackVertexHistory[ trackId ] = wtmp ;
-        }
-        else {
-           if (parentIndex != -1) cout << " ... problem in updating SimTrackHistory : trackId " << parentIndex << " (parent of " << trackId << ") has not been entered yet. " << endl;
-        }
+    // update the history of the parent track
+    map< unsigned int, vector<unsigned int> >::iterator phis = SimTrackHistory.find( (unsigned int)parentIndex );
+    map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( (unsigned int)parentIndex );
+    if ( phis != SimTrackHistory.end() ) {
+      vector<unsigned int> vtmp = phis -> second;
+      vtmp.push_back( processType  );
+      SimTrackHistory[ trackId ] = vtmp;
+      vector<int> wtmp = phisVtx -> second;
+      wtmp.push_back( vertexIndex );
+      SimTrackVertexHistory[ trackId ] = wtmp ;
+    }
+    else {
+      if (parentIndex != -1) cout << " ... problem in updating SimTrackHistory : trackId " << parentIndex << " (parent of " << trackId << ") has not been entered yet. " << endl;
+    }
 
 
     SecondariesSimTrackId.push_back( trackId );
@@ -540,34 +538,34 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }  // end loop over simTracks
 
 
-        // now, for the tracks that exit the tracker, look at the energy
-        // lost at each vertex along the track, and fill the
-        // map SimTrackMomentaHistory
+  // now, for the tracks that exit the tracker, look at the energy
+  // lost at each vertex along the track, and fill the
+  // map SimTrackMomentaHistory
 
   for ( iterSimTracks = simTrackHandle->begin();
         iterSimTracks != simTrackHandle->end();
         ++iterSimTracks ) {
 
-        const math::XYZTLorentzVectorD tksurfMom =  iterSimTracks -> trackerSurfaceMomentum() ;
-        //float p = sqrt( tksurfMom.perp2() );
-        float p  = tksurfMom.P() ;
-        unsigned int trackId = iterSimTracks -> trackId();
-        if ( p <= 1e-3) continue;       // only tracks with p > 1 MeV when they exit the tracker
+    const math::XYZTLorentzVectorD tksurfMom =  iterSimTracks -> trackerSurfaceMomentum() ;
+    //float p = sqrt( tksurfMom.perp2() );
+    float p  = tksurfMom.P() ;
+    unsigned int trackId = iterSimTracks -> trackId();
+    if ( p <= 1e-3) continue;       // only tracks with p > 1 MeV when they exit the tracker
 
-        const SimTrack itra = *iterSimTracks;
-        const SimTrack* pitra = &itra;
-        vector<float> vecP ;
-        EnergyLossAlongTrack( pitra, simTrackHandle, simVtxHandle, vecP );
-/*
-        if ( vecP.size() > 0) {
-           for (unsigned int k=0; k < vecP.size(); k++) {
-              float thep = vecP.at( k );
-              cout << " " << thep << " "  ;
-           }
-           cout << endl;
-        }
-*/
-        SimTrackMomentaHistory.insert( pair<unsigned int, vector<float> >(trackId, vecP ) );
+    const SimTrack itra = *iterSimTracks;
+    const SimTrack* pitra = &itra;
+    vector<float> vecP ;
+    EnergyLossAlongTrack( pitra, simTrackHandle, simVtxHandle, vecP );
+    /*
+      if ( vecP.size() > 0) {
+      for (unsigned int k=0; k < vecP.size(); k++) {
+      float thep = vecP.at( k );
+      cout << " " << thep << " "  ;
+      }
+      cout << endl;
+      }
+    */
+    SimTrackMomentaHistory.insert( pair<unsigned int, vector<float> >(trackId, vecP ) );
 
   }   // end loop over SimTracks
 
@@ -649,14 +647,15 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   if(cluster_id.size()!=0){
-    //    std::cout << "cleaning of the vectors" << std::endl;
     cluster_id.clear();
     seed_pdgid.clear();
     pseed_pdgid.clear();
     pseed_pt.clear();
     pseed_R.clear();
     isPrimary.clear();
+    nprocess.clear();
   }
+
 
 
   // access the PFTau objects
@@ -669,45 +668,45 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // --------------------------------------------------------------------------------------
 
-	// this fills the vector VectorOfMomenta, that contains the PT of the SimTrack
-	// after each interaction (vertex)
-	// Used to fill the map SimTrackMomentaHistory
+// this fills the vector VectorOfMomenta, that contains the PT of the SimTrack
+// after each interaction (vertex)
+// Used to fill the map SimTrackMomentaHistory
 
 void GeantAnalyzer::EnergyLossAlongTrack(const SimTrack* itrack,
-                                edm::Handle<edm::SimTrackContainer>   simTrackHandle,
-                                edm::Handle<edm::SimVertexContainer>  simVtxHandle ,
-                                std::vector<float>& VectorOfMomenta ,
-                                TString offset )
+					 edm::Handle<edm::SimTrackContainer>   simTrackHandle,
+					 edm::Handle<edm::SimVertexContainer>  simVtxHandle ,
+					 std::vector<float>& VectorOfMomenta ,
+					 TString offset )
 {
 
 
-    const math::XYZTLorentzVectorD mom = itrack -> momentum();
-    //float p = mom.P()  ;
-    float p = mom.Pt()  ;
-    VectorOfMomenta.insert( VectorOfMomenta.begin(), p );
+  const math::XYZTLorentzVectorD mom = itrack -> momentum();
+  //float p = mom.P()  ;
+  float p = mom.Pt()  ;
+  VectorOfMomenta.insert( VectorOfMomenta.begin(), p );
 
-    unsigned int trackId = itrack -> trackId();
-    //cout << offset << " ... enter in EnergyLossAlongTrack  trackId = " << trackId << " momentum p = " << p << endl;
+  unsigned int trackId = itrack -> trackId();
+  //cout << offset << " ... enter in EnergyLossAlongTrack  trackId = " << trackId << " momentum p = " << p << endl;
 
-    map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( trackId );
-    if ( phisVtx != SimTrackVertexHistory.end() ) {
-        vector<int> vertices = phisVtx -> second;
+  map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( trackId );
+  if ( phisVtx != SimTrackVertexHistory.end() ) {
+    vector<int> vertices = phisVtx -> second;
 
-        int lastvertex = vertices.back();
-        const SimVertex& theSimVertex = (*simVtxHandle)[ lastvertex ];
-        int parentIndex = theSimVertex.parentIndex();   // careful, this is the simTrackId
-        unsigned int vertexId = theSimVertex.vertexId();
+    int lastvertex = vertices.back();
+    const SimVertex& theSimVertex = (*simVtxHandle)[ lastvertex ];
+    int parentIndex = theSimVertex.parentIndex();   // careful, this is the simTrackId
+    unsigned int vertexId = theSimVertex.vertexId();
 
-        if ( parentIndex != -1 && vertexId != 0) {
-                // need to get the index of this simTrackId in the simTrackHandle :
-           int parentTrack = TrackIdMapIndexInHandle[ (unsigned int)parentIndex ];
-           const SimTrack theParentTrack = (*simTrackHandle)[ parentTrack ];
-           const SimTrack* pitra = &theParentTrack;
-           TString offset2 = offset + "   ";
-           EnergyLossAlongTrack( pitra, simTrackHandle, simVtxHandle, VectorOfMomenta, offset2 );
-        } // endif
+    if ( parentIndex != -1 && vertexId != 0) {
+      // need to get the index of this simTrackId in the simTrackHandle :
+      int parentTrack = TrackIdMapIndexInHandle[ (unsigned int)parentIndex ];
+      const SimTrack theParentTrack = (*simTrackHandle)[ parentTrack ];
+      const SimTrack* pitra = &theParentTrack;
+      TString offset2 = offset + "   ";
+      EnergyLossAlongTrack( pitra, simTrackHandle, simVtxHandle, VectorOfMomenta, offset2 );
+    } // endif
 
-    } // endif phisVtx
+  } // endif phisVtx
 
 }
 
@@ -757,7 +756,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     int nEcal = 0;
     int nbadEcal = 0;
     for(unsigned jEle=0; jEle<theElements.size(); jEle++) { 	// bugfix
-     unsigned int iEle = theElements[jEle].second;
+      unsigned int iEle = theElements[jEle].second;
       PFBlockElement::Type type = elements[iEle].type();
       if (type == PFBlockElement::ECAL) {
 	nEcal ++;
@@ -808,45 +807,90 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
           }
         }
 
-                        // retrieve the vector of processIds, i.e. the history
-                vector<unsigned int> vHistory;
-                map<unsigned int, vector<unsigned int> >::iterator phis;
-                phis = SimTrackHistory.find( simTrackId );
-                if ( phis != SimTrackHistory.end() ) {
-                    vHistory = phis -> second;
-                }
-                else {
-                    cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackHistory " << endl;
-                }
+	// retrieve the vector of processIds, i.e. the history
+	vector<unsigned int> vHistory;
+	map<unsigned int, vector<unsigned int> >::iterator phis;
+	phis = SimTrackHistory.find( simTrackId );
+	if ( phis != SimTrackHistory.end() ) {
+	  vHistory = phis -> second;
+	}
+	else {
+	  cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackHistory " << endl;
+	}
 
 	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << " parent pdgId " << _gen_ << ", track id = " << _trackid_ << " ProcessIds " ;
-                 for (unsigned int vit = 0; vit < vHistory.size(); ++vit) {
-                   cout << vHistory.at( vit) << " " ;
-                 }
-                 cout << endl;
-			// now print the vector of Transverse momenta for this track,
-			// starting from the primary particle :
 
-                 map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
-                 if ( itMomenta != SimTrackMomentaHistory.end() ) {
-                   vector<float> VecOfMomenta = itMomenta -> second;
-                   cout << "\t \t \t TrMomenta : " ;
-                   for (unsigned int vit = 0; vit < VecOfMomenta.size(); ++vit) {
-                        cout <<  VecOfMomenta.at( vit ) << " " ;
-                   }
-                   cout << endl;
-                 }
+	int _simplepdgId_ = 3;
+	if(abs(simTrackpdgId)==211) _simplepdgId_ = 2;
+	else if(abs(simTrackpdgId)==22) _simplepdgId_ = 1;
+	else if(abs(simTrackpdgId)==11) _simplepdgId_ = 0;
+
+	Bool_t isIonization = false;
+	Bool_t isBrems = false;
+	Bool_t isConv = false;
+	Bool_t isHad = false;
+	Bool_t isDecay = false;
+	Bool_t isOther = false;	
+	Bool_t isSecondary = false;
+
+	for (unsigned int vit = 0; vit < vHistory.size(); ++vit) {
+	  cout << vHistory.at( vit) << " " ;
+
+	  //	  int _simpleprocessId_ = 6;
+	  if(vHistory.at(vit)==2) isIonization = true;
+	  else if(vHistory.at(vit)==3) isBrems = true;
+	  else if(vHistory.at(vit)==14) isConv = true;
+	  else if(vHistory.at(vit)==121) isHad = true;
+	  else if(vHistory.at(vit)==201) isDecay = true;
+	  else{
+	    if(vHistory.at(vit)!=0){
+	      std::cout << "isOther = " << vHistory.at(vit) << std::endl;
+	      isOther = true;
+	    }
+	  }
+
+	  if(vHistory.at(vit)!=0) isSecondary = true;
+	}
+
+	if(isSecondary==false) history->Fill(_simplepdgId_, 0);
+	if(isIonization) history->Fill(_simplepdgId_, 1);
+	if(isBrems) history->Fill(_simplepdgId_, 2);
+	if(isConv) history->Fill(_simplepdgId_, 3);
+	if(isHad) history->Fill(_simplepdgId_, 4);
+	if(isDecay) history->Fill(_simplepdgId_, 5);
+	if(isOther) history->Fill(_simplepdgId_, 6);
+
+	cout << endl;
+	// now print the vector of Transverse momenta for this track,
+	// starting from the primary particle :
+
+	map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
+	if ( itMomenta != SimTrackMomentaHistory.end() ) {
+	  vector<float> VecOfMomenta = itMomenta -> second;
+	  cout << "\t \t \t TrMomenta : " ;
+	  for (unsigned int vit = 0; vit < VecOfMomenta.size(); ++vit) {
+	    cout <<  VecOfMomenta.at( vit ) << " " ;	    
+    
+	    //	    float dpt = -1;
+	    //	    if(vit!=0){
+	    //	      dpt = VecOfMomenta.at( vit ) - VecOfMomenta.at( vit -1 );
+	    //	    }
+
+	  }
+	  cout << endl;
+	}
 
 	
 
-	std::cout << stPrimary  <<  " parent pdgId == " << _gen_ << ", track id = " << _trackid_ << ", R = " << _R_ <<  ", pt = " << _pt_ << std::endl;
+	//	std::cout << stPrimary  <<  " parent pdgId == " << _gen_ << ", track id = " << _trackid_ << ", R = " << _R_ <<  ", pt = " << _pt_ << std::endl;
 
 	cluster_id.push_back(nEcal);
 	seed_pdgid.push_back(simTrackpdgId);
 	pseed_pdgid.push_back(_gen_);
+	nprocess.push_back(vHistory.size()-1);
 	pseed_pt.push_back(_pt_);
 	pseed_R.push_back(_R_);
-	isPrimary.push_back((stPrimary==" Primary "));
+	isPrimary.push_back((stPrimary==" [Primary] "));
 
       }
     }
@@ -884,101 +928,9 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     
     tree->Fill();
 
-  } // end loop over constituents of isolationGamma
-
-    //  } // end loop over taus
-
+  }
 }
 
-
-
-
-
-
-
-
-//void GeantAnalyzer::PrintPFTaus(edm::Handle< vector<reco::PFTau> > pPFTausHandle ) {
-//
-//  using namespace reco;
-//
-//  typedef std::vector <reco::PFCandidatePtr> constituents_type;
-//  typedef std::vector <reco::PFCandidatePtr>::iterator constituents_iterator;
-//
-//  vector<reco::PFTau>::const_iterator iterTau;
-//  for (iterTau = pPFTausHandle->begin(); iterTau != pPFTausHandle->end(); ++iterTau) {
-//    float pT = iterTau -> pt();
-//    float eta = iterTau -> eta();
-//    float phi = iterTau -> phi();
-//    float isolationCh = iterTau -> isolationPFChargedHadrCandsPtSum();
-//    float isolationGamma =  iterTau -> isolationPFGammaCandsEtSum() ;
-//
-//    cout << " a PFTau pt " << pT << " eta " << eta << " phi " << phi << " isolationCh " << isolationCh << " isolationGamma " << isolationGamma << endl;
-//
-//    //std::vector<reco::PFCandidatePtr> constisolationNeutrHad = iterTau -> isolationPFNeutrHadrCands() ;
-//    //std::vector<reco::PFCandidatePtr> constisolationGamma = iterTau -> isolationPFGammaCands() ;
-//    std::vector<reco::PFCandidatePtr> constisolation = iterTau -> isolationPFCands() ;
-//
-//    // access the PFCandidates that are in the isolation cone
-//    for(constituents_iterator it=constisolation.begin(); it!=constisolation.end(); ++it) {
-//      reco::PFCandidatePtr & icand = *it;
-//      float candPt = icand->pt();
-//      float candE = icand -> energy();
-//      float candEta = icand->eta();
-//      float candPhi = icand -> phi();
-//      float candDr   = reco::deltaR(**it,*iterTau);
-//      int pftype = icand->particleId() ;   // should be 4 for photons, 5 for neut hadrons
-//      if ( pftype != PFCandidate::ParticleType::gamma &&  pftype != PFCandidate::ParticleType::h0 ) continue;
-//      TString stype =  pftype == PFCandidate::ParticleType::gamma ? " photon " : " NeutHad " ;
-//      cout << "   " << stype << " in isolation cone pt " << candPt << " energy " << candE << " eta " << candEta << " phi " << candPhi << " dR " << candDr << endl;
-//      int simTrackpdgId = -999;
-//      unsigned int simTrackId = 0;
-//
-//      // Find the corresponding PF block elements
-//      const PFCandidate::ElementsInBlocks& theElements = icand -> elementsInBlocks();
-//      if( theElements.empty() ) continue;
-//      const reco::PFBlockRef blockRef = theElements[0].first;
-//      PFBlock::LinkData linkData = blockRef->linkData();
-//      const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-//
-//      int nEcal = 0;
-//      for(unsigned iEle=0; iEle<elements.size(); iEle++) {
-//	PFBlockElement::Type type = elements[iEle].type();
-//	if (type == PFBlockElement::ECAL) {
-//	  nEcal ++;
-//	  const reco::PFBlockElementCluster& et =
-//	    dynamic_cast<const reco::PFBlockElementCluster &>( elements[iEle] );
-//	  float eclu = et.clusterRef()->energy();
-//	  map<float, unsigned int>::iterator cmp = ClusterMap.find( eclu );
-//	  if ( cmp == ClusterMap.end() ) {
-//	    cout << " ..... WEIRD. constituent cluster was not found in cluster list... " << endl ;
-//	  }
-//	  else {
-//	    simTrackId  = cmp -> second;
-//	    map<unsigned int, int>::iterator tmp = TrackIdMap.find( simTrackId );
-//	    if ( tmp == TrackIdMap.end() ) {
-//	      cout << " .... WEIRD... no pdgId in map TrackIdMap for simTrackId " << simTrackId << endl;
-//	    }
-//	    else {
-//	      simTrackpdgId = tmp -> second;
-//	    }
-//	  }
-//	  TString stPrimary;
-//	  if ( find( PrimariesSimTrackId.begin(), PrimariesSimTrackId.end(), simTrackId) != PrimariesSimTrackId.end() ) {
-//	    stPrimary = " Primary " ;
-//	  }
-//	  else stPrimary = " Secondary ";
-//	  cout << "\t cluster number " << nEcal << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << endl;
-//	}
-//      }
-//
-//    } // end loop over constituents of isolationGamma
-//
-//  } // end loop over taus
-//
-//}
-
-
-// --------------------------------------------------------------------------------------
 
 
 void
@@ -1306,10 +1258,51 @@ void GeantAnalyzer::PrintPFClusters(  edm::Handle< vector<reco::PFCluster> > pPF
 
 
 void 
-GeantAnalyzer::beginJob(){}
+GeantAnalyzer::beginJob(){
+  history = fs_->make<TH2F>("history","history",4,0,4,7,0,7);
+
+  TString ylabel[7] = {"Primary",
+		       "Ionization",
+		       "Brems",
+		       "Conversion",
+		       "Had. Inelastic",
+		       "Decay",
+		       "Other"};
+
+  TString xlabel[4] = {"e",
+		       "#gamma",
+		       "#pi",
+		       "Other"};
+
+  for(int ibin=1; ibin < history->GetXaxis()->GetNbins()+1; ibin++){
+    history->GetXaxis()->SetBinLabel(ibin, xlabel[ibin-1]);
+  }
+  
+  for(int ibin=1; ibin < history->GetYaxis()->GetNbins()+1; ibin++){
+    history->GetYaxis()->SetBinLabel(ibin, ylabel[ibin-1]);
+  }
+
+}
 
 void 
-GeantAnalyzer::endJob(){}
+GeantAnalyzer::endJob(){
+
+  for(int ibin=1; ibin < history->GetXaxis()->GetNbins()+1; ibin++){
+
+    Float_t total = 0.;
+
+    for(int iibin=1; iibin < history->GetYaxis()->GetNbins()+1; iibin++){
+      total += history->GetBinContent(ibin, iibin);
+    }
+
+    for(int iibin=1; iibin < history->GetYaxis()->GetNbins()+1; iibin++){
+      Float_t frac = (history->GetBinContent(ibin, iibin))/total;
+      history->SetBinContent(ibin, iibin, frac);
+    }
+
+  }
+
+}
 
 void
 GeantAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

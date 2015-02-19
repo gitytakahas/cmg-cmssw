@@ -381,7 +381,7 @@ process.p = cms.Path(
             )
 
 
-#process.TFileService = cms.Service("TFileService", fileName = cms.string("dummy.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("dummy.root"))
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
