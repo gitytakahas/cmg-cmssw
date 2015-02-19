@@ -225,6 +225,8 @@ private:
   vector<int> SecondariesParents;
   vector<int> SecondariesPdgId;
   map<unsigned int, vector<unsigned int> > SimTrackHistory;  // (simTrackId, vector or processIds) for the history of the track
+  map<unsigned int, vector<int> > SimTrackPdgIdHistory;  // (simTrackId, vector or processIds) for the history of the track
+  map<unsigned int, vector<float> > SimTrackRHistory;  // (simTrackId, vector or processIds) for the history of the track
 
   map<unsigned int, vector<int> > SimTrackVertexHistory;  // (simTrackId, vector or simVtxIds) for the history of the track
   map<unsigned int, unsigned int> TrackIdMapIndexInHandle;   // (simTrackId, index in simTrackHandle)
@@ -275,6 +277,12 @@ private:
   std::vector<int> isPrimary;
   std::vector<int> cluster_id;
   std::vector<int> nprocess;
+
+  std::vector<int> history_pdgid;
+  std::vector<float> history_pt;
+  std::vector<float> history_r;
+  std::vector<int> history_ii;
+  std::vector<int> history_processtype;
 
 };
 
@@ -334,6 +342,12 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("pseed_R",&pseed_R);
   tree->Branch("isPrimary",&isPrimary);
   tree->Branch("nprocess",&nprocess);
+
+  tree->Branch("history_pdgid",&history_pdgid);
+  tree->Branch("history_pt",&history_pt);
+  tree->Branch("history_r",&history_r);
+  tree->Branch("history_ii",&history_ii);
+  tree->Branch("history_processtype",&history_processtype);
 
 }
 
@@ -472,6 +486,8 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   SecondariesSimTrackR.clear();
   SecondariesSimTrackpt.clear();
   SimTrackHistory.clear();
+  SimTrackPdgIdHistory.clear();
+  SimTrackRHistory.clear();
   SimTrackVertexHistory.clear();
   TrackIdMapIndexInHandle.clear();
   SimTrackMomentaHistory.clear();
@@ -508,17 +524,37 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vector<unsigned int> p0;
     p0.push_back( processType );
     SimTrackHistory.insert( pair<unsigned int, vector<unsigned int> >(trackId, p0) ) ;
+
+    vector<int> p1;
+    p1.push_back( iterSimTracks->type() );
+    SimTrackPdgIdHistory.insert( pair<unsigned int, vector<int> >(trackId, p1) ) ;
+
+    vector<float> p2;
+    p2.push_back( rdist );
+    SimTrackRHistory.insert( pair<unsigned int, vector<float> >(trackId, p2) ) ;
+
     vector<int> q0;
     q0.push_back( vertexIndex );
     SimTrackVertexHistory.insert( pair<unsigned int, vector<int> >(trackId, q0 ) ) ;
 
     // update the history of the parent track
     map< unsigned int, vector<unsigned int> >::iterator phis = SimTrackHistory.find( (unsigned int)parentIndex );
+    map< unsigned int, vector<int> >::iterator phisPdg = SimTrackPdgIdHistory.find( (unsigned int)parentIndex );
+    map< unsigned int, vector<float> >::iterator phisR = SimTrackRHistory.find( (unsigned int)parentIndex );
     map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( (unsigned int)parentIndex );
     if ( phis != SimTrackHistory.end() ) {
       vector<unsigned int> vtmp = phis -> second;
       vtmp.push_back( processType  );
       SimTrackHistory[ trackId ] = vtmp;
+
+      vector<int> xtmp = phisPdg -> second;
+      xtmp.push_back( iterSimTracks->type()  );
+      SimTrackPdgIdHistory[ trackId ] = xtmp;
+
+      vector<float> rtmp = phisR -> second;
+      rtmp.push_back( rdist  );
+      SimTrackRHistory[ trackId ] = rtmp;
+
       vector<int> wtmp = phisVtx -> second;
       wtmp.push_back( vertexIndex );
       SimTrackVertexHistory[ trackId ] = wtmp ;
@@ -646,16 +682,6 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   PrintPFClusters( pPFClustersECALHandle, verbose );
 
 
-  if(cluster_id.size()!=0){
-    cluster_id.clear();
-    seed_pdgid.clear();
-    pseed_pdgid.clear();
-    pseed_pt.clear();
-    pseed_R.clear();
-    isPrimary.clear();
-    nprocess.clear();
-  }
-
 
 
   // access the PFTau objects
@@ -753,6 +779,26 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     PFBlock::LinkData linkData = blockRef->linkData();
     const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
 
+
+  if(cluster_id.size()!=0){
+    cluster_id.clear();
+    seed_pdgid.clear();
+    pseed_pdgid.clear();
+    pseed_pt.clear();
+    pseed_R.clear();
+    isPrimary.clear();
+    nprocess.clear();
+
+    history_pdgid.clear();
+    history_pt.clear();
+    history_r.clear();
+    history_ii.clear();
+    history_processtype.clear();
+
+  }
+
+
+
     int nEcal = 0;
     int nbadEcal = 0;
     for(unsigned jEle=0; jEle<theElements.size(); jEle++) { 	// bugfix
@@ -818,6 +864,27 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 	  cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackHistory " << endl;
 	}
 
+	vector<int> pHistory;
+	map<unsigned int, vector<int> >::iterator phisPdg;
+	phisPdg = SimTrackPdgIdHistory.find( simTrackId );
+	if ( phisPdg != SimTrackPdgIdHistory.end() ) {
+	  pHistory = phisPdg -> second;
+	}
+	else {
+	  cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackPdgIdHistory " << endl;
+	}
+
+	vector<float> rHistory;
+	map<unsigned int, vector<float> >::iterator phisR;
+	phisR = SimTrackRHistory.find( simTrackId );
+	if ( phisR != SimTrackRHistory.end() ) {
+	  rHistory = phisR -> second;
+	}
+	else {
+	  cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackPdgIdHistory " << endl;
+	}
+
+
 	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << " parent pdgId " << _gen_ << ", track id = " << _trackid_ << " ProcessIds " ;
 
 	int _simplepdgId_ = 3;
@@ -833,8 +900,39 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 	Bool_t isOther = false;	
 	Bool_t isSecondary = false;
 
+
+	vector<float> VecOfMomenta;
+	map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
+	if ( itMomenta != SimTrackMomentaHistory.end() ) {
+	  VecOfMomenta = itMomenta -> second;
+
+	  //	  std::cout << "size (p, process) = " << VecOfMomenta.size() << " " << vHistory.size() << std::endl;
+
+	  //	  cout << "\t \t \t TrMomenta : " ;
+	  //	  for (unsigned int vit = 0; vit < VecOfMomenta.size(); ++vit) {
+//	    cout <<  VecOfMomenta.at( vit ) << " " ;	    
+	  //	  }
+	  //	  cout << endl;
+	}
+
+
+
 	for (unsigned int vit = 0; vit < vHistory.size(); ++vit) {
-	  cout << vHistory.at( vit) << " " ;
+	  if(VecOfMomenta.size() == vHistory.size()){
+	    cout << "\t\t Process ID = " << vHistory.at( vit) << " (PDG ID = " << pHistory.at(vit) << ", R = " << rHistory.at(vit) << ", pT = " << VecOfMomenta.at(vit)  << ") " << std::endl;
+	    history_pt.push_back(VecOfMomenta.at(vit));
+	  }else{
+	    cout << "\t\t Process ID = " << vHistory.at( vit) << " (PDG ID = " << pHistory.at(vit) << ", R = " << rHistory.at(vit) << ", pT = -1 (unknown)) " << std::endl;
+	    history_pt.push_back(-1);
+	  }
+
+
+	  history_pdgid.push_back(pHistory.at(vit));
+	  history_r.push_back(rHistory.at(vit));
+	  history_ii.push_back(vit);
+	  history_processtype.push_back(vHistory.at( vit));
+
+
 
 	  //	  int _simpleprocessId_ = 6;
 	  if(vHistory.at(vit)==2) isIonization = true;
@@ -863,22 +961,6 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 	cout << endl;
 	// now print the vector of Transverse momenta for this track,
 	// starting from the primary particle :
-
-	map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
-	if ( itMomenta != SimTrackMomentaHistory.end() ) {
-	  vector<float> VecOfMomenta = itMomenta -> second;
-	  cout << "\t \t \t TrMomenta : " ;
-	  for (unsigned int vit = 0; vit < VecOfMomenta.size(); ++vit) {
-	    cout <<  VecOfMomenta.at( vit ) << " " ;	    
-    
-	    //	    float dpt = -1;
-	    //	    if(vit!=0){
-	    //	      dpt = VecOfMomenta.at( vit ) - VecOfMomenta.at( vit -1 );
-	    //	    }
-
-	  }
-	  cout << endl;
-	}
 
 	
 
