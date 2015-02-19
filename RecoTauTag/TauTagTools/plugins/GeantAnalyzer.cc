@@ -205,6 +205,12 @@ private:
   //  void PrintPFTaus(edm::Handle< vector<reco::PFTau> > pPFTausHandle ) ;
   void PrintPFTaus(reco::PFTauRef PFTau, const edm::Event& iEvent, Int_t counter, Int_t dm) ;
 
+  void EnergyLossAlongTrack(const SimTrack* itrack,
+                                edm::Handle<edm::SimTrackContainer>   simTrackHandle,
+                                edm::Handle<edm::SimVertexContainer>  simVtxHandle ,
+                                vector<float>& VectorOfMomenta ,
+                                TString offset="" );
+
 
   map<unsigned int, unsigned int> PCaloHitMap;   // ( detId, SimTrackId )
   map<unsigned int, map<unsigned int, float> > PCaloHitEnergyMap;  //  ( detId, ( SimTrackId, energy) )
@@ -220,7 +226,11 @@ private:
   vector<int> SecondariesGenParticles;
   vector<int> SecondariesParents;
   vector<int> SecondariesPdgId;
-      map<unsigned int, vector<unsigned int> > SimTrackHistory;  // (simTrackId, vector or processIds) for the history of the track
+  map<unsigned int, vector<unsigned int> > SimTrackHistory;  // (simTrackId, vector or processIds) for the history of the track
+
+      map<unsigned int, vector<int> > SimTrackVertexHistory;  // (simTrackId, vector or simVtxIds) for the history of the track
+      map<unsigned int, unsigned int> TrackIdMapIndexInHandle;   // (simTrackId, index in simTrackHandle)
+      map<unsigned int, vector<float> > SimTrackMomentaHistory;   // ( simTrackId, vector of Ptrack along the track)
 
 
   bool doPrintSimHits;
@@ -285,10 +295,14 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   disc_ = iConfig.getParameter<edm::InputTag>("disc");
   nIso_ = iConfig.getParameter<edm::InputTag>("nIso");
 
-  doPrintSimHits = true;
-  doPrintCaloHits = true;
-  doPrintRecHits = true;
+  //doPrintSimHits = true;
+  //doPrintCaloHits = true;
+  //doPrintRecHits = true;
   
+ doPrintSimHits = false;
+ doPrintCaloHits = false;
+ doPrintRecHits = false;
+
   file = new TFile("Myroot.root","recreate");
   tree = new TTree("tree","tree");
 
@@ -460,12 +474,17 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   SecondariesSimTrackR.clear();
   SecondariesSimTrackpt.clear();
   SimTrackHistory.clear();
+  SimTrackVertexHistory.clear();
+  TrackIdMapIndexInHandle.clear();
+  SimTrackMomentaHistory.clear();
 
+  unsigned int index_in_Handle = -1;
   SimTrackContainer::const_iterator iterSimTracks;
   for ( iterSimTracks = simTrackHandle->begin();
         iterSimTracks != simTrackHandle->end();
         ++iterSimTracks ) {
 
+    index_in_Handle ++;
     int genpartIndex = iterSimTracks->genpartIndex();
     int vertexIndex = iterSimTracks->vertIndex();
     const SimVertex& theSimVertex = (*simVtxHandle)[vertexIndex];
@@ -474,6 +493,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     unsigned int trackId = iterSimTracks -> trackId();
     TrackIdMap.insert( pair<unsigned int, int>(trackId, iterSimTracks->type()  ) ) ;
+    TrackIdMapIndexInHandle.insert( pair<unsigned int, unsigned int>(trackId, index_in_Handle) ) ;
 
     const math::XYZVectorD tksurfPos = iterSimTracks -> trackerSurfacePosition() ;
     const math::XYZTLorentzVectorD tksurfMom =  iterSimTracks -> trackerSurfaceMomentum() ;
@@ -490,12 +510,20 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         vector<unsigned int> p0;
         p0.push_back( processType );
         SimTrackHistory.insert( pair<unsigned int, vector<unsigned int> >(trackId, p0) ) ;
+ 	vector<int> q0;
+        q0.push_back( vertexIndex );
+        SimTrackVertexHistory.insert( pair<unsigned int, vector<int> >(trackId, q0 ) ) ;
+
         // update the history of the parent track
-                   map< unsigned int, vector<unsigned int> >::iterator phis = SimTrackHistory.find( (unsigned int)parentIndex );
+        map< unsigned int, vector<unsigned int> >::iterator phis = SimTrackHistory.find( (unsigned int)parentIndex );
+        map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( (unsigned int)parentIndex );
         if ( phis != SimTrackHistory.end() ) {
            vector<unsigned int> vtmp = phis -> second;
            vtmp.push_back( processType  );
            SimTrackHistory[ trackId ] = vtmp;
+	   vector<int> wtmp = phisVtx -> second;
+           wtmp.push_back( vertexIndex );
+           SimTrackVertexHistory[ trackId ] = wtmp ;
         }
         else {
            if (parentIndex != -1) cout << " ... problem in updating SimTrackHistory : trackId " << parentIndex << " (parent of " << trackId << ") has not been entered yet. " << endl;
@@ -510,6 +538,39 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     SecondariesSimTrackpt.push_back(tksurfMom.pt());
 
   }  // end loop over simTracks
+
+
+        // now, for the tracks that exit the tracker, look at the energy
+        // lost at each vertex along the track, and fill the
+        // map SimTrackMomentaHistory
+
+  for ( iterSimTracks = simTrackHandle->begin();
+        iterSimTracks != simTrackHandle->end();
+        ++iterSimTracks ) {
+
+        const math::XYZTLorentzVectorD tksurfMom =  iterSimTracks -> trackerSurfaceMomentum() ;
+        //float p = sqrt( tksurfMom.perp2() );
+        float p  = tksurfMom.P() ;
+        unsigned int trackId = iterSimTracks -> trackId();
+        if ( p <= 1e-3) continue;       // only tracks with p > 1 MeV when they exit the tracker
+
+        const SimTrack itra = *iterSimTracks;
+        const SimTrack* pitra = &itra;
+        vector<float> vecP ;
+        EnergyLossAlongTrack( pitra, simTrackHandle, simVtxHandle, vecP );
+/*
+        if ( vecP.size() > 0) {
+           for (unsigned int k=0; k < vecP.size(); k++) {
+              float thep = vecP.at( k );
+              cout << " " << thep << " "  ;
+           }
+           cout << endl;
+        }
+*/
+        SimTrackMomentaHistory.insert( pair<unsigned int, vector<float> >(trackId, vecP ) );
+
+  }   // end loop over SimTracks
+
 
 
   if (doPrintSimHits) {
@@ -607,6 +668,51 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // --------------------------------------------------------------------------------------
+
+	// this fills the vector VectorOfMomenta, that contains the PT of the SimTrack
+	// after each interaction (vertex)
+	// Used to fill the map SimTrackMomentaHistory
+
+void GeantAnalyzer::EnergyLossAlongTrack(const SimTrack* itrack,
+                                edm::Handle<edm::SimTrackContainer>   simTrackHandle,
+                                edm::Handle<edm::SimVertexContainer>  simVtxHandle ,
+                                std::vector<float>& VectorOfMomenta ,
+                                TString offset )
+{
+
+
+    const math::XYZTLorentzVectorD mom = itrack -> momentum();
+    //float p = mom.P()  ;
+    float p = mom.Pt()  ;
+    VectorOfMomenta.insert( VectorOfMomenta.begin(), p );
+
+    unsigned int trackId = itrack -> trackId();
+    //cout << offset << " ... enter in EnergyLossAlongTrack  trackId = " << trackId << " momentum p = " << p << endl;
+
+    map< unsigned int, vector<int> >::iterator phisVtx = SimTrackVertexHistory.find( trackId );
+    if ( phisVtx != SimTrackVertexHistory.end() ) {
+        vector<int> vertices = phisVtx -> second;
+
+        int lastvertex = vertices.back();
+        const SimVertex& theSimVertex = (*simVtxHandle)[ lastvertex ];
+        int parentIndex = theSimVertex.parentIndex();   // careful, this is the simTrackId
+        unsigned int vertexId = theSimVertex.vertexId();
+
+        if ( parentIndex != -1 && vertexId != 0) {
+                // need to get the index of this simTrackId in the simTrackHandle :
+           int parentTrack = TrackIdMapIndexInHandle[ (unsigned int)parentIndex ];
+           const SimTrack theParentTrack = (*simTrackHandle)[ parentTrack ];
+           const SimTrack* pitra = &theParentTrack;
+           TString offset2 = offset + "   ";
+           EnergyLossAlongTrack( pitra, simTrackHandle, simVtxHandle, VectorOfMomenta, offset2 );
+        } // endif
+
+    } // endif phisVtx
+
+}
+
+
+// --------------------------------------------------------------------------------------
 //#  reco::PFTauRef _tau_;
 void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent, Int_t counter, Int_t gendm) {
 
@@ -682,6 +788,26 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 	}
 	else stPrimary = " [Secondary] ";
 
+
+        int _gen_ = simTrackpdgId;
+        int _trackid_ = (int)simTrackId;
+
+        if(stPrimary==" [Secondary] "){
+          _gen_ = 999;
+          _trackid_ = 999;
+          traceParent(SecondariesSimTrackId, SecondariesGenParticles, SecondariesParents, SecondariesPdgId, simTrackId, _gen_);
+          traceTrack(SecondariesSimTrackId, SecondariesGenParticles, SecondariesParents, SecondariesPdgId, simTrackId, _trackid_);
+        }
+
+        float _R_ = -1;
+        float _pt_ = -1;
+        for(int ii=0; ii < (int)SecondariesSimTrackR.size(); ii++){
+          if(SecondariesSimTrackId.at(ii)==_trackid_){
+            _R_ = SecondariesSimTrackR.at(ii);
+            _pt_ = SecondariesSimTrackpt.at(ii);
+          }
+        }
+
                         // retrieve the vector of processIds, i.e. the history
                 vector<unsigned int> vHistory;
                 map<unsigned int, vector<unsigned int> >::iterator phis;
@@ -693,32 +819,25 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
                     cout << " .... WEIRD... simTrackId " << simTrackId << " not found in map SimTrackHistory " << endl;
                 }
 
-	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary ;
+	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << " parent pdgId " << _gen_ << ", track id = " << _trackid_ << " ProcessIds " ;
                  for (unsigned int vit = 0; vit < vHistory.size(); ++vit) {
                    cout << vHistory.at( vit) << " " ;
                  }
                  cout << endl;
-	
-	
-	int _gen_ = simTrackpdgId;
-	int _trackid_ = (int)simTrackId;
-	
-	if(stPrimary==" [Secondary] "){
-	  _gen_ = 999;
-	  _trackid_ = 999;
-	  traceParent(SecondariesSimTrackId, SecondariesGenParticles, SecondariesParents, SecondariesPdgId, simTrackId, _gen_);
-	  traceTrack(SecondariesSimTrackId, SecondariesGenParticles, SecondariesParents, SecondariesPdgId, simTrackId, _trackid_);
-	}
+			// now print the vector of Transverse momenta for this track,
+			// starting from the primary particle :
 
-	float _R_ = -1;
-	float _pt_ = -1;
-	for(int ii=0; ii < (int)SecondariesSimTrackR.size(); ii++){
-	  if(SecondariesSimTrackId.at(ii)==_trackid_){
-	    _R_ = SecondariesSimTrackR.at(ii);
-	    _pt_ = SecondariesSimTrackpt.at(ii);
-	  }
-	}
+                 map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
+                 if ( itMomenta != SimTrackMomentaHistory.end() ) {
+                   vector<float> VecOfMomenta = itMomenta -> second;
+                   cout << "\t \t \t TrMomenta : " ;
+                   for (unsigned int vit = 0; vit < VecOfMomenta.size(); ++vit) {
+                        cout <<  VecOfMomenta.at( vit ) << " " ;
+                   }
+                   cout << endl;
+                 }
 
+	
 
 	std::cout << stPrimary  <<  " parent pdgId == " << _gen_ << ", track id = " << _trackid_ << ", R = " << _R_ <<  ", pt = " << _pt_ << std::endl;
 
