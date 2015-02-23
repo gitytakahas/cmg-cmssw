@@ -268,7 +268,9 @@ private:
   Float_t gamma_pt;
   Float_t gamma_eta;
   Float_t gamma_phi;
-
+  Int_t gamma_global_counter;
+  Int_t gamma_photon_counter;
+  
   // cluster by cluster variables
   std::vector<int> seed_pdgid;
   std::vector<int> pseed_pdgid;
@@ -281,8 +283,12 @@ private:
   std::vector<int> history_pdgid;
   std::vector<float> history_pt;
   std::vector<float> history_r;
-  std::vector<int> history_ii;
+  std::vector<int> history_ii_global;
+  std::vector<int> history_ii_photon;
   std::vector<int> history_processtype;
+
+  Int_t global_counter;
+  Int_t photon_counter;
 
 };
 
@@ -330,6 +336,8 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("gen_dm_rough",&gen_dm_rough,"gen_dm_rough/I");
 
   // photon by photon
+  tree->Branch("gamma_global_counter",&gamma_global_counter,"gamma_global_counter/I");
+  tree->Branch("gamma_photon_counter",&gamma_photon_counter,"gamma_photon_counter/I");
   tree->Branch("gamma_pt",&gamma_pt,"gamma_pt/F");
   tree->Branch("gamma_eta",&gamma_eta,"gamma_eta/F");
   tree->Branch("gamma_phi",&gamma_phi,"gamma_phi/F");
@@ -346,8 +354,11 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("history_pdgid",&history_pdgid);
   tree->Branch("history_pt",&history_pt);
   tree->Branch("history_r",&history_r);
-  tree->Branch("history_ii",&history_ii);
+  tree->Branch("history_ii_global",&history_ii_global);
+  tree->Branch("history_ii_photon",&history_ii_photon);
   tree->Branch("history_processtype",&history_processtype);
+
+  global_counter = 0;
 
 }
 
@@ -365,6 +376,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   counter+=1;
+  photon_counter = 0;
 
   using namespace edm;
   using namespace reco;
@@ -792,7 +804,8 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     history_pdgid.clear();
     history_pt.clear();
     history_r.clear();
-    history_ii.clear();
+    history_ii_global.clear();
+    history_ii_photon.clear();
     history_processtype.clear();
 
   }
@@ -929,7 +942,9 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 
 	  history_pdgid.push_back(pHistory.at(vit));
 	  history_r.push_back(rHistory.at(vit));
-	  history_ii.push_back(vit);
+	  history_ii_global.push_back(global_counter);
+	  history_ii_photon.push_back(photon_counter);
+
 	  history_processtype.push_back(vHistory.at( vit));
 
 
@@ -969,6 +984,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 	cluster_id.push_back(nEcal);
 	seed_pdgid.push_back(simTrackpdgId);
 	pseed_pdgid.push_back(_gen_);
+
 	nprocess.push_back(vHistory.size()-1);
 	pseed_pt.push_back(_pt_);
 	pseed_R.push_back(_R_);
@@ -985,7 +1001,9 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     gamma_pt = candPt;
     gamma_eta = candEta;
     gamma_phi = candPhi;
-    
+    gamma_global_counter = global_counter;
+    gamma_photon_counter = photon_counter;
+
     gamma_total_iso = isolationGamma;
     tau_pt = pT;
     tau_eta = eta;
@@ -1006,11 +1024,13 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     tau_dm_rough = tau_dm_rough_;
     gen_dm_rough = gen_dm_rough_;
     
-
+    photon_counter ++;
     
     tree->Fill();
 
   }
+
+  global_counter++;
 }
 
 
