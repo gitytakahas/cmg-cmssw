@@ -84,6 +84,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidate.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -265,6 +268,13 @@ private:
   Int_t tau_dm_rough;
   Int_t gen_dm_rough;
 
+  float EcalEnInSignalPFCands; 	// total ECAL energy carried by the PFCandidates in signal cone
+  float HcalEnInSignalPFCands;	// idem for HCAL
+  int nPFPhotonsInSignal;	// number of PFPhotons in signal cone
+  int nPFDisplacedVertex ;	// number of PFDisplacedVertices
+  float LeadingTracknormalizedChi2;	// norm. chi2 of the track of the leading charged hadron
+					// of the PFTau
+
   // photon by photon variables
   Int_t ncluster;
   Int_t nbadcluster;
@@ -343,6 +353,13 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("tau_dm_rough",&tau_dm_rough,"tau_dm_rough/I");
   tree->Branch("gen_dm_rough",&gen_dm_rough,"gen_dm_rough/I");
 
+  tree->Branch("EcalEnInSignalPFCands",&EcalEnInSignalPFCands,"EcalEnInSignalPFCands/F");
+  tree->Branch("HcalEnInSignalPFCands",&HcalEnInSignalPFCands,"HcalEnInSignalPFCands/F");
+  tree->Branch("nPFPhotonsInSignal",&nPFPhotonsInSignal,"nPFPhotonsInSignal/I");
+  tree->Branch("nPFDisplacedVertex",&nPFDisplacedVertex,"nPFDisplacedVertex/I");
+  tree->Branch("LeadingTracknormalizedChi2",&LeadingTracknormalizedChi2,"LeadingTracknormalizedChi2/F");
+
+
   // photon by photon
   tree->Branch("gamma_global_counter",&gamma_global_counter,"gamma_global_counter/I");
   tree->Branch("gamma_photon_counter",&gamma_photon_counter,"gamma_photon_counter/I");
@@ -415,6 +432,12 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Float_t gen_eta = -1;
   Float_t gen_energy = -1;
 
+  EcalEnInSignalPFCands = -1. ;
+  HcalEnInSignalPFCands = -1.;
+  nPFDisplacedVertex = -1 ;
+  nPFPhotonsInSignal = -1;
+  LeadingTracknormalizedChi2 = -1;
+  
   for (size_t iTau = 0; iTau < taus->size(); ++iTau) { // PFtau
 
     reco::PFTauRef tau(taus, iTau);
@@ -710,10 +733,25 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
+ // look for PFDisplaced vertices
+       edm::Handle<vector<PFDisplacedVertex> > PFDisplacedVertexHandle;
+   iEvent.getByLabel( "particleFlowDisplacedVertex","",PFDisplacedVertexHandle);
+   nPFDisplacedVertex = PFDisplacedVertexHandle->size();
+/*
+ *    // one could demand that the vertex be in the direction of the tau, e.g. :
+   for (unsigned int ivtx = 0; ivtx < PFDisplacedVertexHandle->size(); ++ivtx) {
+      PFDisplacedVertexRef vtx( PFDisplacedVertexHandle, ivtx) ;
+      const math::XYZVector primaryDirection = vtx -> primaryDirection() ;
+      float eta = primaryDirection.eta();
+      float phi = primaryDirection.phi();
+   }
+*/
+
 
   // access the PFTau objects
   cout <<  endl << " Loop over the PFTau objects " << endl;
   PrintPFTaus( _tau_ , iEvent, counter, gendm, gen_pt, gen_eta, gen_energy);
+
 
 }
 
@@ -780,6 +818,32 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 
   cout << " a PFTau pt " << pT << " eta " << eta << " phi " << phi << " isolationCh " << isolationCh << " isolationGamma " << isolationGamma << endl;
 
+  EcalEnInSignalPFCands = 0;
+  HcalEnInSignalPFCands = 0;
+  nPFPhotonsInSignal = 0;
+
+        // access the PFCandidates that are in the signal cone
+   std::vector<reco::PFCandidatePtr> constsignal = iterTau -> signalPFCands();
+   for(constituents_iterator it=constsignal.begin(); it != constsignal.end(); ++it) {
+         reco::PFCandidatePtr & icand = *it;
+         int pftype = icand->particleId() ;
+         if ( pftype == 4) nPFPhotonsInSignal ++;
+         EcalEnInSignalPFCands += icand->ecalEnergy();
+         HcalEnInSignalPFCands += icand -> hcalEnergy();
+    }
+        // leading charged hadron PFCand in signal cone
+    const PFCandidatePtr& leadingPFCharged = iterTau -> leadPFChargedHadrCand() ;
+    if ( leadingPFCharged.isNonnull() ) {
+      reco::TrackRef tref = leadingPFCharged -> trackRef();
+      if ( tref.isNonnull() ) {
+        LeadingTracknormalizedChi2 = (float)(tref -> normalizedChi2());
+        //LeadingTrackd0 = (float)(tref -> d0() );
+        //LeadingTracknumberOfLostHits = (int)(tref -> numberOfLostHits() );
+      }
+    }
+
+
+	// access the PFCandidates that are in the isolation cone:
   std::vector<reco::PFCandidatePtr> constisolation = iterTau -> isolationPFCands() ;
 
   for(constituents_iterator it=constisolation.begin(); it!=constisolation.end(); ++it) {
