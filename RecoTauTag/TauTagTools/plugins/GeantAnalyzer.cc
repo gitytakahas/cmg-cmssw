@@ -201,7 +201,7 @@ private:
 
   void PrintPFClusters(  edm::Handle< vector<reco::PFCluster> > pPFClustersECALHandle  , int verbose = 0) ;
   //  void PrintPFTaus(edm::Handle< vector<reco::PFTau> > pPFTausHandle ) ;
-  void PrintPFTaus(reco::PFTauRef PFTau, const edm::Event& iEvent, Int_t counter, Int_t dm) ;
+  void PrintPFTaus(reco::PFTauRef PFTau, const edm::Event& iEvent, Int_t counter, Int_t dm, Float_t pt, Float_t eta, Float_t energy) ;
 
   void EnergyLossAlongTrack(const SimTrack* itrack,
 			    edm::Handle<edm::SimTrackContainer>   simTrackHandle,
@@ -257,6 +257,9 @@ private:
   Float_t tau_pt;
   Float_t tau_eta;
   Float_t tau_phi;
+  Float_t tau_gen_pt;
+  Float_t tau_gen_eta;
+  Float_t tau_gen_energy;
   Int_t tau_dm;
   Int_t gen_dm;
   Int_t tau_dm_rough;
@@ -327,9 +330,14 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("ncluster",&ncluster,"ncluster/I");
   tree->Branch("nbadcluster",&nbadcluster,"nbadcluster/I");
   tree->Branch("gamma_total_iso",&gamma_total_iso,"gamma_total_iso/F");
+
   tree->Branch("tau_pt",&tau_pt,"tau_pt/F");
   tree->Branch("tau_eta",&tau_eta,"tau_eta/F");
   tree->Branch("tau_phi",&tau_phi,"tau_phi/F");
+  tree->Branch("tau_gen_pt",&tau_gen_pt,"tau_gen_pt/F");
+  tree->Branch("tau_gen_eta",&tau_gen_eta,"tau_gen_eta/F");
+  tree->Branch("tau_gen_energy",&tau_gen_energy,"tau_gen_energy/F");
+
   tree->Branch("tau_dm",&tau_dm,"tau_dm/I");
   tree->Branch("gen_dm",&gen_dm,"gen_dm/I");
   tree->Branch("tau_dm_rough",&tau_dm_rough,"tau_dm_rough/I");
@@ -359,6 +367,7 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("history_processtype",&history_processtype);
 
   global_counter = 0;
+  photon_counter = 0;
 
 }
 
@@ -376,7 +385,6 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   counter+=1;
-  photon_counter = 0;
 
   using namespace edm;
   using namespace reco;
@@ -403,6 +411,9 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   reco::PFTauRef _tau_;
   Int_t gendm = -1;
+  Float_t gen_pt = -1;
+  Float_t gen_eta = -1;
+  Float_t gen_energy = -1;
 
   for (size_t iTau = 0; iTau < taus->size(); ++iTau) { // PFtau
 
@@ -422,7 +433,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(size_t i = 0; i < genTaus->size(); ++ i){      
 
       const reco::GenJet & TauCand = (*genTaus)[i];
-      //      reco::Particle::LorentzVector visibleP4 = ((*genTaus)[i]).p4();
+      reco::Particle::LorentzVector visibleP4 = ((*genTaus)[i]).p4();
       
       //      if(visibleP4.pt() < 20) continue;
       //      if(TMath::Abs(visibleP4.eta()) > 2.3) continue;
@@ -446,6 +457,10 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(dR_MC < 0.5){
 	match_gen = true;
 	gendm = id;
+
+	gen_pt = visibleP4.pt();
+	gen_eta = visibleP4.eta();
+	gen_energy = visibleP4.energy();
 
 	//	match_gen_pt = visibleP4.pt();
 	//	match_gen_eta = visibleP4.eta();
@@ -698,8 +713,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // access the PFTau objects
   cout <<  endl << " Loop over the PFTau objects " << endl;
-  PrintPFTaus( _tau_ , iEvent, counter, gendm);
- 
+  PrintPFTaus( _tau_ , iEvent, counter, gendm, gen_pt, gen_eta, gen_energy);
 
 }
 
@@ -751,10 +765,11 @@ void GeantAnalyzer::EnergyLossAlongTrack(const SimTrack* itrack,
 
 // --------------------------------------------------------------------------------------
 //#  reco::PFTauRef _tau_;
-void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent, Int_t counter, Int_t gendm) {
+void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent, Int_t counter, Int_t gendm, Float_t _genpt, Float_t _geneta, Float_t _gen_e) {
+
+  photon_counter = 0;
 
   using namespace reco;
-
   typedef std::vector <reco::PFCandidatePtr>::iterator constituents_iterator;
 
   float pT = iterTau -> pt();
@@ -790,6 +805,18 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     const reco::PFBlockRef blockRef = theElements[0].first;
     PFBlock::LinkData linkData = blockRef->linkData();
     const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
+
+
+    int _nEcal = 0;
+    for(unsigned jEle=0; jEle<theElements.size(); jEle++) {  
+      unsigned int iEle = theElements[jEle].second;
+      PFBlockElement::Type type = elements[iEle].type();
+      if (type == PFBlockElement::ECAL) {
+	_nEcal ++;
+      }
+    }
+
+    if(_nEcal!=1) continue;
 
 
   if(cluster_id.size()!=0){
@@ -992,8 +1019,9 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 
       }
     }
-    
-    
+
+
+   
     evtnum = iEvent.id().event();
     evtcounter = counter;
     ncluster = nEcal;
@@ -1008,6 +1036,10 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     tau_pt = pT;
     tau_eta = eta;
     tau_phi = phi;
+    tau_gen_pt = _genpt;
+    tau_gen_eta = _geneta;
+    tau_gen_energy = _gen_e;
+
     tau_dm = iterTau->decayMode();
     gen_dm = gendm;
 
@@ -1024,9 +1056,9 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     tau_dm_rough = tau_dm_rough_;
     gen_dm_rough = gen_dm_rough_;
     
-    photon_counter ++;
-    
+   
     tree->Fill();
+    photon_counter ++;
 
   }
 
