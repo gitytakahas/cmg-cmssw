@@ -387,7 +387,7 @@ class DisplayManager(object):
         self.tex.SetTextSize(0.045)
         self.tex.Draw()
 
-        self.etex = ROOT.TLatex(self.etaCenter+self.radius - 0.15, self.phiCenter+self.radius + 0.04, 'evt : ' + str(counter));
+        self.etex = ROOT.TLatex(self.etaCenter+self.radius - 0.2, self.phiCenter+self.radius + 0.04, 'event : ' + str(counter));
 
         self.etex.SetTextFont(42)
         self.etex.SetTextSize(0.03)
@@ -403,5 +403,5 @@ class DisplayManager(object):
 
         self.etaPhiView.Update()
         self.etaPhiView.SaveAs('event_display/' + fname + '.gif')
-#        self.etaPhiView.SaveAs('event_display/' + fname + '.pdf')
+        self.etaPhiView.SaveAs('event_display/' + fname + '.pdf')
         

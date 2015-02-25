@@ -204,7 +204,7 @@ private:
 
   void PrintPFClusters(  edm::Handle< vector<reco::PFCluster> > pPFClustersECALHandle  , int verbose = 0) ;
   //  void PrintPFTaus(edm::Handle< vector<reco::PFTau> > pPFTausHandle ) ;
-  void PrintPFTaus(reco::PFTauRef PFTau, const edm::Event& iEvent, Int_t counter, Int_t dm, Float_t pt, Float_t eta, Float_t energy) ;
+  void PrintPFTaus(reco::PFTauRef PFTau, const edm::Event& iEvent, Int_t counter, Int_t dm, Float_t pt, Float_t eta, Float_t energy, Float_t niso) ;
 
   void EnergyLossAlongTrack(const SimTrack* itrack,
 			    edm::Handle<edm::SimTrackContainer>   simTrackHandle,
@@ -245,10 +245,12 @@ private:
   edm::InputTag disc_;
   edm::InputTag nIso_;
 
-  Int_t counter = -1;
+  Int_t counter = 0;
 
   edm::Service<TFileService> fs_;
-  TH2F* history;
+  TH1F* h_ntau;
+  TH1F* h_nerror;
+  TH2F* h_decaymode;
 
   TFile* file;
   TTree* tree;
@@ -419,10 +421,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(nIso_,nIso);
 
 
-  /*
-   * First, look into tau collection and select events 
-   * in case there is a tau with isolated photons around it
-   */
+  // First, look into tau collection and select events in case there is a tau with isolated photons around it
 
   int ispass = 0;
 
@@ -471,7 +470,6 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if(decayMode!=0) continue; 
 
-
       double dR_MC = deltaR(tau->p4(), ((*genTaus)[i]).p4());
       int id = decaymode_id(genTauDecayMode(TauCand));
 
@@ -490,6 +488,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//	std::cout << "\t" << i << " -- Matching between gen and reco. tau : dR = " << dR_MC << " / 0.5 : " << std::endl;
 	//	std::cout << "\t" << i << " -- vis pT, eta, decaymode = " << match_gen_pt << " " << match_gen_eta << " " << genTauDecayMode(TauCand) << " " << gendm<< std::endl;
 
+	h_decaymode->Fill(id, tau->decayMode());
       }
     }
 
@@ -497,26 +496,31 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     float niso = (*nIso)[tau];
-
+    if(niso==0) continue;
+    
     //    std::cout << "# of photon = " << tau->isolationPFGammaCands().size() 
     //	      << "# of pion = " << tau->isolationPFChargedHadrCands().size()
     //	      << " nIso = " << niso << " " << ((*disc)[tau] < 0.5) << std::endl;
-
     //    if(tau->isolationPFGammaCands().size() ==0 ) continue;
-    if(niso==0) continue;
+
 
     ispass += 1;
-
     _tau_ = tau;
 
   }
+
+  
+  h_ntau->Fill(ispass);
 
   if(ispass!=1) return;
   
 
   edm::Handle< vector<reco::GenParticle> > GenParticleHandle;
   iEvent.getByLabel("genParticles","",GenParticleHandle);
-  if (! GenParticleHandle.isValid() ) return;
+  if (! GenParticleHandle.isValid() ){
+    h_nerror->Fill(1);
+    return;
+  }
  
 
   edm::Handle<edm::SimTrackContainer>   simTrackHandle;
@@ -622,6 +626,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     SecondariesSimTrackpt.push_back(tksurfMom.pt());
 
   }  // end loop over simTracks
+
 
 
   // now, for the tracks that exit the tracker, look at the energy
@@ -750,7 +755,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // access the PFTau objects
   cout <<  endl << " Loop over the PFTau objects " << endl;
-  PrintPFTaus( _tau_ , iEvent, counter, gendm, gen_pt, gen_eta, gen_energy);
+  PrintPFTaus( _tau_ , iEvent, counter, gendm, gen_pt, gen_eta, gen_energy, (*nIso)[_tau_]);
 
 
 }
@@ -802,8 +807,15 @@ void GeantAnalyzer::EnergyLossAlongTrack(const SimTrack* itrack,
 
 
 // --------------------------------------------------------------------------------------
-//#  reco::PFTauRef _tau_;
-void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent, Int_t counter, Int_t gendm, Float_t _genpt, Float_t _geneta, Float_t _gen_e) {
+
+void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, 
+				const edm::Event& iEvent, 
+				Int_t counter,
+				Int_t gendm, 
+				Float_t _genpt, 
+				Float_t _geneta, 
+				Float_t _gen_e,
+				Float_t niso) {
 
   photon_counter = 0;
 
@@ -814,9 +826,10 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
   float eta = iterTau -> eta();
   float phi = iterTau -> phi();
   float isolationCh = iterTau -> isolationPFChargedHadrCandsPtSum();
-  float isolationGamma =  iterTau -> isolationPFGammaCandsEtSum() ;
+  //  float isolationGammaObs =  iterTau -> isolationPFGammaCandsEtSum() ;
+  //  float isolationGamma = niso;
 
-  cout << " a PFTau pt " << pT << " eta " << eta << " phi " << phi << " isolationCh " << isolationCh << " isolationGamma " << isolationGamma << endl;
+  cout << " a PFTau pt " << pT << " eta " << eta << " phi " << phi << " isolationCh " << isolationCh << " isolationGamma " << niso << endl;
 
   EcalEnInSignalPFCands = 0;
   HcalEnInSignalPFCands = 0;
@@ -880,7 +893,12 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
       }
     }
 
-    if(_nEcal!=1) continue;
+    if(_nEcal!=1){
+      std::cout << " " << std::endl;
+      std::cout << " !!!!! Avoid due to multiple ECAL elements !!! " << std::endl;
+      std::cout << " " << std::endl;
+      continue;
+    }
 
 
   if(cluster_id.size()!=0){
@@ -991,27 +1009,10 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 
 	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << " parent pdgId " << _gen_ << ", track id = " << _trackid_ << " ProcessIds " ;
 
-	int _simplepdgId_ = 3;
-	if(abs(simTrackpdgId)==211) _simplepdgId_ = 2;
-	else if(abs(simTrackpdgId)==22) _simplepdgId_ = 1;
-	else if(abs(simTrackpdgId)==11) _simplepdgId_ = 0;
-
-	Bool_t isIonization = false;
-	Bool_t isBrems = false;
-	Bool_t isConv = false;
-	Bool_t isHad = false;
-	Bool_t isDecay = false;
-	Bool_t isOther = false;	
-	Bool_t isSecondary = false;
-
-
 	vector<float> VecOfMomenta;
 	map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
 	if ( itMomenta != SimTrackMomentaHistory.end() ) {
 	  VecOfMomenta = itMomenta -> second;
-
-	  //	  std::cout << "size (p, process) = " << VecOfMomenta.size() << " " << vHistory.size() << std::endl;
-
 	  //	  cout << "\t \t \t TrMomenta : " ;
 	  //	  for (unsigned int vit = 0; vit < VecOfMomenta.size(); ++vit) {
 //	    cout <<  VecOfMomenta.at( vit ) << " " ;	    
@@ -1037,40 +1038,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
 	  history_ii_photon.push_back(photon_counter);
 
 	  history_processtype.push_back(vHistory.at( vit));
-
-
-
-	  //	  int _simpleprocessId_ = 6;
-	  if(vHistory.at(vit)==2) isIonization = true;
-	  else if(vHistory.at(vit)==3) isBrems = true;
-	  else if(vHistory.at(vit)==14) isConv = true;
-	  else if(vHistory.at(vit)==121) isHad = true;
-	  else if(vHistory.at(vit)==201) isDecay = true;
-	  else{
-	    if(vHistory.at(vit)!=0){
-	      std::cout << "isOther = " << vHistory.at(vit) << std::endl;
-	      isOther = true;
-	    }
-	  }
-
-	  if(vHistory.at(vit)!=0) isSecondary = true;
 	}
-
-	if(isSecondary==false) history->Fill(_simplepdgId_, 0);
-	if(isIonization) history->Fill(_simplepdgId_, 1);
-	if(isBrems) history->Fill(_simplepdgId_, 2);
-	if(isConv) history->Fill(_simplepdgId_, 3);
-	if(isHad) history->Fill(_simplepdgId_, 4);
-	if(isDecay) history->Fill(_simplepdgId_, 5);
-	if(isOther) history->Fill(_simplepdgId_, 6);
-
-	cout << endl;
-	// now print the vector of Transverse momenta for this track,
-	// starting from the primary particle :
-
-	
-
-	//	std::cout << stPrimary  <<  " parent pdgId == " << _gen_ << ", track id = " << _trackid_ << ", R = " << _R_ <<  ", pt = " << _pt_ << std::endl;
 
 	cluster_id.push_back(nEcal);
 	seed_pdgid.push_back(simTrackpdgId);
@@ -1096,7 +1064,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau, const edm::Event& iEvent
     gamma_global_counter = global_counter;
     gamma_photon_counter = photon_counter;
 
-    gamma_total_iso = isolationGamma;
+    gamma_total_iso = niso;
     tau_pt = pT;
     tau_eta = eta;
     tau_phi = phi;
@@ -1457,48 +1425,51 @@ void GeantAnalyzer::PrintPFClusters(  edm::Handle< vector<reco::PFCluster> > pPF
 
 void 
 GeantAnalyzer::beginJob(){
-  history = fs_->make<TH2F>("history","history",4,0,4,7,0,7);
-
-  TString ylabel[7] = {"Primary",
-		       "Ionization",
-		       "Brems",
-		       "Conversion",
-		       "Had. Inelastic",
-		       "Decay",
-		       "Other"};
-
-  TString xlabel[4] = {"e",
-		       "#gamma",
-		       "#pi",
-		       "Other"};
-
-  for(int ibin=1; ibin < history->GetXaxis()->GetNbins()+1; ibin++){
-    history->GetXaxis()->SetBinLabel(ibin, xlabel[ibin-1]);
-  }
+  h_ntau = fs_->make<TH1F>("h_ntau","h_ntau",5,0,5);
+  h_nerror = fs_->make<TH1F>("h_nerror","h_nerror",5,0,5);
+  h_decaymode = fs_->make<TH2F>("h_decaymode","h_decaymode",16,-1,15,16,-1,15);
   
-  for(int ibin=1; ibin < history->GetYaxis()->GetNbins()+1; ibin++){
-    history->GetYaxis()->SetBinLabel(ibin, ylabel[ibin-1]);
-  }
+
+//  TString ylabel[7] = {"Primary",
+//		       "Ionization",
+//		       "Brems",
+//		       "Conversion",
+//		       "Had. Inelastic",
+//		       "Decay",
+//		       "Other"};
+//
+//  TString xlabel[4] = {"e",
+//		       "#gamma",
+//		       "#pi",
+//		       "Other"};
+//
+//  for(int ibin=1; ibin < history->GetXaxis()->GetNbins()+1; ibin++){
+//    history->GetXaxis()->SetBinLabel(ibin, xlabel[ibin-1]);
+//  }
+//  
+//  for(int ibin=1; ibin < history->GetYaxis()->GetNbins()+1; ibin++){
+//    history->GetYaxis()->SetBinLabel(ibin, ylabel[ibin-1]);
+//  }
 
 }
 
 void 
 GeantAnalyzer::endJob(){
 
-  for(int ibin=1; ibin < history->GetXaxis()->GetNbins()+1; ibin++){
-
-    Float_t total = 0.;
-
-    for(int iibin=1; iibin < history->GetYaxis()->GetNbins()+1; iibin++){
-      total += history->GetBinContent(ibin, iibin);
-    }
-
-    for(int iibin=1; iibin < history->GetYaxis()->GetNbins()+1; iibin++){
-      Float_t frac = (history->GetBinContent(ibin, iibin))/total;
-      history->SetBinContent(ibin, iibin, frac);
-    }
-
-  }
+//  for(int ibin=1; ibin < history->GetXaxis()->GetNbins()+1; ibin++){
+//
+//    Float_t total = 0.;
+//
+//    for(int iibin=1; iibin < history->GetYaxis()->GetNbins()+1; iibin++){
+//      total += history->GetBinContent(ibin, iibin);
+//    }
+//
+//    for(int iibin=1; iibin < history->GetYaxis()->GetNbins()+1; iibin++){
+//      Float_t frac = (history->GetBinContent(ibin, iibin))/total;
+//      history->SetBinContent(ibin, iibin, frac);
+//    }
+//
+//  }
 
 }
 

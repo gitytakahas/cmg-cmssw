@@ -15,7 +15,7 @@ def split(sequence, size):
 
 class Image(str):
     
-    TYPES = ['.png', '.jpg']
+    TYPES = ['.png', '.jpg', '.gif']
 
     def __new__(cls,*args,**kw):
         return str.__new__(cls,*args,**kw)
@@ -37,7 +37,7 @@ class Directory(object):
         self.header = ''
         self.footer = ''
         self.css = ['default.css']
-        self.nimagesperrow = 3
+        self.nimagesperrow = 2
 
         self.path = path
         self.images = []

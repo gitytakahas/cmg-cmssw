@@ -19,7 +19,7 @@ tauH_disc = Handle('reco::PFTauDiscriminator')
 filelist = []
 
 #for ii in range(250):
-for ii in range(4):
+for ii in range(50):
     filename = '/afs/cern.ch/user/y/ytakahas/work/TauIsolation/CMSSW_7_2_3/src/RecoTauTag/TauTagTools/Production/TauGun_20150218_only1Prong/job_' + str(ii) + '/step.root'
     if os.path.exists(filename):
         filelist.append(filename)
@@ -35,11 +35,14 @@ events = Events(filelist)
 file = ROOT.TFile('Myroot.root', 'recreate')
 photon_tree = ROOT.TTree('per_photon','per_photon')
 tau_tree = ROOT.TTree('per_tau','per_tau')
+pizero_tree = ROOT.TTree('per_pizero','per_pizero')
     
 tau_id = num.zeros(1, dtype=int)
 tau_z = num.zeros(1, dtype=float)
 tau_pvz = num.zeros(1, dtype=float)
 tau_nphoton = num.zeros(1, dtype=int)
+tau_nisopizero = num.zeros(1, dtype=int)
+tau_nsignalpizero = num.zeros(1, dtype=int)
 tau_dm = num.zeros(1, dtype=int)
 tau_dm_rough = num.zeros(1, dtype=int)
 tau_gen_nphoton = num.zeros(1, dtype=int)
@@ -87,8 +90,21 @@ photon_deta = num.zeros(1, dtype=float)
 photon_dphi = num.zeros(1, dtype=float)
 photon_tau_maximumHCALPFClusterEt = num.zeros(1, dtype=float)
 
+pizero_pt = num.zeros(1, dtype=float)
+pizero_eta = num.zeros(1, dtype=float)
+pizero_phi = num.zeros(1, dtype=float)
+pizero_mass = num.zeros(1, dtype=float)
+pizero_energy = num.zeros(1, dtype=float)
+pizero_invmass = num.zeros(1, dtype=float)
+pizero_invpt = num.zeros(1, dtype=float)
+pizero_isSignal = num.zeros(1, dtype=int)
+pizero_dm = num.zeros(1, dtype=int)
+pizero_n = num.zeros(1, dtype=int)
+
 tau_tree.Branch('tau_id', tau_id, 'tau_id/I')
 tau_tree.Branch('tau_nphoton', tau_nphoton, 'tau_nphoton/I')
+tau_tree.Branch('tau_nisopizero', tau_nisopizero, 'tau_nisopizero/I')
+tau_tree.Branch('tau_nsignalpizero', tau_nsignalpizero, 'tau_nsignalpizero/I')
 tau_tree.Branch('tau_total_pt', tau_total_pt, 'tau_total_pt/D')
 tau_tree.Branch('tau_dm', tau_dm, 'tau_dm/I')
 tau_tree.Branch('tau_dm_rough', tau_dm_rough, 'tau_dm_rough/I')
@@ -139,6 +155,19 @@ photon_tree.Branch('photon_tau_emFraction', photon_tau_emFraction, 'photon_tau_e
 photon_tree.Branch('photon_tau_ecalStripSumEOverPLead', photon_tau_ecalStripSumEOverPLead, 'photon_tau_ecalStripSumEOverPLead/D')
 photon_tree.Branch('photon_tau_maximumHCALPFClusterEt', photon_tau_maximumHCALPFClusterEt, 'photon_tau_maximumHCALPFClusterEt/D')
 
+pizero_tree.Branch('pizero_pt', pizero_pt, 'pizero_pt/D')
+pizero_tree.Branch('pizero_eta', pizero_eta, 'pizero_eta/D')
+pizero_tree.Branch('pizero_phi', pizero_phi, 'pizero_phi/D')
+pizero_tree.Branch('pizero_mass', pizero_mass, 'pizero_mass/D')
+pizero_tree.Branch('pizero_energy', pizero_energy, 'pizero_energy/D')
+pizero_tree.Branch('pizero_invmass', pizero_invmass, 'pizero_invmass/D')
+pizero_tree.Branch('pizero_invpt', pizero_invpt, 'pizero_invpt/D')
+pizero_tree.Branch('pizero_isSignal', pizero_isSignal, 'pizero_isSignal/I')
+pizero_tree.Branch('pizero_dm', pizero_dm, 'pizero_dm/I')
+pizero_tree.Branch('pizero_n', pizero_n, 'pizero_n/I')
+
+
+
 counter = 0
 evtid = 0
 
@@ -146,7 +175,7 @@ for event in events:
     
     evtid += 1  
 
-    if evtid > 1000: break
+#    if evtid > 1000: break
 
     print '-'*80
     print 'Event ', evtid
@@ -216,7 +245,7 @@ for event in events:
                     tau.ntotal = taus_disc.value(itau)
                     print '\t isolation official : Neutr = ', taus_disc.value(itau)
 
-#            if not (tau.decayMode() in [0,1,2,10]): continue
+            if not (tau.decayMode() in [0,1,2,10]): continue
 
             print '\t Matched tau ******************************************'
             print '\t reco. tau pT = ', tau.pt(), ', eta = ', tau.eta(), ', phi = ', tau.phi(), ', mass = ', tau.mass()
@@ -231,6 +260,32 @@ for event in events:
             print '\t reco. tau : Iso # of strip', len(tau.isolationPiZeroCandidates()) 
             print '\t reco. tau : Iso # of PF gamma', len(tau.isolationPFGammaCands()), 'iso = ', tau.isolationPFGammaCandsEtSum()
 
+
+            for istrip in tau.isolationPiZeroCandidates():
+                pizero_pt[0] = istrip.pt()
+                pizero_eta[0] = istrip.eta()
+                pizero_phi[0] = istrip.phi()
+                pizero_mass[0] = istrip.mass()
+                pizero_energy[0] = istrip.energy()
+                pizero_invmass[0] = (istrip.p4() + tau.p4()).mass()
+                pizero_invpt[0] = (istrip.p4() + tau.p4()).pt()
+                pizero_isSignal[0] = 0
+                pizero_dm[0] = tau.decayMode()
+                pizero_n[0] = len(tau.isolationPiZeroCandidates())
+                pizero_tree.Fill()
+
+            for istrip in tau.signalPiZeroCandidates():
+                pizero_pt[0] = istrip.pt()
+                pizero_eta[0] = istrip.eta()
+                pizero_phi[0] = istrip.phi()
+                pizero_mass[0] = istrip.mass()
+                pizero_energy[0] = istrip.energy()
+                pizero_invmass[0] = (istrip.p4() + tau.p4()).mass()
+                pizero_invpt[0] = (istrip.p4() + tau.p4()).pt()
+                pizero_isSignal[0] = 1
+                pizero_dm[0] = tau.decayMode()
+                pizero_n[0] = len(tau.signalPiZeroCandidates())
+                pizero_tree.Fill()
 
             for iphoton in tau.signalPFGammaCands():
                 print '\t\t signal photon pT = ', iphoton.pt(), ', eta = ', iphoton.eta(), ', phi = ', iphoton.phi()
@@ -300,6 +355,8 @@ for event in events:
         tau_z[0] = recoTau[0].vertex().z()
         tau_pvz[0] = vtx[0].z()
         tau_nphoton[0] = len(recoTau[0].isolationPFGammaCands())
+        tau_nisopizero[0] = len(recoTau[0].isolationPiZeroCandidates())
+        tau_nsignalpizero[0] = len(recoTau[0].signalPiZeroCandidates())
         tau_dm[0] = recoTau[0].decayMode()
         tau_dm_rough[0] = returnRough(recoTau[0].decayMode())
         tau_gen_nphoton[0] = nphoton
@@ -352,9 +409,10 @@ for event in events:
 #            displayHCAL.addCluster(cluster, links=False)
 
 
-        if counter < 200 and recoTau[0].ntotal!=0:
-#            displayHCAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'HCAL_' + str(evtid), counter, recoTau[0].ntotal)
-            displayECAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'ECAL_' + str(evtid), counter, recoTau[0].ntotal)
+        if counter < 10 and recoTau[0].ntotal!=0:
+#        if counter < 100:
+#            displayHCAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'HCAL_' + str(evtid), evtid, recoTau[0].ntotal)
+            displayECAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'ECAL_' + str(evtid), evtid, recoTau[0].ntotal)
         
             counter += 1
 
