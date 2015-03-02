@@ -51,12 +51,25 @@ def deltaPhi( p1, p2):
         res += 2*math.pi
     return res
 
-
+def returnLabel(dm):
+    if dm == 0:
+        return "1prong, 0#pi^{0}"
+    elif dm == 1:
+        return "1prong, 1#pi^{0}"
+    elif dm == 2:
+        return "1prong, 2#pi^{0}"
+    elif dm == 10:
+        return "3prong, 0#pi^{0}"
+    else:
+        return "Others"
+    
 class DisplayManager(object):
-    def __init__(self, name, iso):
+    def __init__(self, name, iso, gendm, recodm):
         self.etaPhiVew = ROOT.TGraph()
         self.etaPhiVew.SetName(name)
         self.iso = iso
+        self.gendm = gendm
+        self.recodm = recodm
         self.Links=[]
         self.Points=[] 
         self.lastPoints=[]
@@ -74,6 +87,7 @@ class DisplayManager(object):
         self.Ncolumn = 0
         self.isHadronic = False
         self.isHadronicR = []
+        self.isConvR = []
         self.isBrem = False
         self.isConv = False
         self.isDecay = False
@@ -239,6 +253,7 @@ class DisplayManager(object):
                 elif iptype == 14:
                     _str_ = 'Conv.'
                     self.isConv = True
+                    self.isConvR.append(save_R)
                 elif iptype == 3:
                     _str_ = 'Brems'
                     self.isBrem = True
@@ -268,6 +283,22 @@ class DisplayManager(object):
 
             ptetaphi = '{0:.1f}'.format(gamma_pt) + ' GeV, (#eta, #phi) = ' + '{0:.1f}'.format(gamma_eta) + ', ' + '{0:.1f}'.format(gamma_phi)
 
+#            if gamma_isIso==0:
+#                pass
+                #                ptetaphi += ', Signal'
+#            else:
+#                self.lastPoints[-1].SetLineColor(ROOT.kRed)
+                #                ptetaphi += ', Iso'
+                
+#            if gamma_type == 1:
+#                ptetaphi += ', CH'
+#            elif gamma_type == 2:
+#                ptetaphi += ', e'
+#            elif gamma_type == 4:
+#                ptetaphi += ', #gamma'
+#            else:
+#                ptetaphi += ', others'
+                
             self.lastPointsText.append(ROOT.TLatex(max(max_x) + 0.2, max(max_y)-0.2, ptetaphi))
             self.lastPointsText[-1].SetTextFont(42)
             self.lastPointsText[-1].SetTextSize(0.04)
@@ -311,8 +342,15 @@ class DisplayManager(object):
         label2 = ROOT.TLatex(7.5, 8.6, '#sum p_{T}^{#gamma, iso} : ' + '{0:.1f}'.format(self.iso) + ' GeV');
         label2.SetTextFont(42)
         label2.Draw()
-        
+
+
+
+
+        label3 = ROOT.TLatex(-0.2, 8.6, returnLabel(self.recodm) + ' (' + returnLabel(self.gendm) + ')');
+        label3.SetTextFont(42)
+        label3.Draw()
+                
         self.etaPhiView.Update()
         self.etaPhiView.SaveAs('EventDisplay/display_' + name + '.pdf')
-        self.etaPhiView.SaveAs('EventDisplay/display_' + name + '.gif')
+#        self.etaPhiView.SaveAs('EventDisplay/display_' + name + '.gif')
         

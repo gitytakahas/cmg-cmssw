@@ -19,8 +19,12 @@ tauH_disc = Handle('reco::PFTauDiscriminator')
 filelist = []
 
 #for ii in range(250):
-for ii in range(50):
-    filename = '/afs/cern.ch/user/y/ytakahas/work/TauIsolation/CMSSW_7_2_3/src/RecoTauTag/TauTagTools/Production/TauGun_20150218_only1Prong/job_' + str(ii) + '/step.root'
+for ii in range(20):
+#    if ii in [130]: continue
+#for ii in range(20):
+#    filename = '/afs/cern.ch/user/y/ytakahas/work/TauIsolation/CMSSW_7_2_3/src/RecoTauTag/TauTagTools/Production/TauGun_20150218_only1Prong/job_' + str(ii) + '/step.root'
+    filename = '/afs/cern.ch/user/y/ytakahas/work/TauIsolation/CMSSW_7_2_3/src/RecoTauTag/TauTagTools/Production/TauGun_20150225_allHadronicDecay/job_' + str(ii) + '/step.root'
+
     if os.path.exists(filename):
         filelist.append(filename)
         print 'added : ', filename
@@ -33,6 +37,7 @@ events = Events(filelist)
 #events = Events('/afs/cern.ch/user/y/ytakahas/work/TauIsolation/CMSSW_7_2_3/src/RecoTauTag/TauTagTools/Production/step.root')
 
 file = ROOT.TFile('Myroot.root', 'recreate')
+event_tree = ROOT.TTree('event_tree','event_tree')
 photon_tree = ROOT.TTree('per_photon','per_photon')
 tau_tree = ROOT.TTree('per_tau','per_tau')
 pizero_tree = ROOT.TTree('per_pizero','per_pizero')
@@ -99,7 +104,21 @@ pizero_invmass = num.zeros(1, dtype=float)
 pizero_invpt = num.zeros(1, dtype=float)
 pizero_isSignal = num.zeros(1, dtype=int)
 pizero_dm = num.zeros(1, dtype=int)
+pizero_gendm = num.zeros(1, dtype=int)
 pizero_n = num.zeros(1, dtype=int)
+pizero_id = num.zeros(1, dtype=int)
+
+event_ntau = num.zeros(1, dtype=int)
+event_ngentau = num.zeros(1, dtype=int)
+event_gentaupt = num.zeros(1, dtype=float)
+event_gentaueta = num.zeros(1, dtype=float)
+event_gendm = num.zeros(1, dtype=int)
+
+event_tree.Branch('event_ntau', event_ntau, 'event_ntau/I')
+event_tree.Branch('event_ngentau', event_ngentau, 'event_ngentau/I')
+event_tree.Branch('event_gentaupt', event_gentaupt, 'event_gentaupt/D')
+event_tree.Branch('event_gentaueta', event_gentaueta, 'event_gentaueta/D')
+event_tree.Branch('event_gendm', event_gendm, 'event_gendm/I')
 
 tau_tree.Branch('tau_id', tau_id, 'tau_id/I')
 tau_tree.Branch('tau_nphoton', tau_nphoton, 'tau_nphoton/I')
@@ -164,7 +183,9 @@ pizero_tree.Branch('pizero_invmass', pizero_invmass, 'pizero_invmass/D')
 pizero_tree.Branch('pizero_invpt', pizero_invpt, 'pizero_invpt/D')
 pizero_tree.Branch('pizero_isSignal', pizero_isSignal, 'pizero_isSignal/I')
 pizero_tree.Branch('pizero_dm', pizero_dm, 'pizero_dm/I')
+pizero_tree.Branch('pizero_gendm', pizero_gendm, 'pizero_gendm/I')
 pizero_tree.Branch('pizero_n', pizero_n, 'pizero_n/I')
+pizero_tree.Branch('pizero_id', pizero_id, 'pizero_id/I')
 
 
 
@@ -203,19 +224,32 @@ for event in events:
     genTaus = [p for p in genParticles if abs(p.pdgId()) == 15]
     genPhotons = [p for p in genParticles if abs(p.pdgId()) == 22]
 
+    _gen_pt = -1
+    _gen_eta = -1
+    _gen_dm = -1
+
     for genParticle in genTaus:
 
         finDaughters = finalDaughters(genParticle, [])
         genParticle.genVisP4 = p4sumvis(finDaughters)
 #        import pdb; pdb.set_trace()
 
+        _gen_pt = genParticle.genVisP4.pt()
+        _gen_eta = genParticle.genVisP4.eta()
+
         gen_dm, gen_dmid, nphoton, npion = returnGenDecayMode(finDaughters)
         recoTau = []
 
         displayECAL = DisplayManager('ECAL', genParticle.eta(), genParticle.phi(), 0.6)
-        displayHCAL = DisplayManager('HCAL', genParticle.eta(), genParticle.phi(), 0.6)
+#        displayHCAL = DisplayManager('HCAL', genParticle.eta(), genParticle.phi(), 0.6)
 
-        if not (gen_dmid in [0,1,2,10]): 
+
+        if abs(genParticle.genVisP4.eta()) > 2.3: continue
+        if genParticle.genVisP4.pt() < 20: continue
+
+        _gen_dm = gen_dmid
+        if not (gen_dmid in [0,1,2,10]):
+#        if not (gen_dmid in [1]): 
             print 'GG : Gen decay mode', gen_dmid
             continue
 
@@ -235,6 +269,9 @@ for event in events:
 
 #            import pdb; pdb.set_trace()
 
+            if tau.pt() < 20: continue
+            if abs(tau.eta()) > 2.3: continue
+
             if not deltaR(tau.eta(), tau.phi(), genParticle.genVisP4.eta(), genParticle.genVisP4.phi()) < 0.5:
                 print 'YY : dR matching failed !', deltaR(tau.eta(), tau.phi(), genParticle.genVisP4.eta(), genParticle.genVisP4.phi())
                 continue
@@ -245,7 +282,8 @@ for event in events:
                     tau.ntotal = taus_disc.value(itau)
                     print '\t isolation official : Neutr = ', taus_disc.value(itau)
 
-            if not (tau.decayMode() in [0,1,2,10]): continue
+#            if not (tau.decayMode() in [0,1,2,10]): continue
+#            if not (tau.decayMode() in [0]): continue
 
             print '\t Matched tau ******************************************'
             print '\t reco. tau pT = ', tau.pt(), ', eta = ', tau.eta(), ', phi = ', tau.phi(), ', mass = ', tau.mass()
@@ -271,7 +309,9 @@ for event in events:
                 pizero_invpt[0] = (istrip.p4() + tau.p4()).pt()
                 pizero_isSignal[0] = 0
                 pizero_dm[0] = tau.decayMode()
+                pizero_gendm[0] = gen_dmid
                 pizero_n[0] = len(tau.isolationPiZeroCandidates())
+                pizero_id[0] = evtid
                 pizero_tree.Fill()
 
             for istrip in tau.signalPiZeroCandidates():
@@ -284,7 +324,9 @@ for event in events:
                 pizero_invpt[0] = (istrip.p4() + tau.p4()).pt()
                 pizero_isSignal[0] = 1
                 pizero_dm[0] = tau.decayMode()
+                pizero_gendm[0] = gen_dmid
                 pizero_n[0] = len(tau.signalPiZeroCandidates())
+                pizero_id[0] = evtid
                 pizero_tree.Fill()
 
             for iphoton in tau.signalPFGammaCands():
@@ -325,12 +367,12 @@ for event in events:
             for ich in tau.signalPFChargedHadrCands():
 #                print '\t\t signal charged pT = ', ich.pt(), ' eta = ', ich.eta(), ' phi = ', ich.phi()
                 displayECAL.addCH(ich, 1)
-                displayHCAL.addCH(ich, 1)
+#                displayHCAL.addCH(ich, 1)
                     
             for ich in tau.isolationPFChargedHadrCands():
                 print '\t\t iso. charged pT = ', ich.pt(), ' eta = ', ich.eta(), ' phi = ', ich.phi()
                 displayECAL.addCH(ich, 2)
-                displayHCAL.addCH(ich, 1)
+#                displayHCAL.addCH(ich, 1)
 
  #           for ich in tau.signalPFNeutrHadrCands():
  #               print '\t\t signal neutral pT = ', ich.pt(), ' eta = ', ich.eta(), ' phi = ', ich.phi()
@@ -382,7 +424,7 @@ for event in events:
         tau_tree.Fill()
 
         displayECAL.addRecoTau(recoTau[0])
-        displayHCAL.addRecoTau(recoTau[0])
+#        displayHCAL.addRecoTau(recoTau[0])
 
         #reloop on gen particles and add them in view
         for genP in genParticles:
@@ -390,15 +432,15 @@ for event in events:
                 continue
 
             displayECAL.addGenParticle(genP) 
-            displayHCAL.addGenParticle(genP) 
+#            displayHCAL.addGenParticle(genP) 
         
 
         #add ECAL hits    
         for hit in ecal:
             displayECAL.addRecHit(hit,1)
 
-#        for cluster in ecalClusters:
-#            displayECAL.addCluster(cluster, links=False)
+        for cluster in ecalClusters:
+            displayECAL.addCluster(cluster, links=True)
 
         #add HCAL hits    
 #        for hit in hcal:
@@ -409,14 +451,20 @@ for event in events:
 #            displayHCAL.addCluster(cluster, links=False)
 
 
-        if counter < 10 and recoTau[0].ntotal!=0:
-#        if counter < 100:
+        if counter < 1000 and recoTau[0].ntotal!=0:
 #            displayHCAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'HCAL_' + str(evtid), evtid, recoTau[0].ntotal)
             displayECAL.viewEtaPhi(dmname(recoTau[0].decayMode()) + ' (gen : ' + gen_dm + ')', 'ECAL_' + str(evtid), evtid, recoTau[0].ntotal)
         
             counter += 1
 
-            
+    event_ntau[0] = len(taus)
+    event_ngentau[0] = len(genTaus)
+    event_gentaupt[0] = _gen_pt
+    event_gentaueta[0] = _gen_eta
+    event_gendm[0] = _gen_dm
+    event_tree.Fill()
+
+
 
 #        try:
 #            input("Press enter to continue")

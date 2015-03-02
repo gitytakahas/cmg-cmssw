@@ -135,8 +135,97 @@ def makeCompareVars2(tree, var, sel1, sel2, nbin, xmin, xmax, xtitle, ytitle, sc
     leg = TLegend(0.5,0.73,0.9,0.9)
     LegendSettings(leg,1)
 
-    leg.AddEntry(hist, 'Signal', "l")
-    leg.AddEntry(hist2, 'Isolation', "l")
+    leg.AddEntry(hist, 'Had. Inelastic', "l")
+    leg.AddEntry(hist2, 'Early shower', "l")
+    leg.Draw()
+
+    save(c, 'plots/compare_' + var)
+
+
+def makeCompareVars3(tree, var, sel1, sel2, sel3, nbin, xmin, xmax, xtitle, ytitle, scale):
+   
+    c = TCanvas()
+    hist = TH1F('h_comp', 'h_comp', nbin, xmin, xmax)
+    hist.GetXaxis().SetTitle(xtitle)
+    hist.GetYaxis().SetTitle(ytitle)
+    hist.GetYaxis().SetNdivisions(507)
+    hist.SetLineColor(kRed)
+    hist.Sumw2()
+
+    hist2 = TH1F('h2_comp2', 'h2_comp2', nbin, xmin, xmax)
+    hist2.GetXaxis().SetTitle(xtitle)
+    hist2.GetYaxis().SetTitle(ytitle)
+    hist2.GetYaxis().SetNdivisions(507)
+    hist2.SetLineColor(kBlue)
+    hist2.Sumw2()
+
+    hist3 = TH1F('h2_comp3', 'h2_comp3', nbin, xmin, xmax)
+    hist3.GetXaxis().SetTitle(xtitle)
+    hist3.GetYaxis().SetTitle(ytitle)
+    hist3.GetYaxis().SetNdivisions(507)
+    hist3.SetLineColor(kBlack)
+    hist3.Sumw2()
+
+
+    tree.Project(hist.GetName(), var, sel1)
+    tree.Project(hist2.GetName(), var, sel2)
+    tree.Project(hist3.GetName(), var, sel3)
+
+#    print var, sel1, hist.GetEntries()
+#    print var, sel2, hist2.GetEntries()
+
+    overflow(hist)
+    overflow(hist2)
+    overflow(hist3)
+
+    if scale and hist.GetSumOfWeights()!=0:
+        hist.Scale(1./hist.GetEntries())
+
+    if scale and hist2.GetSumOfWeights()!=0:
+        hist2.Scale(1./hist2.GetEntries())
+
+    if scale and hist3.GetSumOfWeights()!=0:
+        hist3.Scale(1./hist3.GetEntries())
+
+
+#    import pdb; pdb.set_trace()
+    hist.SetLineWidth(2)
+#    hist.SetLineStyle(2)
+    hist.SetMarkerSize(0)
+    hist.SetMaximum(hist.GetMaximum()*1.2)
+    hist.SetMinimum(0)
+
+    hist2.SetLineWidth(3)
+#    hist2.SetLineStyle(2)
+    hist2.SetMarkerSize(0)
+    hist2.SetMaximum(hist2.GetMaximum()*1.2)
+    hist2.SetMinimum(0)
+
+    hist3.SetLineWidth(3)
+#    hist3.SetLineStyle(2)
+    hist3.SetMarkerSize(0)
+    hist3.SetMaximum(hist2.GetMaximum()*1.2)
+    hist3.SetMinimum(0)
+
+    if hist.GetMaximum() > hist2.GetMaximum():
+        hist.SetMinimum(0)
+        hist.Draw('h')
+        hist2.Draw('hsame')
+        hist3.Draw('hsame')
+    else:
+        hist2.SetMinimum(0)
+        hist2.Draw('h')
+        hist.Draw('hsame')
+        hist3.Draw('hsame')
+        
+
+        
+    leg = TLegend(0.5,0.73,0.9,0.9)
+    LegendSettings(leg,1)
+
+    leg.AddEntry(hist, 'Had. Inelastic', "l")
+    leg.AddEntry(hist2, 'Early shower', "l")
+    leg.AddEntry(hist3, 'Conversions', "l")
     leg.Draw()
 
     save(c, 'plots/compare_' + var)
@@ -238,16 +327,87 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbiny, ymin, ymax, xtitle, ytitle, l
 if __name__ == '__main__':
 
     nbin = 100
-    
-    tfile = TFile('Myroot.root')
-    tree = tfile.Get('per_pizero')
 
-
-    gvardict = {
-        'pizero_pt':{'nbin':50, 'min':0, 'max':100, 'title':'Pizero pT'},
-        'pizero_invmass':{'nbin':50, 'min':0, 'max':200, 'title':'Invariant Mass'},
+    vardict = {
+        'isN':{'nbin':20, 'min':0, 'max':20, 'title':'Number of photons'},
+        'isNHad':{'nbin':10, 'min':0, 'max':10, 'title':'Number of Had. Inelastic'},
+#        'isHad_minR':{'nbin':200, 'min':0, 'max':122.3, 'title':'First Had. Inelastic Radius (cm)'},
         }
 
 
+    
+    tfile = TFile('output_allDecay.root')
+    tree = tfile.Get('event')
+    
+    for key, tool in vardict.iteritems():
+        selection = ''
+
+        makeCompareVars(tree, key, '', tool['nbin'], tool['min'], tool['max'], tool['title'], 'a.u.', True, key)
+
+
+    makeCompareVars(tree, 'tau_pt/tau_genpt', 'isHad==1', 50,0,2, 'tau p_{T} / gen. tau p_{T}', 'a.u.', True, 'isHad')
+    makeCompareVars(tree, 'tau_pt/tau_genpt', 'isPrim==1', 50,0,2, 'tau p_{T} / gen. tau p_{T}', 'a.u.', True, 'isPrim')
+    makeCompareVars(tree, 'tau_pt/tau_genpt', '', 50,0,2, 'tau p_{T} / gen. tau p_{T}^{vis}', 'a.u.', True, 'inclusive')
+
+
+    makeEffPlotsVars(tree, 'tau_genpt', 'isHad > 0.5', '', 2, -0.5,1.5, 'gen. tau p_{T} (GeV)', 'Fraction of Had. Inelastic', 'all', 'eff_pt', 'pt')
+    makeEffPlotsVars(tree, 'tau_genpt', 'isHad > 0.5', 'abs(tau_geneta) < 1', 2, -0.5,1.5, 'gen. tau p_{T} (GeV)', 'Fraction of Had. Inelastic', 'all', 'eff_pt_etacut', 'pt')
+    makeEffPlotsVars(tree, 'tau_geneta', 'isHad > 0.5', '', 2, -0.5,1.5, 'gen. tau #eta', 'Fraction of Had. Inelastic', 'all', 'eff_eta', 'eta')
+    makeEffPlotsVars(tree, 'tau_genpt', 'isNHad', '', 10, 0,10, 'gen. tau p_{T} (GeV)', '# of Had. Inelastic', 'all', 'nhad_pt', 'pt')
+    makeEffPlotsVars(tree, 'tau_genpt', 'isNHad', 'abs(tau_geneta) < 1', 10, 0,10, 'gen. tau p_{T} (GeV)', '# of Had. Inelastic', 'all', 'nhad_pt_etacut', 'pt')
+    makeEffPlotsVars(tree, 'tau_geneta', 'isNHad', '', 10, 0,10, 'gen. tau #eta', '# of Had. Inelastic', 'all', 'nhad_eta', 'eta')
+
+    makeEffPlotsVars(tree, 'isHad_minR', 'tau_pt/tau_genpt', '', 30, 0, 1., 'R_{Had}^{min} (cm)', 'tau p_{T} / gen. tau p_{T}', 'all', 'ratio_pt', 'others')
+
+    tree = tfile.Get('detail')
+
+    dvardict = {
+        'Had_R':{'nbin':80, 'min':0, 'max':122.3, 'title':'Had. Inelastic Radius (cm)'},
+        }
+
+    for key, tool in dvardict.iteritems():
+        selection = ''
+
+        makeCompareVars(tree, key, selection, tool['nbin'], tool['min'], tool['max'], tool['title'], 'a.u.', True, 'Had_R')
+        makeCompareVars(tree, key, 'abs(Had_R_eta) < 1.', tool['nbin'], tool['min'], tool['max'], tool['title'], 'a.u.', True, 'Had_R_eta1_')
+
+
+
+    tree = tfile.Get('photon')
+
+    pvardict = {
+        'last_seed_process':{'nbin':210, 'min':0, 'max':210, 'title':'Last process'},
+#        'last_seed_pt':{'nbin':50, 'min':0, 'max':50, 'title':'pT'},
+        }
+
+    ptype = {'pion':0, 'electron':1, 'photon':2, 'pn':3, 'others':4}
+
+    for key, tool in pvardict.iteritems():
+        for dkey, dm in sorted(ptype.items()):
+
+            selection = 'last_seed == ' + str(dm)
+            print selection
+            makeCompareVars(tree, key, selection, tool['nbin'], tool['min'], tool['max'], tool['title'], 'a.u', True, dkey + '_', True)
+
+
+    h = TH1F('h','h',5,0,5)
+    tree.Draw('last_seed >> h')
+#    h.Scale(1/h.GetEntries())
+    
+    print 'pion', '{0:.1f}'.format(100*h.GetBinContent(1))
+    print 'e', '{0:.1f}'.format(100*h.GetBinContent(2))
+    print 'photon', '{0:.1f}'.format(100*h.GetBinContent(3))
+    print 'p/n', '{0:.1f}'.format(100*h.GetBinContent(4))
+    print 'others', '{0:.1f}'.format(100*h.GetBinContent(5))
+
+
+
+    gvardict = {
+        'iso_gamma_dR':{'nbin':50, 'min':0, 'max':0.5, 'title':'#DeltaR (reco. #tau, #gamma)'},
+        'iso_gamma_pt':{'nbin':50, 'min':0, 'max':10, 'title':'p_{T}^{#gamma, iso} (GeV)'},
+        }
+
+    tree = tfile.Get('iso_gamma_detail')
+
     for key, tool in gvardict.iteritems():
-        makeCompareVars2(tree, key, 'pizero_isSignal==1', 'pizero_isSignal==0', tool['nbin'], tool['min'], tool['max'], tool['title'], 'a.u.', True)
+        makeCompareVars3(tree, key, 'iso_gamma_isHad==1 && iso_gamma_isConvHad==0', 'iso_gamma_isPrim==1', 'iso_gamma_isConvOnly==1', tool['nbin'], tool['min'], tool['max'], tool['title'], 'a.u.', True)

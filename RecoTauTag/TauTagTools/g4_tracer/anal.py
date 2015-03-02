@@ -6,11 +6,11 @@ import numpy as num
 
 gROOT.SetBatch(True)
 
-file = TFile("Myroot.root")
+file = TFile("Myroot_allDecay.root")
 tree = file.Get("tree")
 entries = tree.GetEntriesFast()
 
-output = TFile('output.root','recreate')
+output = TFile('output_allDecay.root','recreate')
 ptree = ROOT.TTree('photon','photon') 
 etree = ROOT.TTree('event','event')
 dtree = ROOT.TTree('detail','detail')
@@ -28,7 +28,10 @@ isConv = num.zeros(1, dtype=int)
 isDecay = num.zeros(1, dtype=int)
 isIon = num.zeros(1, dtype=int)
 isPrim = num.zeros(1, dtype=int)
+isConvOnly = num.zeros(1, dtype=int)
+isConvPlusHad = num.zeros(1, dtype=int)
 isHad_minR = num.zeros(1, dtype=float)
+isConv_minR = num.zeros(1, dtype=float)
 counter_global = num.zeros(1, dtype=int)
 tau_genpt = num.zeros(1, dtype=float)
 tau_geneta = num.zeros(1, dtype=float)
@@ -41,6 +44,8 @@ iso_gamma_phi = num.zeros(1, dtype=float)
 iso_gamma_dR = num.zeros(1, dtype=float)
 iso_gamma_isHad = num.zeros(1, dtype=int)
 iso_gamma_isPrim = num.zeros(1, dtype=int)
+iso_gamma_isConvHad = num.zeros(1, dtype=int)
+iso_gamma_isConvOnly = num.zeros(1, dtype=int)
 
 Had_R = num.zeros(1, dtype=float)
 Had_R_eta = num.zeros(1, dtype=float)
@@ -57,8 +62,11 @@ etree.Branch('isBrem', isBrem, 'isBrem/I')
 etree.Branch('isConv', isConv, 'isConv/I')
 etree.Branch('isDecay', isDecay, 'isDecay/I')
 etree.Branch('isIon', isIon, 'isIon/I') 
-etree.Branch('isPrim', isPrim, 'isPrim/I') 
+etree.Branch('isPrim', isPrim, 'isPrim/I')
+etree.Branch('isConvOnly', isConvOnly, 'isConvOnly/I')
+etree.Branch('isConvPlusHad', isConvPlusHad, 'isConvPlusHad/I') 
 etree.Branch('isHad_minR', isHad_minR, 'isHad_minR/D')
+etree.Branch('isConv_minR', isConv_minR, 'isConv_minR/D')
 etree.Branch('tau_genpt', tau_genpt, 'tau_genpt/D')
 etree.Branch('tau_geneta', tau_geneta, 'tau_geneta/D')
 etree.Branch('tau_pt', tau_pt, 'tau_pt/D')
@@ -74,6 +82,8 @@ gtree.Branch('iso_gamma_phi', iso_gamma_phi, 'iso_gamma_phi/D')
 gtree.Branch('iso_gamma_dR', iso_gamma_dR, 'iso_gamma_dR/D')
 gtree.Branch('iso_gamma_isHad', iso_gamma_isHad, 'iso_gamma_isHad/I')
 gtree.Branch('iso_gamma_isPrim', iso_gamma_isPrim, 'iso_gamma_isPrim/I')
+gtree.Branch('iso_gamma_isConvOnly', iso_gamma_isConvOnly, 'iso_gamma_isConvOnly/I')
+gtree.Branch('iso_gamma_isConvHad', iso_gamma_isConvHad, 'iso_gamma_isConvHad/I')
 
 
 save_gen_pt = -1.
@@ -81,6 +91,8 @@ save_gen_eta = -1.
 save_pt = -1.
 save_eta = -1.
 save_phi = -1.
+
+isFlag = False
 
 for jentry in xrange(entries):
 
@@ -90,31 +102,35 @@ for jentry in xrange(entries):
     nb = tree.GetEntry(jentry)
     if nb <= 0: continue
 
-#    if jentry > 1000:
+#    if jentry > 4000:
 #        break
+
 
     gcounter = tree.gamma_global_counter
     pcounter = tree.gamma_photon_counter
 
-    if tree.ncluster!=1: 
-        print 'Number of cluster is not 1', tree.ncluster
-        continue
+#    if tree.gamma_nEcal!=1: 
+#        print 'Number of cluster is not 1', tree.gamma_nECAL
+#        continue
 
     if len(tree.history_pdgid) ==0: 
         print 'Number of history is 0'
         continue
 
+    if not (tree.gen_dm == 1 and tree.tau_dm == 0): continue
+
 
     print 'evtcounter = ', tree.evtcounter
-    print '\t photon pT = ', '{0:.1f}'.format(tree.gamma_pt), 
-    print 'eta = ', '{0:.1f}'.format(tree.gamma_eta),
-    print 'phi = ', '{0:.1f}'.format(tree.gamma_phi)
+    print '\t photon pT = ', '{0:.2f}'.format(tree.gamma_pt), 
+    print 'eta = ', '{0:.2f}'.format(tree.gamma_eta),
+    print 'phi = ', '{0:.2f}'.format(tree.gamma_phi)
 
     if pcounter==0:
-        if gcounter!=0:
+        if gcounter!=0 and isFlag==True:
 
             isHad[0] = display.isHadronic
             isHad_minR[0] = 999.
+            isConv_minR[0] = 999.
             isN[0] = display.isN + 1
 
             nhad = []
@@ -145,6 +161,16 @@ for jentry in xrange(entries):
             else:
                 isPrim[0] = 0
 
+            if display.isHadronic == False  and display.isIon == False and display.isConv == True:
+                isConvOnly[0] = 1
+            else:
+                isConvOnly[0] = 0
+            
+            if display.isHadronic == True and display.isConv == True:
+                isConvPlusHad[0] = 1
+            else:
+                isConvPlusHad[0] = 0
+            
             isBrem[0] = display.isBrem
             isConv[0] = display.isConv
             isDecay[0] = display.isDecay
@@ -153,32 +179,38 @@ for jentry in xrange(entries):
             tau_geneta[0] = save_gen_eta
             tau_pt[0] = save_pt
             tau_eta[0] = save_eta
-            counter_global[0] = gcounter-1
+#            counter_global[0] = gcounter-1
+            counter_global[0] = save_evtid
                 
 #            print gcounter, ', isPrimary = ', isPrim[0]
 
             if display.isHadronic:
                 isHad_minR[0] = min(display.isHadronicR)
 
+            if display.isConv:
+                isConv_minR[0] = min(display.isConvR)
+
             etree.Fill()
 
             _gamma_ = display.returnGamma()
             for igamma in _gamma_:
-                print igamma
+#                print igamma
                 iso_gamma_pt[0] = igamma[0]
                 iso_gamma_eta[0] = igamma[1]
                 iso_gamma_phi[0] = igamma[2]
                 iso_gamma_dR[0] = deltaR(igamma[1], igamma[2], save_eta, save_phi)
                 iso_gamma_isHad[0] = display.isHadronic
                 iso_gamma_isPrim[0] = isPrim[0]
+                iso_gamma_isConvOnly[0] = isConvOnly[0]
+                iso_gamma_isConvHad[0] = isConvPlusHad[0]
                 gtree.Fill()
 
 
-            if gcounter < 1000:
-                display.viewEtaPhi(str(save_evtid)) # save to the file
+#            if gcounter < 1000:
+            display.viewEtaPhi(str(save_evtid)) # save to the file
 
-        display = DisplayManager('display', tree.gamma_total_iso)
-
+        display = DisplayManager('display', tree.gamma_total_iso, tree.gen_dm, tree.tau_dm)
+        isFlag = True
         
     display.addPoint(tree.history_pdgid, tree.history_pt, tree.history_processtype, tree.history_r, pcounter, gcounter, tree.gamma_pt, tree.gamma_eta, tree.gamma_phi)
  

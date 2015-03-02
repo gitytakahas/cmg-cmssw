@@ -245,6 +245,8 @@ private:
   edm::InputTag disc_;
   edm::InputTag nIso_;
 
+  double minIso;
+
   Int_t counter = 0;
 
   edm::Service<TFileService> fs_;
@@ -278,22 +280,22 @@ private:
 					// of the PFTau
 
   // photon by photon variables
-  Int_t ncluster;
-  Int_t nbadcluster;
   Float_t gamma_pt;
   Float_t gamma_eta;
   Float_t gamma_phi;
   Int_t gamma_global_counter;
   Int_t gamma_photon_counter;
+  Int_t gamma_type;
+  Int_t gamma_isIso;
+  Int_t gamma_nECAL;
+  Int_t gamma_nHCAL;
+
   
   // cluster by cluster variables
   std::vector<int> seed_pdgid;
   std::vector<int> pseed_pdgid;
-  std::vector<float> pseed_pt;
-  std::vector<float> pseed_R;
   std::vector<int> isPrimary;
   std::vector<int> cluster_id;
-  std::vector<int> nprocess;
 
   std::vector<int> history_pdgid;
   std::vector<float> history_pt;
@@ -324,10 +326,13 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   genTauSrc_ = iConfig.getParameter<edm::InputTag>("genTauSrc");
   disc_ = iConfig.getParameter<edm::InputTag>("disc");
   nIso_ = iConfig.getParameter<edm::InputTag>("nIso");
+  minIso = iConfig.getParameter<double>("minIso");
 
-  //doPrintSimHits = true;
-  //doPrintCaloHits = true;
-  //doPrintRecHits = true;
+  std::cout << " Minimum Isolation = " << minIso << std::endl;
+
+  //  doPrintSimHits = true;
+  //  doPrintCaloHits = true;
+  //  doPrintRecHits = true;
   
   doPrintSimHits = false;
   doPrintCaloHits = false;
@@ -339,8 +344,6 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   // tau by tau
   tree->Branch("evtnum",&evtnum,"evtnum/I");
   tree->Branch("evtcounter",&evtcounter,"evtcounter/I");
-  tree->Branch("ncluster",&ncluster,"ncluster/I");
-  tree->Branch("nbadcluster",&nbadcluster,"nbadcluster/I");
   tree->Branch("gamma_total_iso",&gamma_total_iso,"gamma_total_iso/F");
 
   tree->Branch("tau_pt",&tau_pt,"tau_pt/F");
@@ -368,15 +371,16 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("gamma_pt",&gamma_pt,"gamma_pt/F");
   tree->Branch("gamma_eta",&gamma_eta,"gamma_eta/F");
   tree->Branch("gamma_phi",&gamma_phi,"gamma_phi/F");
+  tree->Branch("gamma_type",&gamma_type,"gamma_type/I");
+  tree->Branch("gamma_isIso",&gamma_isIso,"gamma_isIso/I");
+  tree->Branch("gamma_nECAL",&gamma_nECAL,"gamma_nECAL/I");
+  tree->Branch("gamma_nHCAL",&gamma_nHCAL,"gamma_nHCAL/I");
 
   // cluster by cluster variables
   tree->Branch("cluster_id",&cluster_id);
   tree->Branch("seed_pdgid",&seed_pdgid);
   tree->Branch("pseed_pdgid",&pseed_pdgid);
-  tree->Branch("pseed_pt",&pseed_pt);
-  tree->Branch("pseed_R",&pseed_R);
   tree->Branch("isPrimary",&isPrimary);
-  tree->Branch("nprocess",&nprocess);
 
   tree->Branch("history_pdgid",&history_pdgid);
   tree->Branch("history_pt",&history_pt);
@@ -420,7 +424,6 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::PFTauDiscriminator> nIso;
   iEvent.getByLabel(nIso_,nIso);
 
-
   // First, look into tau collection and select events in case there is a tau with isolated photons around it
 
   int ispass = 0;
@@ -452,13 +455,16 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
+    if(tau->pt() < 20) continue;
+    if(TMath::Abs(tau->eta()) > 2.3) continue;
+
     for(size_t i = 0; i < genTaus->size(); ++ i){      
 
       const reco::GenJet & TauCand = (*genTaus)[i];
       reco::Particle::LorentzVector visibleP4 = ((*genTaus)[i]).p4();
       
-      //      if(visibleP4.pt() < 20) continue;
-      //      if(TMath::Abs(visibleP4.eta()) > 2.3) continue;
+      if(visibleP4.pt() < 20) continue;
+      if(TMath::Abs(visibleP4.eta()) > 2.3) continue;
 
       const std::vector <const reco::GenParticle*> mRefs = TauCand.getGenConstituents();
       unsigned int decayMode = 0; // 0 = hadronic, 1=electron, 2=muon 
@@ -496,7 +502,8 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     float niso = (*nIso)[tau];
-    if(niso==0) continue;
+    //    if(niso < minIso) continue;
+    if(niso ==0) continue;
     
     //    std::cout << "# of photon = " << tau->isolationPFGammaCands().size() 
     //	      << "# of pion = " << tau->isolationPFChargedHadrCands().size()
@@ -713,6 +720,13 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << " Loop over SimHits in ECAL EE" << endl;
   PrintCaloHits(simHitsEcalEEHandle,threshold);
 
+  // added by Yuta
+///  edm::Handle<edm::PCaloHitContainer> simHitsHcalHandle;
+///  iEvent.getByLabel( "g4SimHits","HcalHits",simHitsHcalHandle);
+///  cout << " Loop over SimHits in HCAL" << endl;
+///  PrintCaloHits(simHitsHcalHandle,threshold);
+
+
   FillTheMainMapForDetIds() ;		
 
 
@@ -725,6 +739,11 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel( "particleFlowRecHitECAL","",pfRecHitsHandle);
   PrintPFRecHits<vector<reco::PFRecHit> >( pfRecHitsHandle , 0.1, false);   // all PFRecHits above a threshold
 
+  // added by Yuta
+  //  edm::Handle< vector<reco::PFRecHit> > pfRecHitsHandleH;
+  //  iEvent.getByLabel( "particleFlowRecHitHBHE","",pfRecHitsHandleH);
+//  PrintPFRecHits<vector<reco::PFRecHit> >( pfRecHitsHandleH , 0.1, false);   // all PFRecHits above a threshold
+
 
   // now the clusters 
 
@@ -735,6 +754,12 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << endl << " Loop over particleFlowClusterECAL " << endl ;
   iEvent.getByLabel("particleFlowClusterECAL","",pPFClustersECALHandle);
   PrintPFClusters( pPFClustersECALHandle, verbose );
+
+  // added by Yuta
+  //  edm::Handle< vector<reco::PFCluster> > pPFClustersHCALHandle;
+  //  cout << endl << " Loop over particleFlowClusterHCAL " << endl ;
+  //  iEvent.getByLabel("particleFlowClusterHBHE","",pPFClustersHCALHandle);
+  //  PrintPFClusters( pPFClustersHCALHandle, verbose );
 
 
 
@@ -826,8 +851,6 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
   float eta = iterTau -> eta();
   float phi = iterTau -> phi();
   float isolationCh = iterTau -> isolationPFChargedHadrCandsPtSum();
-  //  float isolationGammaObs =  iterTau -> isolationPFGammaCandsEtSum() ;
-  //  float isolationGamma = niso;
 
   cout << " a PFTau pt " << pT << " eta " << eta << " phi " << phi << " isolationCh " << isolationCh << " isolationGamma " << niso << endl;
 
@@ -835,7 +858,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
   HcalEnInSignalPFCands = 0;
   nPFPhotonsInSignal = 0;
 
-        // access the PFCandidates that are in the signal cone
+  // access the PFCandidates that are in the signal cone
    std::vector<reco::PFCandidatePtr> constsignal = iterTau -> signalPFCands();
    for(constituents_iterator it=constsignal.begin(); it != constsignal.end(); ++it) {
          reco::PFCandidatePtr & icand = *it;
@@ -856,10 +879,16 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
     }
 
 
-	// access the PFCandidates that are in the isolation cone:
-  std::vector<reco::PFCandidatePtr> constisolation = iterTau -> isolationPFCands() ;
+    //    for(int iloop=0; iloop<2; iloop++){
+    for(int iloop=1; iloop<2; iloop++){
 
-  for(constituents_iterator it=constisolation.begin(); it!=constisolation.end(); ++it) {
+      // access the PFCandidates that are in the isolation cone:
+      std::vector<reco::PFCandidatePtr> constisolation;
+      
+      if(iloop==0) constisolation = iterTau -> signalPFCands() ;
+      if(iloop==1) constisolation = iterTau -> isolationPFCands() ;
+      
+      for(constituents_iterator it=constisolation.begin(); it!=constisolation.end(); ++it) {
     reco::PFCandidatePtr & icand = *it;
     float candPt = icand->pt();
     float candE = icand -> energy();
@@ -869,8 +898,19 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
     int pftype = icand->particleId() ;   // should be 4 for photons, 5 for neut hadrons
 
     if ( pftype != PFCandidate::ParticleType::gamma) continue;
-    TString stype =  pftype == PFCandidate::ParticleType::gamma ? " photon " : " NeutHad " ;
-    cout << "   " << stype << " in isolation cone pt " << candPt << " energy " << candE << " eta " << candEta << " phi " << candPhi << " dR " << candDr << endl;
+    //    if (!(pftype == PFCandidate::ParticleType::gamma || 
+    //	  pftype == PFCandidate::ParticleType::e ||
+    //	  pftype == PFCandidate::ParticleType::h
+    //	  )) continue;
+
+    TString stype = "others";
+    if(pftype == PFCandidate::ParticleType::gamma) stype = " photon ";
+    if(pftype == PFCandidate::ParticleType::e) stype = " electron ";
+    if(pftype == PFCandidate::ParticleType::h) stype = " CH ";
+    
+    TString isoornot = (iloop==0) ? "signal cone" : "isolation cone";
+
+    cout << "   " << stype << "(" << pftype << ") in " << isoornot <<  " pt " << candPt << " energy " << candE << " eta " << candEta << " phi " << candPhi << " dR " << candDr << endl;
 
 
     int simTrackpdgId = -999;
@@ -885,11 +925,14 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
 
 
     int _nEcal = 0;
+    int nHcal = 0;
     for(unsigned jEle=0; jEle<theElements.size(); jEle++) {  
       unsigned int iEle = theElements[jEle].second;
       PFBlockElement::Type type = elements[iEle].type();
       if (type == PFBlockElement::ECAL) {
 	_nEcal ++;
+      }else if(type == PFBlockElement::HCAL){
+	nHcal ++;
       }
     }
 
@@ -905,10 +948,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
     cluster_id.clear();
     seed_pdgid.clear();
     pseed_pdgid.clear();
-    pseed_pt.clear();
-    pseed_R.clear();
     isPrimary.clear();
-    nprocess.clear();
 
     history_pdgid.clear();
     history_pt.clear();
@@ -916,16 +956,17 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
     history_ii_global.clear();
     history_ii_photon.clear();
     history_processtype.clear();
-
   }
 
 
 
     int nEcal = 0;
-    int nbadEcal = 0;
     for(unsigned jEle=0; jEle<theElements.size(); jEle++) { 	// bugfix
       unsigned int iEle = theElements[jEle].second;
       PFBlockElement::Type type = elements[iEle].type();
+      //      if (type == PFBlockElement::ECAL) {
+      // yuta
+      //      if (type == PFBlockElement::ECAL || type == PFBlockElement::HCAL) {
       if (type == PFBlockElement::ECAL) {
 	nEcal ++;
 	const reco::PFBlockElementCluster& et =
@@ -935,14 +976,12 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
 	map<float, unsigned int>::iterator cmp = ClusterMap.find( eclu );
 	if ( cmp == ClusterMap.end() ) {
 	  cout << " ..... WEIRD. constituent cluster was not found in cluster list... " << endl ;
-	  nbadEcal++;
 	}
 	else {
 	  simTrackId  = cmp -> second;
 	  map<unsigned int, int>::iterator tmp = TrackIdMap.find( simTrackId );
 	  if ( tmp == TrackIdMap.end() ) {
 	    cout << " .... WEIRD... no pdgId in map TrackIdMap for simTrackId " << simTrackId << endl;
-	    nbadEcal++;
 	  }
 	  else {
 	    simTrackpdgId = tmp -> second;
@@ -966,14 +1005,14 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
           traceTrack(SecondariesSimTrackId, SecondariesGenParticles, SecondariesParents, SecondariesPdgId, simTrackId, _trackid_);
         }
 
-        float _R_ = -1;
-        float _pt_ = -1;
-        for(int ii=0; ii < (int)SecondariesSimTrackR.size(); ii++){
-          if(SecondariesSimTrackId.at(ii)==_trackid_){
-            _R_ = SecondariesSimTrackR.at(ii);
-            _pt_ = SecondariesSimTrackpt.at(ii);
-          }
-        }
+	//        float _R_ = -1;
+	//        float _pt_ = -1;
+	//        for(int ii=0; ii < (int)SecondariesSimTrackR.size(); ii++){
+//          if(SecondariesSimTrackId.at(ii)==_trackid_){
+	  //            _R_ = SecondariesSimTrackR.at(ii);
+	//            _pt_ = SecondariesSimTrackpt.at(ii);
+	//          }
+	//        }
 
 	// retrieve the vector of processIds, i.e. the history
 	vector<unsigned int> vHistory;
@@ -1007,7 +1046,7 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
 	}
 
 
-	cout << "\t  ECAL cluster number " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << " parent pdgId " << _gen_ << ", track id = " << _trackid_ << " ProcessIds " ;
+	cout << "\t  Cluster number " << type << " " << nEcal << " et " << etclu << " induced by simTrack " << simTrackId << " pdgId of simTrack " << simTrackpdgId << " " << stPrimary << " parent pdgId " << _gen_ << ", track id = " << _trackid_ << " ProcessIds " ;
 
 	vector<float> VecOfMomenta;
 	map<unsigned int, vector<float> >::iterator itMomenta = SimTrackMomentaHistory.find( simTrackId );
@@ -1036,33 +1075,34 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
 	  history_r.push_back(rHistory.at(vit));
 	  history_ii_global.push_back(global_counter);
 	  history_ii_photon.push_back(photon_counter);
-
 	  history_processtype.push_back(vHistory.at( vit));
+
+	  //	  std::cout << "HISTORY !!! " << type << std::endl;
+	  //	  history_det.push_back((int)type);
 	}
 
 	cluster_id.push_back(nEcal);
 	seed_pdgid.push_back(simTrackpdgId);
 	pseed_pdgid.push_back(_gen_);
 
-	nprocess.push_back(vHistory.size()-1);
-	pseed_pt.push_back(_pt_);
-	pseed_R.push_back(_R_);
 	isPrimary.push_back((stPrimary==" [Primary] "));
 
       }
     }
 
-
+    
    
     evtnum = iEvent.id().event();
     evtcounter = counter;
-    ncluster = nEcal;
-    nbadcluster = nbadEcal;
     gamma_pt = candPt;
     gamma_eta = candEta;
     gamma_phi = candPhi;
     gamma_global_counter = global_counter;
     gamma_photon_counter = photon_counter;
+    gamma_type = pftype;
+    gamma_isIso = iloop;
+    gamma_nHCAL = nHcal;
+    gamma_nECAL = nEcal;
 
     gamma_total_iso = niso;
     tau_pt = pT;
@@ -1092,7 +1132,8 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
     tree->Fill();
     photon_counter ++;
 
-  }
+      }
+}
 
   global_counter++;
 }

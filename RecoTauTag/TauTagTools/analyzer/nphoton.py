@@ -97,6 +97,43 @@ def makeCompareVars(tree, var, sel1, sel2, nbin, xmin, xmax, xtitle, ytitle, sca
     save(c, 'plots/compare_' + var)
 
 
+
+
+def makeCompareVars(tree, var, sel, nbin, xmin, xmax, xtitle, ytitle, scale, header = ''):
+   
+    c = TCanvas()
+    hist = TH1F('h_comp', 'h_comp', nbin, xmin, xmax)
+    hist.GetXaxis().SetTitle(xtitle)
+    hist.GetYaxis().SetTitle(ytitle)
+    hist.GetYaxis().SetNdivisions(507)
+#    hist.SetLineColor(kRed)
+    hist.Sumw2()
+
+    tree.Project(hist.GetName(), var, sel)
+
+    overflow(hist)
+
+    if scale and hist.GetSumOfWeights()!=0:
+        hist.Scale(1./hist.GetEntries())
+
+
+    hist.SetLineWidth(3)
+    hist.SetMarkerSize(0)
+    hist.SetMaximum(hist.GetMaximum()*1.2)
+
+    hist.SetMinimum(0)
+    hist.Draw('h')
+
+#    leg = TLegend(0.16,0.93,0.91,0.99)
+#    LegendSettings(leg,2)
+
+#    leg.AddEntry(hist, 'gen p_{T} < 100 GeV', "l")
+#    leg.AddEntry(hist2, 'gen p_{T} > 100 GeV', "l")
+#    leg.Draw()
+
+    save(c, 'plots/compare_' + header + var)
+
+
     
 
 
@@ -183,74 +220,28 @@ if __name__ == '__main__':
 
     nbin = 100
 
-    vardict = {
-        't_energy':{'nbin':nbin, 'min':0, 'max':350, 'title':'#gamma energy (GeV)'},
-        't_dr':{'nbin':nbin, 'min':0, 'max':0.5, 'title':'dR (reco. #tau, #gamma)'},
-        't_dphi':{'nbin':nbin, 'min':0, 'max':0.5, 'title':'d#phi (reco. #tau, #gamma)'},
-        't_deta':{'nbin':nbin, 'min':0, 'max':0.5, 'title':'d#eta (reco. #tau, #gamma)'},
-        }
-
-
-    ddict = {'1p0pi0':0, '1p1pi0':-100, '3p0pi0':10, 'Inclusive':-1}
+    ddict = {'1p0pi0':0, '1p1pi0':1, '3p0pi0':2, 'Inclusive':-1}
     
     tfile = TFile('Myroot_1prongOnly.root')
     tree = tfile.Get('per_tau')
     
-    for key, tool in vardict.iteritems():
-        for dkey, dm in sorted(ddict.items()):
-
-            selection = ''
-
-            if dkey=='1p1pi0':
-                selection += '(t_dm==1 || t_dm==2) && (t_gendm==1 || t_gendm==2)'
-            elif dkey in ['1p0pi0', '3p0pi0']:
-                selection += 't_dm == t_gendm && t_gendm == ' + str(dm)
-            elif dkey=='Inclusive':
-                selection += '1'
-            else:
-                print 'Invalid decaymode !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-
-            yval = key.replace('t_dphi','abs(t_dphi)').replace('t_deta','abs(t_deta)')
-           
-            makeEffPlotsVars(tree, 't_genpt', yval, selection, tool['nbin'], tool['min'], tool['max'], 'gen. tau p_{T}^{vis} (GeV)', tool['title'], dkey, 'canvas_' + dkey + '_')
-
-
-    makeCompareVars(tree, 't_dr', 't_genpt < 100', 't_genpt > 100', 25, 0, 0.5, 'dR', 'a.u.', True)
-    makeCompareVars(tree, 'abs(t_dphi)', 't_genpt < 100', 't_genpt > 100', 25, 0, 0.5, 'dphi', 'a.u.', True)
-    makeCompareVars(tree, 'abs(t_deta)', 't_genpt < 100', 't_genpt > 100', 25, 0, 0.5, 'deta', 'a.u.', True)
-
-
-
     evardict = {
-        'e_nphoton':{'nbin':25, 'min':0, 'max':25, 'title':'number of #gamma'},
-        'e_total':{'nbin':nbin, 'min':0, 'max':250, 'title':'Photon isolation sum (GeV)'},
+        'tau_nphoton':{'nbin':20, 'min':0, 'max':20, 'title':'number of #gamma'},
         }
 
-
-    
-    tree = tfile.Get('per_event')
     
         
     for key, tool in evardict.iteritems():
         for dkey, dm in sorted(ddict.items()):
 
-            selection = 'e_total!=0 &&'
-#            selection = ''
-
-            if dkey=='1p1pi0':
-                selection += '(e_dm==1 || e_dm==2) && (e_gendm==1 || e_gendm==2)'
-            elif dkey in ['1p0pi0', '3p0pi0']:
-                selection += 'e_dm == e_gendm && e_gendm == ' + str(dm)
-            elif dkey=='Inclusive':
-                selection += '1'
-            else:
-                print 'Invalid decaymode !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-
-
+            selection = 'tau_total_pt!=0 &&'
 
             if dkey=='Inclusive':
-                selection = 'e_total!=0'
-#                selection = ''
+                selection += '1'
+            else:
+                selection += 'tau_dm_rough == tau_gendm_rough && tau_gendm_rough == ' + str(dm)
 
-            makeEffPlotsVars(tree, 'e_genpt', key, selection, tool['nbin'], tool['min'], tool['max'], 'gen. tau p_{T}^{vis} (GeV)', tool['title'], dkey, 'ecanvas_' + dkey + '_')
+
+            makeCompareVars(tree, key, selection, tool['nbin'], tool['min'], tool['max'], 'Number of isolation photon', 'a.u.', True, 'nphoton_' + dkey + '_')
+
         
