@@ -87,6 +87,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -278,6 +279,15 @@ private:
   int nPFDisplacedVertex ;	// number of PFDisplacedVertices
   float LeadingTracknormalizedChi2;	// norm. chi2 of the track of the leading charged hadron
 					// of the PFTau
+  int LeadingTracknumberOfValidStripHits;
+  int LeadingTracknumberOfValidPixelHits;
+  int LeadingTrackstripLayersWithMeasurement;
+  int LeadingTracktrackerLayersWithMeasurement;
+
+  int FoundGSFTrackInSig;	// how many PFGSFTracks in signal area
+  float PinGSF;		// Pin of the leading PFGsfTrack
+  float PoutGSF;	// its Pout
+
 
   // photon by photon variables
   Float_t gamma_pt;
@@ -364,6 +374,16 @@ GeantAnalyzer::GeantAnalyzer(const edm::ParameterSet& iConfig)
   tree->Branch("nPFDisplacedVertex",&nPFDisplacedVertex,"nPFDisplacedVertex/I");
   tree->Branch("LeadingTracknormalizedChi2",&LeadingTracknormalizedChi2,"LeadingTracknormalizedChi2/F");
 
+  tree->Branch("LeadingTracknumberOfValidStripHits",&LeadingTracknumberOfValidStripHits,"LeadingTracknumberOfValidStripHits/I");
+  tree->Branch("LeadingTracknumberOfValidPixelHits",&LeadingTracknumberOfValidPixelHits,"LeadingTracknumberOfValidPixelHits/I");
+  tree->Branch("LeadingTrackstripLayersWithMeasurement",&LeadingTrackstripLayersWithMeasurement,"LeadingTrackstripLayersWithMeasurement/I");
+  tree->Branch("LeadingTracktrackerLayersWithMeasurement",&LeadingTracktrackerLayersWithMeasurement,"LeadingTracktrackerLayersWithMeasurement/I");
+
+  tree->Branch("FoundGSFTrackInSig",&FoundGSFTrackInSig,"FoundGSFTrackInSig/I");
+  tree->Branch("PinGSF",&PinGSF,"PinGSF/F");
+  tree->Branch("PoutGSF",&PoutGSF,"PoutGSF/F");
+
+
 
   // photon by photon
   tree->Branch("gamma_global_counter",&gamma_global_counter,"gamma_global_counter/I");
@@ -440,6 +460,14 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nPFPhotonsInSignal = -1;
   LeadingTracknormalizedChi2 = -1;
   
+  LeadingTracktrackerLayersWithMeasurement = -1;
+  LeadingTrackstripLayersWithMeasurement = -1;
+  LeadingTracknumberOfValidPixelHits = -1;
+  LeadingTracknumberOfValidStripHits = -1;
+  FoundGSFTrackInSig = 0;
+  PinGSF = -999;
+  PoutGSF = -999;
+
   for (size_t iTau = 0; iTau < taus->size(); ++iTau) { // PFtau
 
     reco::PFTauRef tau(taus, iTau);
@@ -502,7 +530,7 @@ GeantAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     float niso = (*nIso)[tau];
-    //    if(niso < minIso) continue;
+        //if(niso < minIso) continue;
     if(niso ==0) continue;
     
     //    std::cout << "# of photon = " << tau->isolationPFGammaCands().size() 
@@ -875,9 +903,44 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
         LeadingTracknormalizedChi2 = (float)(tref -> normalizedChi2());
         //LeadingTrackd0 = (float)(tref -> d0() );
         //LeadingTracknumberOfLostHits = (int)(tref -> numberOfLostHits() );
+        const HitPattern& hitpattern = tref -> hitPattern() ;
+	LeadingTracknumberOfValidStripHits = hitpattern.numberOfValidStripHits();
+        LeadingTracknumberOfValidPixelHits = hitpattern.numberOfValidPixelHits() ;
+        LeadingTrackstripLayersWithMeasurement = hitpattern.stripLayersWithMeasurement();
+        LeadingTracktrackerLayersWithMeasurement = hitpattern.trackerLayersWithMeasurement();
       }
     }
 
+
+     // --- E.P.  did we find a GSF track in the signal region
+
+	float ptMax_GSF = -1;
+        std::vector<reco::PFCandidatePtr> constSignal = iterTau -> signalPFCands() ;
+	for(constituents_iterator it= constSignal.begin(); it!=constSignal.end(); ++it) {
+	   reco::PFCandidatePtr & icand = *it;
+	   const PFCandidate::ElementsInBlocks& theElements = icand -> elementsInBlocks();
+	   if( theElements.empty() )  continue;
+	   for(unsigned iblock=0; iblock < theElements.size(); iblock ++) {
+		const reco::PFBlockRef blockRef = theElements[iblock].first;
+		const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
+		unsigned int iEle = theElements[iblock].second;
+		PFBlockElement::Type type = elements[iEle].type();
+		if (type == PFBlockElement::GSF) {
+		    FoundGSFTrackInSig ++;
+		    const reco::PFBlockElementGsfTrack& et =
+                         dynamic_cast<const reco::PFBlockElementGsfTrack &>( elements[iEle] );
+		    reco::GsfTrackRef tref = et.GsftrackRef();
+		    float ptGSF = tref -> pt();
+		    if ( ptGSF > ptMax_GSF) {
+			ptMax_GSF = ptGSF ;
+		        PinGSF = (float)et.Pin().P();
+		        PoutGSF = (float)et.Pout().P();
+		    }
+		}  // endif type == PFBlockElement::GSF
+	   } // end loop over iblock
+	}  // end loop over constSignal
+
+    // --- end GSF business
 
     //    for(int iloop=0; iloop<2; iloop++){
     for(int iloop=1; iloop<2; iloop++){
@@ -1087,8 +1150,8 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
 
 	isPrimary.push_back((stPrimary==" [Primary] "));
 
-      }
-    }
+      }    // endif type == PFBlockElement::ECAL
+    }    // end loop jEle
 
     
    
@@ -1132,8 +1195,8 @@ void GeantAnalyzer::PrintPFTaus(reco::PFTauRef iterTau,
     tree->Fill();
     photon_counter ++;
 
-      }
-}
+      }  // end loop over the PFCandidates that are in the isolation / signal region
+}   // end loop over iloop
 
   global_counter++;
 }
