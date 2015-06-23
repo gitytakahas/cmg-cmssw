@@ -182,8 +182,6 @@
   <class name="edm::Association<std::vector<reco::PFTau3ProngSummary> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummary> > >"/>
 
-
-
   <class name="reco::PFTau3ProngSummaryCollection"/>
   <class name="std::vector<reco::PFTau3ProngSummaryCollection>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTau3ProngSummaryCollection> >"/>
@@ -193,8 +191,6 @@
   <class name="edm::reftobase::Holder<reco::PFTau3ProngSummaryCollection, edm::Ref<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection> > >" />
   <class name="edm::Association<std::vector<reco::PFTau3ProngSummaryCollection> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummaryCollection> > >"/>
-
-
 
   <class name="reco::PFTau3ProngSummaryRef"/>
   <class name="std::vector<reco::PFTau3ProngSummaryRef>"/>

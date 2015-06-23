@@ -8,7 +8,6 @@
    <version ClassVersion="10" checksum="3469208847"/>
   </class>
 
-
   <class name="reco::BaseTauTagInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="2717397101"/>
   </class>
@@ -79,8 +78,6 @@ for(auto const& ref : onfile.PFGammaCands_) {
 ]]>
 </ioread>
 
-
-  
   <class name="reco::BaseTau" ClassVersion="10">
    <version ClassVersion="10" checksum="3887454152"/>
   </class>
@@ -100,6 +97,5 @@ for(auto const& ref : onfile.PFGammaCands_) {
   <class name="edm::RefProd<std::vector<reco::CaloTau> >"/>
   <class name="edm::RefVector<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> > >" />
-  
 
 </lcgdict>

@@ -5,6 +5,7 @@ from Display import *
 from DeltaR import *
 
 
+
 ROOT.gROOT.SetBatch(True)
 
 tauH = Handle('std::vector<reco::PFTau>')
@@ -32,7 +33,7 @@ runtype = argvs[1]
 
 print 'You selected', runtype
 
-#s = shelve.open('save_' + runtype + '.db')
+s = shelve.open('save_' + runtype + '.db')
 
 def isFinal(p):
     return not (p.numberOfDaughters() == 1 and p.daughter(0).pdgId() == p.pdgId())
@@ -50,7 +51,7 @@ def testGoodVertex(vertex):
     return True
 
 
-#for ii in range(1, 40):
+#for ii in range(1, 2):
 for ii in range(1, 30):
 
     filename = ''
@@ -76,7 +77,7 @@ events = Events(filelist)
 print len(filelist), 'files will be analyzed'
 
 
-outputname = 'Myroot_' + runtype + '_v2.root'
+outputname = 'Myroot_' + runtype + '.root'
 file = ROOT.TFile(outputname, 'recreate')
 
 h_ngen = ROOT.TH1F("h_ngen", "h_ngen",10,0,10)
@@ -130,6 +131,11 @@ tau_gen_sumpt_outside = num.zeros(1, dtype=float)
 tau_gen_sumpt_inside = num.zeros(1, dtype=float)
 tau_vertex = num.zeros(1, dtype=int)
 tau_gvertex = num.zeros(1, dtype=int)
+tau_adR_signal = num.zeros(1, dtype=float)
+tau_wdR_signal = num.zeros(1, dtype=float)
+tau_adR_iso = num.zeros(1, dtype=float)
+tau_wdR_iso = num.zeros(1, dtype=float)
+
 
 photon_pt = num.zeros(1, dtype=float)
 photon_eta = num.zeros(1, dtype=float)
@@ -146,6 +152,7 @@ photon_taueta = num.zeros(1, dtype=float)
 photon_tauphi = num.zeros(1, dtype=float)
 photon_vertex = num.zeros(1, dtype=int)
 photon_gvertex = num.zeros(1, dtype=int)
+photon_niso = num.zeros(1, dtype=float)
 
 
 
@@ -197,6 +204,11 @@ tau_tree.Branch('tau_gen_nphoton_inside', tau_gen_nphoton_inside, 'tau_gen_nphot
 tau_tree.Branch('tau_gen_sumpt_outside', tau_gen_sumpt_outside, 'tau_gen_sumpt_outside/D')
 tau_tree.Branch('tau_gen_sumpt_inside', tau_gen_sumpt_inside, 'tau_gen_sumpt_inside/D')
 
+tau_tree.Branch('tau_adR_signal', tau_adR_signal, 'tau_adR_signal/D')
+tau_tree.Branch('tau_wdR_signal', tau_wdR_signal, 'tau_wdR_signal/D')
+tau_tree.Branch('tau_adR_iso', tau_adR_iso, 'tau_adR_iso/D')
+tau_tree.Branch('tau_wdR_iso', tau_wdR_iso, 'tau_wdR_iso/D')
+
 
 photon_tree.Branch('photon_pt', photon_pt, 'photon_pt/D')
 photon_tree.Branch('photon_eta', photon_eta, 'photon_eta/D')
@@ -213,6 +225,7 @@ photon_tree.Branch('photon_taueta', photon_taueta, 'photon_taueta/D')
 photon_tree.Branch('photon_tauphi', photon_tauphi, 'photon_tauphi/D')
 photon_tree.Branch('photon_vertex', photon_vertex, 'photon_vertex/I')
 photon_tree.Branch('photon_gvertex', photon_gvertex, 'photon_gvertex/I')
+photon_tree.Branch('photon_niso', photon_niso, 'photon_niso/D')
 
 
 evtid = 0
@@ -227,6 +240,7 @@ for event in events:
 
     if evtid==50000:
 #    if evtid==2000:
+#    if evtid==10:
         break
 
     event.getByLabel("hpsPFTauProducer", tauH)
@@ -260,11 +274,20 @@ for event in events:
 
     for tau in taus:
         
-        if tau.pt() < 20: continue
-        if abs(tau.eta()) > 2.3: continue
-        
+#        if tau.pt() < 20: continue
+#        if abs(tau.eta()) > 2.3: continue
+
+#        if tau.pt()==0: 
+#            print 'Tau pT = 0 ... continue !' 
+#            continue
+
         _genparticle_ = []
-        signalrad = max(0.05, min(0.1, 3./tau.pt()))
+
+        signalrad = 0.05
+
+        if tau.pt()!=0:
+            signalrad = max(0.05, min(0.1, 3./tau.pt()))
+
 
         for genParticle in genTaus:
                         
@@ -383,6 +406,14 @@ for event in events:
         nphoton_iso_inside = 0
         nphoton_iso_outside = 0
 
+        signal_photon = []
+        iso_photon = []
+        signal_dr_photon = []
+        iso_dr_photon = []
+
+        wsignal_photon = []
+        wiso_photon = []
+
         for ii, iphoton in enumerate(tau.signalPFGammaCands()):
 
             if iphoton.pt() < 0.5: continue
@@ -402,6 +433,7 @@ for event in events:
             photon_dm[0] = tau.decayMode()
             photon_vertex[0] = len(vertices)
             photon_gvertex[0] = len(gvertices)
+            photon_niso[0] = tau.ntotal_weight
             photon_isIsolation[0] = 0
 
 
@@ -418,7 +450,10 @@ for event in events:
                 sumpt_inside += iphoton.pt()
                 nphoton_inside += 1
                 
-
+                signal_photon.append(iphoton.pt())
+                signal_dr_photon.append(dr_fromtau)
+                wsignal_photon.append(dr_fromtau*iphoton.pt())
+                
         for ii, iphoton in enumerate(tau.isolationPFGammaCands()):
 
             if iphoton.pt() < 0.5: continue
@@ -439,7 +474,12 @@ for event in events:
             photon_isIsolation[0] = 1
             photon_vertex[0] = len(vertices)
             photon_gvertex[0] = len(gvertices)
+            photon_niso[0] = tau.ntotal_weight
             photon_tree.Fill()
+
+            iso_photon.append(iphoton.pt())
+            iso_dr_photon.append(dr_fromtau)
+            wiso_photon.append(dr_fromtau*iphoton.pt())
 
             if signalrad < dr_fromtau:
                 sumpt_iso_outside += iphoton.pt()
@@ -447,6 +487,28 @@ for event in events:
             else:
                 sumpt_iso_inside += iphoton.pt()
                 nphoton_iso_inside += 1
+
+
+
+        if len(signal_photon)==0:
+            tau_adR_signal[0] = -1
+        else:
+            tau_adR_signal[0] = sum(signal_dr_photon)/len(signal_photon)
+
+        if sum(signal_photon)==0:
+            tau_wdR_signal[0] = -1
+        else:
+            tau_wdR_signal[0] = sum(wsignal_photon)/sum(signal_photon)
+
+        if len(iso_photon)==0:
+            tau_adR_iso[0] = -1
+        else:
+            tau_adR_iso[0] = sum(iso_dr_photon)/len(iso_photon)
+
+        if sum(iso_photon)==0:
+            tau_wdR_iso[0] = -1
+        else:
+            tau_wdR_iso[0] = sum(wiso_photon)/sum(iso_photon)
 
 
 
@@ -506,9 +568,11 @@ for event in events:
 
         tau_tree.Fill()
 
-#        savedict = {'evt':eid, 'taupt':tau.pt(), 'taueta':tau.eta(), 'tauphi':tau.phi(), 'taudm':tau.decayMode(), 'neutral':tau.ntotal, 'nweight':tau.ntotal_weight, 'ciso':tau.isolationPFChargedHadrCandsPtSum()}
-#        key = 'dict_' + str(gp.genVis.Pt()) + '_' + str(gp.genVis.Eta()) + '_' + str(gp.genVis.Phi())
-#        s[key] = savedict
+        savedict = {'evt':eid, 'taupt':tau.pt(), 'taueta':tau.eta(), 'taudm':tau.decayMode(), 'nweight':tau.ntotal_weight, 'ciso':tau.ciso}
+        key = 'dict_' + str(gp.genVis.Pt()) + '_' + str(gp.genVis.Eta()) + '_' + str(gp.genVis.Phi())
+        
+#        print key, savedict
+        s[key] = savedict
 
 print evtid, 'events are processed !'
 

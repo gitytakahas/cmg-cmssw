@@ -174,7 +174,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       double scaleFactor = 1. - nonPFCandTracksSumP/addNeutralsSumP4.energy();
       if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
 	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
-	  << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+	  << "Failed to compute tau energy, case (2) --> killing tau candidate !!" << std::endl;
 	killTau(tau);
 	return;
       }
@@ -210,7 +210,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       double scaleFactor = ((addNeutralsSumP4.energy() + mergedNeutralsSumP4.energy()) - nonPFCandTracksSumP)/mergedNeutralsSumP4.energy();
       if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
       	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
-	  << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+	  << "Failed to compute tau energy, case (3) --> killing tau candidate !!" << std::endl;
 	killTau(tau);
 	return;
       }
@@ -255,7 +255,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       double scaleFactor = ((addNeutralsSumP4.energy() + mergedNeutralsSumP4.energy() + chargedHadronNeutralsSumP4.energy()) - nonPFCandTracksSumP)/chargedHadronNeutralsSumP4.energy();
       if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
       	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
-	  << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+	  << "Failed to compute tau energy, case (4) --> killing tau candidate !!" << std::endl;
 	killTau(tau);
 	return;
       }
@@ -399,9 +399,10 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 		  std::cout << "trackP (modified) = " << trackP_modified << std::endl;
 		}
 		double scaleFactor = trackP_modified/trackP;
+		//std::cout << "scaleFactor = " << scaleFactor << std::endl; 
 		if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
 		  edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
-		    << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+		    << "Failed to compute tau energy, case (6) --> killing tau candidate !!" << std::endl;
 		  killTau(tau);
 		  return;
 		}

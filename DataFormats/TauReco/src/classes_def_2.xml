@@ -1,6 +1,7 @@
 <lcgdict>
-  
-  <class name="reco::PFTau" ClassVersion="15">
+
+  <class name="reco::PFTau" ClassVersion="16">
+    <version ClassVersion="16" checksum="4164405702"/>
     <version ClassVersion="15" checksum="4105994460"/>
     <version ClassVersion="14" checksum="3087106015"/>
     <version ClassVersion="13" checksum="1088944403"/>
@@ -218,7 +219,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
 
-  <class name="reco::RecoTauPiZero" ClassVersion="10">
+  <class name="reco::RecoTauPiZero" ClassVersion="11">
+   <version ClassVersion="11" checksum="1161223731"/>
    <version ClassVersion="10" checksum="465425628"/>
   </class>
   <class name="std::vector<reco::RecoTauPiZero>"/>
