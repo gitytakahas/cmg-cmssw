@@ -34,6 +34,12 @@ def deltaPhi( p1, p2):
         res += 2*math.pi
     return res
 
+def isInside(tau_pt, eta, phi):
+    if eta < min(0.15, max(0.05, 0.352476*math.pow(tau_pt, -0.707716))) and \
+            phi <  min(0.15, max(0.05, 0.197077*math.pow(tau_pt, -0.658701))):
+        return 1
+    else:
+        return 0
 
 def dmname(dm):
     if dm==0:

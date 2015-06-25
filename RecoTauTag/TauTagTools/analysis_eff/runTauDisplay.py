@@ -135,6 +135,12 @@ tau_adR_signal = num.zeros(1, dtype=float)
 tau_wdR_signal = num.zeros(1, dtype=float)
 tau_adR_iso = num.zeros(1, dtype=float)
 tau_wdR_iso = num.zeros(1, dtype=float)
+tau_weighted_dr_inside = num.zeros(1, dtype=float)
+tau_weighted_deta_inside = num.zeros(1, dtype=float)
+tau_weighted_dphi_inside = num.zeros(1, dtype=float)
+tau_weighted_dr_outside = num.zeros(1, dtype=float)
+tau_weighted_deta_outside = num.zeros(1, dtype=float)
+tau_weighted_dphi_outside = num.zeros(1, dtype=float)
 
 
 photon_pt = num.zeros(1, dtype=float)
@@ -209,6 +215,12 @@ tau_tree.Branch('tau_wdR_signal', tau_wdR_signal, 'tau_wdR_signal/D')
 tau_tree.Branch('tau_adR_iso', tau_adR_iso, 'tau_adR_iso/D')
 tau_tree.Branch('tau_wdR_iso', tau_wdR_iso, 'tau_wdR_iso/D')
 
+tau_tree.Branch('tau_weighted_dr_inside', tau_weighted_dr_inside, 'tau_weighted_dr_inside/D')
+tau_tree.Branch('tau_weighted_deta_inside', tau_weighted_deta_inside, 'tau_weighted_deta_inside/D')
+tau_tree.Branch('tau_weighted_dphi_inside', tau_weighted_dphi_inside, 'tau_weighted_dphi_inside/D')
+tau_tree.Branch('tau_weighted_dr_outside', tau_weighted_dr_outside, 'tau_weighted_dr_outside/D')
+tau_tree.Branch('tau_weighted_deta_outside', tau_weighted_deta_outside, 'tau_weighted_deta_outside/D')
+tau_tree.Branch('tau_weighted_dphi_outside', tau_weighted_dphi_outside, 'tau_weighted_dphi_outside/D')
 
 photon_tree.Branch('photon_pt', photon_pt, 'photon_pt/D')
 photon_tree.Branch('photon_eta', photon_eta, 'photon_eta/D')
@@ -414,6 +426,56 @@ for event in events:
         wsignal_photon = []
         wiso_photon = []
 
+
+        dr_weighted_inside = []
+        deta_weighted_inside = []
+        dphi_weighted_inside = []
+        pt_inside = []
+
+        dr_weighted_outside = []
+        deta_weighted_outside = []
+        dphi_weighted_outside = []
+        pt_outside = []
+
+        for ii, iphoton in enumerate(tau.signalPFGammaCands()):
+            if iphoton.pt() < 0.5: continue
+
+            dr_tau = deltaR(tau.eta(), tau.phi(), iphoton.eta(), iphoton.phi())
+            deta_tau = iphoton.eta() - tau.eta()
+            dphi_tau = deltaPhi(iphoton.phi(), tau.phi())
+
+            if isInside(tau.pt(), iphoton.eta(), iphoton.phi()):
+                pt_inside.append(iphoton.pt())
+                deta_weighted_inside.append(deta_tau*iphoton.pt())
+                dphi_weighted_inside.append(dphi_tau*iphoton.pt())
+                dr_weighted_inside.append(dr_tau*iphoton.pt())   
+            else:
+                pt_outside.append(iphoton.pt())
+                deta_weighted_outside.append(deta_tau*iphoton.pt())
+                dphi_weighted_outside.append(dphi_tau*iphoton.pt())
+                dr_weighted_outside.append(dr_tau*iphoton.pt())
+                
+
+        for ii, iphoton in enumerate(tau.isolationPFGammaCands()):
+            if iphoton.pt() < 0.5: continue
+
+            dr_tau = deltaR(tau.eta(), tau.phi(), iphoton.eta(), iphoton.phi())
+            deta_tau = iphoton.eta() - tau.eta()
+            dphi_tau = deltaPhi(iphoton.phi(), tau.phi())
+
+            if isInside(tau.pt(), iphoton.eta(), iphoton.phi()):
+                pt_inside.append(iphoton.pt())
+                deta_weighted_inside.append(deta_tau*iphoton.pt())
+                dphi_weighted_inside.append(dphi_tau*iphoton.pt())
+                dr_weighted_inside.append(dr_tau*iphoton.pt())   
+            else:
+                pt_outside.append(iphoton.pt())
+                deta_weighted_outside.append(deta_tau*iphoton.pt())
+                dphi_weighted_outside.append(dphi_tau*iphoton.pt())
+                dr_weighted_outside.append(dr_tau*iphoton.pt())
+
+
+
         for ii, iphoton in enumerate(tau.signalPFGammaCands()):
 
             if iphoton.pt() < 0.5: continue
@@ -509,6 +571,24 @@ for event in events:
             tau_wdR_iso[0] = -1
         else:
             tau_wdR_iso[0] = sum(wiso_photon)/sum(iso_photon)
+
+        if sum(pt_inside)==0:
+            tau_weighted_dr_inside[0] = -1
+            tau_weighted_deta_inside[0] = -1
+            tau_weighted_dphi_inside[0] = -1
+        else:
+            tau_weighted_dr_inside[0] = sum(dr_weighted_inside)/sum(pt_inside)
+            tau_weighted_deta_inside[0] = sum(deta_weighted_inside)/sum(pt_inside)
+            tau_weighted_dphi_inside[0] = sum(dphi_weighted_inside)/sum(pt_inside)
+
+        if sum(pt_outside)==0:
+            tau_weighted_dr_outside[0] = -1
+            tau_weighted_deta_outside[0] = -1
+            tau_weighted_dphi_outside[0] = -1
+        else:
+            tau_weighted_dr_outside[0] = sum(dr_weighted_outside)/sum(pt_outside)
+            tau_weighted_deta_outside[0] = sum(deta_weighted_outside)/sum(pt_outside)
+            tau_weighted_dphi_outside[0] = sum(dphi_weighted_outside)/sum(pt_outside)
 
 
 
