@@ -1,6 +1,6 @@
 import os, numpy, math, copy, math, sys
 from array import array
-from ROOT import TLegend, TCanvas, TColor, kMagenta, kOrange, kRed, kBlue, kGray, kBlack, gROOT, gStyle, TFile, TH1F, TH2F, TLatex, TLine
+from ROOT import TLegend, TCanvas, TColor, kMagenta, kOrange, kRed, kBlue, kGray, kBlack, gROOT, gStyle, TFile, TH1F, TH2F, TLatex, TLine, TGraphAsymmErrors, Double
 from officialStyle import officialStyle
 
 gROOT.SetBatch(True)
@@ -58,6 +58,48 @@ def makeEffPlotsVars(tree, varx, vary, sel, nbinx, xmin, xmax, nbiny, ymin, ymax
     vbinning = [0,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,30]
 
     if option=='pt':
+#        _hist_ = TH2F('h_effp_' + addon, 'h_effp' + addon, len(binning)-1, array('d',binning), nbiny, ymin, ymax)
+        _hist_ = TH1F('h_effp_' + addon, 'h_effp' + addon, len(binning)-1, array('d',binning))
+        _ahist_ = TH1F('ah_effp_' + addon, 'ah_effp' + addon, len(binning)-1, array('d',binning))
+    elif option=='eta':
+#        _hist_ = TH2F('h_effp_' + addon, 'h_effp' + addon, nbinx, xmin, xmax, nbiny, ymin, ymax)
+        _hist_ = TH1F('h_effp_' + addon, 'h_effp' + addon, nbinx, xmin, xmax)
+        _ahist_ = TH1F('ah_effp_' + addon, 'ah_effp' + addon, nbinx, xmin, xmax)
+    elif option=='nvtx':
+#        _hist_ = TH2F('h_effp_' + addon, 'h_effp' + addon, len(vbinning)-1, array('d',vbinning), nbiny, ymin, ymax)
+        _hist_ = TH1F('h_effp_' + addon, 'h_effp' + addon, len(vbinning)-1, array('d',vbinning))
+        _ahist_ = TH1F('ah_effp_' + addon, 'ah_effp' + addon, len(vbinning)-1, array('d',vbinning))
+
+
+#    dname = vary + ':' + varx + ' >> ' + _hist_.GetName()
+#    tree.Draw(varx, sel)
+
+    tree.Draw(varx + ' >> ' + _hist_.GetName(), sel)
+    tree.Draw(varx + ' >> ' + _ahist_.GetName(), sel + ' && ' + vary)
+    
+    g_efficiency = TGraphAsymmErrors()
+    g_efficiency.BayesDivide(_ahist_, _hist_)
+    g_efficiency.GetXaxis().SetTitle(xtitle)
+    g_efficiency.GetYaxis().SetTitle(ytitle)
+    g_efficiency.GetYaxis().SetNdivisions(507)
+    g_efficiency.SetLineWidth(3)
+    g_efficiency.SetName(header)    
+    g_efficiency.SetMinimum(0.)
+    g_efficiency.GetYaxis().SetTitleOffset(1.65)
+    g_efficiency.SetMarkerStyle(marker)
+    g_efficiency.SetMarkerSize(2)
+
+    return copy.deepcopy(g_efficiency)
+
+
+
+def makeEffPlotsVars2(tree, varx, vary, sel, nbinx, xmin, xmax, nbiny, ymin, ymax, xtitle, ytitle, leglabel = None, header='', addon='', option='pt', marker=20):
+   
+#    binning = [20,30,40,50,60,70,80,90,100,120,150,200,300]
+    binning = [20,40,60,80,100,150,300]
+    vbinning = [0,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,30]
+
+    if option=='pt':
         _hist_ = TH2F('h_effp_' + addon, 'h_effp' + addon, len(binning)-1, array('d',binning), nbiny, ymin, ymax)
     elif option=='eta':
         _hist_ = TH2F('h_effp_' + addon, 'h_effp' + addon, nbinx, xmin, xmax, nbiny, ymin, ymax)
@@ -100,17 +142,30 @@ def overlay(hists, header, addon):
         hist.SetLineColor(col[ii])
         hist.SetMarkerColor(col[ii])
         hist.SetLineWidth(2)
+        hist.SetMarkerSize(1)
 
-        if ymax < hist.GetMaximum():
-            ymax = hist.GetMaximum()
-        if ymin > hist.GetMinimum():
-            ymin = hist.GetMinimum()
+
+        for ip in range(hist.GetN()):
+            x = Double(-1)
+            y = Double(-1)
+            hist.GetPoint(ip, x, y)
+
+            if ymin > y:
+                ymin = y
+            if ymax < y:
+                ymax = y
+
+#
+#        if ymax < hist.GetMaximum():
+#            ymax = hist.GetMaximum()
+#        if ymin > hist.GetMinimum():
+#            ymin = hist.GetMinimum()
 
         if ii==0:
-            hist.Draw("ep")
+            hist.Draw("Azp")
         else:
-            hist.SetMarkerSize(1)
-            hist.Draw("epsame")
+            
+            hist.Draw("pzsame")
  
         leg.AddEntry(hist, hist.GetName(), 'lep')
 
@@ -197,6 +252,7 @@ if __name__ == '__main__':
         'b':{'cut':'tau_gendm_rough==1', 'label':'1prong + #pi^{0}', 'name':'1prongpi0'},
         'c':{'cut':'tau_gendm_rough==2', 'label':'3prong', 'name':'3prong'},
         'd':{'cut':'tau_gendm_rough!=-1', 'label':'Inclusive', 'name':'Inclusive'},
+#        'd':{'cut':'tau_dm!=-1', 'label':'Inclusive', 'name':'Inclusive'},
         }
     
     hdicts = {
@@ -235,7 +291,7 @@ if __name__ == '__main__':
 
                         hists.append(makeEffPlotsVars(tree, xval, ivar['var'] + ' && ' + dm['cut'].replace('gendm','dm'), ivar['sel'], 30, 0, 300, ivar['nbin'], ivar['xmin'], ivar['xmax'], xlabel, title, dkey, ivar['label'], vkey + '_' + dkey, 'pt', ivar['marker']))
                     else:
-                        hists.append(makeEffPlotsVars(tree, xval, ivar['var'], ivar['sel'] + ' && ' + dm['cut'], 30, 0, 300, ivar['nbin'], ivar['xmin'], ivar['xmax'], xlabel, title, dkey, ivar['label'], vkey + '_' + dkey, 'pt', ivar['marker']))
+                        hists.append(makeEffPlotsVars(tree, xval, ivar['var'] + ' && ' + dm['cut'] + ' && ' + dm['cut'].replace('gendm','dm'), ivar['sel'] + ' && ' + dm['cut'], 30, 0, 300, ivar['nbin'], ivar['xmin'], ivar['xmax'], xlabel, title, dkey, ivar['label'], vkey + '_' + dkey, 'pt', ivar['marker']))
 
 
                 overlay(hists, runtype + '_taupt_' + hname + '_' + dm['name'], dm['label'])
@@ -259,7 +315,7 @@ if __name__ == '__main__':
                     if runtype=='fake':
                         hists.append(makeEffPlotsVars(tree, xval, ivar['var'] + ' && ' + dm['cut'].replace('gendm','dm'), ivar['sel'] , 10, -2.5, 2.5, ivar['nbin'], ivar['xmin'], ivar['xmax'], xlabel, title, dkey, ivar['label'], 'taueta_' + vkey + '_' + dkey, 'eta', ivar['marker']))
                     else:
-                        hists.append(makeEffPlotsVars(tree, xval, ivar['var'], ivar['sel'] + ' && ' + dm['cut'] , 10, -2.5, 2.5, ivar['nbin'], ivar['xmin'], ivar['xmax'], xlabel, title, dkey, ivar['label'], 'taueta_' + vkey + '_' + dkey, 'eta', ivar['marker']))
+                        hists.append(makeEffPlotsVars(tree, xval, ivar['var'] + ' && ' + dm['cut'] + ' && ' + dm['cut'].replace('gendm','dm'), ivar['sel'] + ' && ' + dm['cut'] , 10, -2.5, 2.5, ivar['nbin'], ivar['xmin'], ivar['xmax'], xlabel, title, dkey, ivar['label'], 'taueta_' + vkey + '_' + dkey, 'eta', ivar['marker']))
 
                         
 
