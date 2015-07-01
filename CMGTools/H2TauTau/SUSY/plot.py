@@ -3,6 +3,7 @@ import ROOT, os, numpy, copy
 from ROOT import TLegend, TCanvas, TFile, TTree, TH1F, TColor, kMagenta, kOrange, kRed, kBlue, kGray, kBlack
 from CMGTools.RootTools.DataMC.DataMCPlot import DataMCPlot
 from CMGTools.H2TauTau.proto.plotter.officialStyle import officialStyle
+import math
 
 ROOT.gROOT.SetBatch(True)
 officialStyle(ROOT.gStyle)
@@ -19,13 +20,35 @@ col_red = TColor.GetColor(248,206,104)
 
 nbin=30
 
+basic='l1_pt > 30 && met > 30'
+
 variables = {
-    'HT_jet30': {'nbin':nbin, 'xtitle':'H_{T} (GeV)', 'xmin':0, 'xmax':400, 'sel':'1'},
-    'pfmet': {'nbin':nbin, 'xtitle':'missing E_{T} (GeV)', 'xmin':0, 'xmax':150, 'sel':'1'},
-    'diTau_pt': {'nbin':nbin, 'xtitle':'Higgs p_{T} (GeV)', 'xmin':0, 'xmax':150, 'sel':'1'},
-    'MR': {'nbin':nbin, 'xtitle':'M_{R} (GeV)', 'xmin':0, 'xmax':1000, 'sel':'MR!=-1'},
-    'Rsq': {'nbin':nbin, 'xtitle':'Rsq', 'xmin':0, 'xmax':1, 'sel':'MR!=-1'},
-    'mt': {'nbin':nbin, 'xtitle':'M_{T} (GeV)', 'xmin':0, 'xmax':200, 'sel':'1'},
+    'MR': {'var':'MR', 'nbin':nbin, 'xtitle':'M_{R} (GeV)', 'xmin':0, 'xmax':1000, 'sel':basic + ' && njets40!=0 && MR > 350'},
+    'Rsq': {'var':'Rsq', 'nbin':nbin, 'xtitle':'Rsq', 'xmin':0, 'xmax':1, 'sel':basic + ' && njets40!=0 && MR > 350'},
+    'l1_gen_pdgId': {'var':'abs(l1_gen_pdgId)', 'nbin':25, 'xtitle':'l1 gen pdgID', 'xmin':0, 'xmax':25, 'sel':basic + ' && njets40!=0 && MR > 350'},
+    'l2_gen_pdgId': {'var':'abs(l2_gen_pdgId)', 'nbin':25, 'xtitle':'l2 gen pdgID', 'xmin':0, 'xmax':25, 'sel':basic + ' && njets40!=0 && MR > 350'},
+    'HT_jet30': {'var':'HT_jet30', 'nbin':nbin, 'xtitle':'H_{T} (jet p_{T} > 30) (GeV)', 'xmin':0, 'xmax':1000, 'sel':basic},
+#    'HT_jet20': {'nbin':nbin, 'xtitle':'H_{T} (jet p_{T} > 20) (GeV)', 'xmin':0, 'xmax':1000, 'sel':basic},
+#    'njets40': {'nbin':10, 'xtitle':'Number of jets (p_{T} > 40) (GeV)', 'xmin':0, 'xmax':10, 'sel':basic},
+#    'pfmet': {'nbin':nbin, 'xtitle':'missing E_{T} (GeV)', 'xmin':0, 'xmax':250, 'sel':basic},
+#    'met': {'nbin':nbin, 'xtitle':'MVA missing E_{T} (GeV)', 'xmin':0, 'xmax':250, 'sel':basic},
+#    'pthiggs': {'nbin':nbin, 'xtitle':'Higgs p_{T} (GeV)', 'xmin':0, 'xmax':250, 'sel':basic},
+#    'diTau_pt': {'nbin':nbin, 'xtitle':'diTau p_{T} (GeV)', 'xmin':0, 'xmax':150, 'sel':basic},
+#    'mt': {'nbin':nbin, 'xtitle':'M_{T} (GeV)', 'xmin':0, 'xmax':200, 'sel':basic},
+#    'visMass': {'nbin':nbin, 'xtitle':'visible Mass (GeV)', 'xmin':0, 'xmax':400, 'sel':basic},
+#    'svfitMass': {'nbin':nbin, 'xtitle':'SVfit Mass (GeV)', 'xmin':0, 'xmax':700, 'sel':basic},
+#    'l1_pt': {'nbin':nbin, 'xtitle':'tau pT (GeV)', 'xmin':0, 'xmax':150, 'sel':basic},
+#    'l1_decayMode': {'nbin':12, 'xtitle':'tau decaymode', 'xmin':0, 'xmax':12, 'sel':basic},
+#    'l1_eta': {'nbin':nbin, 'xtitle':'tau #eta', 'xmin':-2.3, 'xmax':2.3, 'sel':basic},
+#    'l1_phi': {'nbin':nbin, 'xtitle':'tau #phi', 'xmin':-math.pi, 'xmax':math.pi, 'sel':basic},
+#    'l2_pt': {'nbin':nbin, 'xtitle':'muon pT (GeV)', 'xmin':0, 'xmax':150, 'sel':basic},
+#    'l2_eta': {'nbin':nbin, 'xtitle':'muon #eta', 'xmin':-2.3, 'xmax':2.3, 'sel':basic},
+#    'l2_phi': {'nbin':nbin, 'xtitle':'muon #phi', 'xmin':-math.pi, 'xmax':math.pi, 'sel':basic},
+#    'jet1_pt': {'nbin':nbin, 'xtitle':'leading jet pT (GeV)', 'xmin':0, 'xmax':300, 'sel':basic + ' && nJets20!=0 '},
+#    'jet1_eta': {'nbin':nbin, 'xtitle':'leading jet #eta', 'xmin':-2.3, 'xmax':2.3, 'sel':basic + ' && nJets20!=0 '},
+#    'jet1_phi': {'nbin':nbin, 'xtitle':'leading jet #phi', 'xmin':-math.pi, 'xmax':math.pi, 'sel':basic + ' && nJets20!=0 '},
+#    'nJets': {'nbin':10, 'xtitle':'Number of jets (pT > 30 GeV)', 'xmin':0, 'xmax':10, 'sel':basic},
+#    'nJets20': {'nbin':10, 'xtitle':'Number of jets (pT > 20 GeV)', 'xmin':0, 'xmax':10, 'sel':basic},
 }
 
 prefix='sample_201507/'
@@ -33,7 +56,10 @@ prefix='sample_201507/'
 selections = {
     'ttbar':{'sel':'pid==2', 'col':col_qcd, 'order':1, 'data':'TTJetsFullLept'},
     'Wjet':{'sel':'pid==3', 'col':col_zll, 'order':2, 'data':'WJets'},
-    'DY':{'sel':'pid==1', 'col':col_ewk, 'order':3, 'data':'DYJets'},
+    'DY':{'sel':'pid==1', 'col':col_red, 'order':3, 'data':'DYJets'},
+    'Higgs':{'sel':'pid==6', 'col':col_ttv, 'order':4, 'data':'Higgs'},
+    'SingleTop':{'sel':'pid==4', 'col':col_tt, 'order':5, 'data':'SingleTop'},
+    'Diboson':{'sel':'pid==5', 'col':col_ewk, 'order':6, 'data':'VV'},
     'data':{'sel':'pid==0', 'col':1, 'order':2999, 'data':'data'}
     }
 
@@ -77,7 +103,9 @@ def makePlotsVars():
 
             sel = '(' + var['sel']  + '&&' + process['sel'] + ')*weight2'
 
-            tree.Project(hist.GetName(), ivar, sel)
+            print hist.GetName(), 'var = ', var['var'], ', condition = ', sel
+            tree.Draw(var['var'] + ' >> ' + hist.GetName())
+#            tree.Project(hist.GetName(), var['var'], sel)
 
 
             if iprocess=='data':
