@@ -7,17 +7,24 @@ from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerMuEle import H2TauTau
 from CMGTools.H2TauTau.proto.analyzers.LeptonWeighter            import LeptonWeighter
 from CMGTools.H2TauTau.proto.analyzers.SVfitProducer              import SVfitProducer
 
-from CMGTools.H2TauTau.proto.samples.spring15.connector import httConnector
+#from CMGTools.H2TauTau.proto.samples.spring15.connector import httConnector
+
+from CMGTools.RootTools.samples.samples_13TeV_74X import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop
+from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B
+from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF125, HiggsTTH125
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_muEle  import data_triggers as data_triggers_em
 
 # common configuration and sequence
 from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJetsFakeAna, puFileData, puFileMC, eventSelector
 
 
 # local switches
-syncntuple   = True
+syncntuple  = False
+pick_events = False
 computeSVfit = False
-#production   = True  # production = True run on batch, production = False run locally
-production   = False  # production = True run on batch, production = False run locally
+production   = True  # production = True run on batch, production = False run locally
+#production   = False  # production = True run on batch, production = False run locally
+cache                = True
 
 dyJetsFakeAna.channel = 'em'
 
@@ -96,34 +103,48 @@ from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_muEle  import mc_triggers as mc_triggers_em
 
 
-#my_connect = httConnector('htt_6mar15_manzoni_nom', 'htautau_group',
-#                          '.*root', 'tt', production=production)
-#my_connect.connect()
-#MC_list = my_connect.MC_list
-
 creator = ComponentCreator()
 ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
-MC_list = [ggh160]
+qcd_flat = creator.makeMCComponent("QCDflat", "/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISpring15DR74-Asympt25nsRaw_MCRUN2_74_V9-v3/MINIAODSIM", "CMS", ".*root", 2022100000.)
 
-split_factor = 2e4
+ggh125 = creator.makeMCComponent("GGH125", "//GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
+#ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
-for sample in MC_list:
+samples = [qcd_flat, TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf]
+
+samples += [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
+
+#samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
+
+split_factor = 1e5
+
+for sample in samples:
     sample.triggers = mc_triggers_em
     sample.splitFactor = splitFactor(sample, split_factor)
+
+data_list = [SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B]
+
+for sample in data_list:
+    sample.triggers = data_triggers_em
+    sample.splitFactor = splitFactor(sample, 1e6)
+    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt'
+    sample.lumi = 40.03
+
 
 ###################################################
 ###              ASSIGN PU to MC                ###
 ###################################################
-for mc in MC_list:
+for mc in samples:
     mc.puFileData = puFileData
     mc.puFileMC = puFileMC
 
 ###################################################
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
-selectedComponents = MC_list
+selectedComponents = samples + data_list
+
 # selectedComponents = mc_dict['HiggsGGH125']
 # for c in selectedComponents : c.splitFactor *= 5
 
@@ -136,15 +157,19 @@ sequence.append(muonWeighter)
 sequence.append(eleWeighter)
 if computeSVfit:
     sequence.append(svfitProducer)
+
 sequence.append(treeProducer)
+
 if syncntuple:
     sequence.append(syncTreeProducer)
 
 ###################################################
 ###             CHERRY PICK EVENTS              ###
 ###################################################
-eventSelector.toSelect = [133381]
-sequence.insert(0, eventSelector)
+
+if pick_events:    
+    eventSelector.toSelect = [133381]
+    sequence.insert(0, eventSelector)
 
 ###################################################
 ###            SET BATCH OR LOCAL               ###
