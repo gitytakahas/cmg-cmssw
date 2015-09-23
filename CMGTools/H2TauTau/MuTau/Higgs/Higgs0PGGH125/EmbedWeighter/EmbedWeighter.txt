@@ -1,0 +1,4 @@
+Counter EmbedWeighter :
+	 all events                                       0 	 -1.00 	 -1.0000
+	 gen Z mass > 50                                  0 	 -1.00 	 -1.0000
+

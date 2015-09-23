@@ -1,0 +1,133 @@
+MCComponent: Higgs0MGGH125_Chunk0
+	addWeight      :   1.0
+	dataset_entries:   21908
+	effCorrFactor  :   1
+	files          :   ['root://eoscms//eos/cms/store/cmst3/group/htautau/CMG/JJHiggs0MToTauTau_M-125p6_8TeV-JHUGenV4/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM/V5_B/PAT_CMG_V5_16_0/TauMu_Yuta_Jan20_NOM/tauMu_fullsel_tree_CMG_1.root']
+	intLumi        :   1.0
+	isData         :   False
+	isEmbed        :   False
+	isMC           :   True
+	nGenEvents     :   0
+	name           :   Higgs0MGGH125_Chunk0
+	puFileData     :   /afs/cern.ch/user/a/agilbert/public/HTT_Pileup/13-09-13/Data_Pileup_2012_ReRecoPixel-600bins.root
+	puFileMC       :   /afs/cern.ch/user/a/agilbert/public/HTT_Pileup/13-09-13/MC_Summer12_PU_S10-600bins.root
+	splitFactor    :   250
+	triggers       :   ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*']
+	xSection       :   None
+0 :
+Analyzer: JSONAnalyzer
+	name           :   JSONAnalyzer
+	verbose        :   False :
+1 :
+Analyzer: TriggerAnalyzer
+	name           :   TriggerAnalyzer
+	verbose        :   False :
+2 :
+Analyzer: VertexAnalyzer
+	fixedWeight    :   1
+	goodVertices   :   goodPVFilter
+	name           :   VertexAnalyzer
+	verbose        :   False
+	vertexWeight   :   None :
+3 :
+Analyzer: TauMuAnalyzer
+	dR_min         :   0.5
+	eta1           :   2.3
+	eta2           :   2.1
+	iso1           :   None
+	iso2           :   0.1
+	m_max          :   99999
+	m_min          :   10
+	mvametsigs     :   mvaMETTauMu
+	name           :   TauMuAnalyzer
+	pt1            :   20
+	pt2            :   20
+	scaleShift1    :   1.0
+	triggerMap     :   {'HLT_DoubleIsoPFTau35_Trk5_eta2p1_v1': ('hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau35_Trk5_eta2p1_v2': ('hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau35_Trk5_eta2p1_v3': ('hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau35_Trk5_eta2p1_v4': ('hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau35Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_Mu17_Mu8_v22': ('', ''), 'HLT_Mu17_Mu8_v21': ('', ''), 'HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v*': (('hltOverlapFilterIsoEle20WP90LooseIsoPFTau20', [15, 0]), 'hltEle22WP90RhoTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v1': ('hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v2': ('hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v3': ('hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v4': ('hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2': (('hltOverlapFilterIsoEle15TightIsoPFTau20', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v1': (('hltOverlapFilterIsoEle15TightIsoPFTau20', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Mu17_Mu8_v18': ('', ''), 'HLT_Mu17_Mu8_v19': ('', ''), 'HLT_Mu17_Mu8_v16': ('', ''), 'HLT_Mu17_Mu8_v17': ('', ''), 'HLT_IsoMu12_LooseIsoPFTau10_v4': ('hltFilterIsoMu12IsoPFTau10LooseIsolation', 'hltSingleMuIsoL3IsoFiltered12'), 'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_Jet30_v1': ('hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02Reg', 'hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02Reg', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_v4': ('hltDoublePFTau35TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng4Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_v1': ('hltDoublePFTau35TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng4Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_v3': ('hltDoublePFTau35TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt1MediumIsolationProng4Dz02'), 'HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*': (('hltOverlapFilterIsoMu18LooseIsoPFTau20', [15, 0]), ('hltOverlapFilterIsoMu18LooseIsoPFTau20', [13])), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v9': (('hltOverlapFilterIsoEle15IsoPFTau15', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Mu8_Ele17_CaloIdL_v1': ('hltL1Mu3EG5L3Filtered8', 'hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdL_v2': ('hltL1Mu3EG5L3Filtered8', 'hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdL_v3': ('hltL1MuOpenEG5L3Filtered8', 'hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdL_v4': ('hltL1MuOpenEG5L3Filtered8', 'hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdL_v5': ('hltL1MuOpenEG5L3Filtered8', 'hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdL_v6': ('hltL1MuOpenEG5L3Filtered8', 'hltL1NonIsoHLTNonIsoMu8Ele17PixelMatchFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v1': (('hltOverlapFilterIsoEle15IsoPFTau15', [15]), 'hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8': ('hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v2': (('hltOverlapFilterIsoEle15IsoPFTau15', [15]), 'hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4': (('hltOverlapFilterIsoEle15IsoPFTau15', [15]), 'hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v6': (('hltOverlapFilterIsoEle15IsoPFTau15', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v5': ('hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v4': ('hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v3': ('hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v2': ('hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v1': ('hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*': (('hltOverlapFilterIsoEle20LooseIsoPFTau20', [15, 0]), 'hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1IsoEG18OrEG20'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v4': ('hltL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v7': ('hltL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v3': ('hltL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v8': ('hltL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLPixelMatchFilter'), 'HLT_DoubleIsoPFTau25_Trk5_eta2p1_v1': ('hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau25_Trk5_eta2p1_v3': ('hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau25_Trk5_eta2p1_v2': ('hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau25_Trk5_eta2p1_v4': ('hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau30Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v8': (('hltOverlapFilterIsoEle15IsoPFTau15', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v9': (('hltOverlapFilterIsoEle15IsoPFTau20', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v8': (('hltOverlapFilterIsoEle15IsoPFTau20', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4': (('hltOverlapFilterIsoEle15IsoPFTau20', [15]), 'hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter'), 'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v6': (('hltOverlapFilterIsoEle15IsoPFTau20', [15]), 'hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v3': ('hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v2': ('hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v1': ('hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v4': ('hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleIsoPFTau20_Trk5_v1': ('hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau20_Trk5_v3': ('hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau20_Trk5_v2': ('hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_DoubleIsoPFTau20_Trk5_v4': ('hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched', 'hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched'), 'HLT_IsoMu15_LooseIsoPFTau15_v9': ('hltPFTau15TrackLooseIso', 'hltSingleMuIsoL3IsoFiltered15'), 'HLT_IsoMu15_LooseIsoPFTau15_v8': ('hltPFTau15TrackLooseIso', 'hltSingleMuIsoL3IsoFiltered15'), 'HLT_IsoMu15_LooseIsoPFTau15_v5': ('hltPFTau15TrackLooseIso', 'hltSingleMuIsoL3IsoFiltered15'), 'HLT_IsoMu15_LooseIsoPFTau15_v4': ('hltPFTau15TrackLooseIso', 'hltSingleMuIsoL3IsoFiltered15'), 'HLT_IsoMu15_LooseIsoPFTau15_v6': ('hltPFTau15TrackLooseIso', 'hltSingleMuIsoL3IsoFiltered15'), 'HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2': (('hltOverlapFilterIsoEle18TightIsoPFTau20', [15]), 'hltEle18CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_IsoMu15_LooseIsoPFTau15_v2': ('hltPFTau15TrackLooseIso', 'hltSingleMuIsoL3IsoFiltered15'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7': ('hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_Reg_v1': ('hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02Reg', 'hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02Reg'), 'HLT_Mu17_Ele8_CaloIdL_v2': ('hltL1Mu3EG5L3Filtered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9': ('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v5': ('hltL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v4': ('hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v1': ('hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v3': ('hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v2': ('hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02', 'hltTripleL2Jets30eta3'), 'HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v6': ('hltPFTau20TrackLooseIso', 'hltSingleMuIsoL1s14L3IsoFiltered15eta2p1'), 'HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v5': ('hltPFTau20TrackLooseIso', 'hltSingleMuIsoL1s14L3IsoFiltered15eta2p1'), 'HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v1': ('hltPFTau20TrackLooseIso', 'hltSingleMuIsoL1s14L3IsoFiltered15eta2p1'), 'HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v7': (('hltOverlapFilterIsoEle20MediumIsoPFTau20', [15]), 'hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1SingleEG18orL1SingleEG20'), 'HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v6': (('hltOverlapFilterIsoEle20MediumIsoPFTau20', [15]), 'hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1SingleEG18orL1SingleEG20'), 'HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v5': (('hltOverlapFilterIsoEle20MediumIsoPFTau20', [15]), 'hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1SingleEG18orL1SingleEG20'), 'HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1': (('hltOverlapFilterIsoEle20MediumIsoPFTau20', [15]), 'hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1SingleEG18orL1SingleEG20'), 'HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1': ('hltPFTauMediumIso20TrackMediumIso', 'hltEle18CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7': ('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8': ('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v3': ('hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v2': ('hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v4': ('hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v6': ('hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v3': ('hltL1Mu7EG5L3MuFiltered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v7': ('hltL1Mu12EG5L3MuFiltered17', 'hltMu17Ele8CaloIdTPixelMatchFi'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v4': ('hltL1Mu12EG5L3MuFiltered17', 'hltMu17Ele8CaloIdTPixelMatchFi'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v8': ('hltL1Mu12EG5L3MuFiltered17', 'hltMu17Ele8CaloIdTPixelMatchFi'), 'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*': (('hltOverlapFilterIsoMu17LooseIsoPFTau20', [15, 0]), ('hltOverlapFilterIsoMu17LooseIsoPFTau20', [13])), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6': ('hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu17_Ele8_CaloIdL_v3': ('hltL1MuOpenEG5L3Filtered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v4': ('hltL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu17_Ele8_CaloIdL_v1': ('hltL1Mu3EG5L3Filtered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu17_Ele8_CaloIdL_v6': ('hltL1MuOpenEG5L3Filtered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu17_Ele8_CaloIdL_v4': ('hltL1MuOpenEG5L3Filtered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu17_Ele8_CaloIdL_v5': ('hltL1MuOpenEG5L3Filtered17', 'hltL1NonIsoHLTNonIsoMu17Ele8PixelMatchFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v4': ('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v5': ('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6': ('hltL1Mu12EG7L3MuFiltered17', 'hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9': ('hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8', 'hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v4': ('hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v5': ('hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v6': ('hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v1': ('hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v2': ('hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02'), 'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v3': ('hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02', 'hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02')}
+	verbose        :   False :
+4 :
+Analyzer: DYJetsFakeAnalyzer
+	leptonType     :   13
+	name           :   DYJetsFakeAnalyzer
+	src            :   genParticlesPruned
+	verbose        :   False :
+5 :
+Analyzer: NJetsAnalyzer
+	fillTree       :   True
+	name           :   NJetsAnalyzer
+	verbose        :   False :
+6 :
+Analyzer: HiggsPtWeighter
+	name           :   HiggsPtWeighter
+	src            :   genParticlesPruned
+	verbose        :   False :
+7 :
+Analyzer: JetAnalyzer
+	btagSFseed     :   123456
+	jerCorr        :   False
+	jetCol         :   cmgPFJetSel
+	jetEta         :   4.7
+	jetPt          :   20.0
+	name           :   JetAnalyzer
+	relaxJetId     :   False
+	verbose        :   False :
+8 :
+Analyzer: VBFSimpleAnalyzer
+	Mjj            :   500
+	cjvPtCut       :   30.0
+	deltaEta       :   3.5
+	name           :   VBFSimpleAnalyzer
+	vbfMvaWeights  :   
+	verbose        :   False :
+9 :
+Analyzer: PileUpAnalyzer
+	name           :   PileUpAnalyzer
+	true           :   True
+	verbose        :   False :
+10 :
+Analyzer: EmbedWeighter
+	isRecHit       :   False
+	name           :   EmbedWeighter
+	verbose        :   False :
+11 :
+Analyzer: TauDecayModeWeighter
+	name           :   TauDecayModeWeighter
+	verbose        :   False :
+12 :
+Analyzer: TauFakeRateWeighter
+	name           :   TauFakeRateWeighter
+	verbose        :   False :
+13 :
+Analyzer: LeptonWeighter_tau
+	disable        :   False
+	effWeight      :   effTau_muTau_Data_2012ABCDSummer13
+	effWeightMC    :   effTau_muTau_MC_2012ABCDSummer13
+	lepton         :   leg1
+	name           :   LeptonWeighter_tau
+	verbose        :   False :
+14 :
+Analyzer: LeptonWeighter_mu
+	disable        :   False
+	effWeight      :   effMu_muTau_Data_2012ABCDSummer13
+	effWeightMC    :   effMu_muTau_MC_2012ABCD
+	idWeight       :   mu_id_taumu_2012
+20.000 < pT < 30.000	*	 0.000 < eta <  0.800	*	 0.965 pm  0.000	*	 0.947 pm  0.000	*	 0.982 pm  0.001
+20.000 < pT < 30.000	*	 0.800 < eta <  1.200	*	 0.959 pm  0.001	*	 0.942 pm  0.001	*	 0.983 pm  0.001
+20.000 < pT < 30.000	*	 1.200 < eta <  2.100	*	 0.951 pm  0.001	*	 0.939 pm  0.001	*	 0.987 pm  0.001
+30.000 < pT < 9999.000	*	 0.000 < eta <  0.800	*	 0.963 pm  0.000	*	 0.949 pm  0.000	*	 0.985 pm  0.000
+30.000 < pT < 9999.000	*	 0.800 < eta <  1.200	*	 0.958 pm  0.000	*	 0.943 pm  0.000	*	 0.985 pm  0.000
+30.000 < pT < 9999.000	*	 1.200 < eta <  2.100	*	 0.949 pm  0.000	*	 0.938 pm  0.000	*	 0.988 pm  0.000
+	isoWeight      :   mu_iso_taumu_2012
+20.000 < pT < 30.000	*	 0.000 < eta <  0.800	*	 0.784 pm  0.001	*	 0.744 pm  0.001	*	 0.949 pm  0.002
+20.000 < pT < 30.000	*	 0.800 < eta <  1.200	*	 0.820 pm  0.001	*	 0.807 pm  0.001	*	 0.984 pm  0.002
+20.000 < pT < 30.000	*	 1.200 < eta <  2.100	*	 0.852 pm  0.001	*	 0.845 pm  0.001	*	 0.992 pm  0.001
+30.000 < pT < 9999.000	*	 0.000 < eta <  0.800	*	 0.913 pm  0.000	*	 0.903 pm  0.000	*	 0.988 pm  0.000
+30.000 < pT < 9999.000	*	 0.800 < eta <  1.200	*	 0.929 pm  0.000	*	 0.923 pm  0.000	*	 0.994 pm  0.000
+30.000 < pT < 9999.000	*	 1.200 < eta <  2.100	*	 0.938 pm  0.000	*	 0.938 pm  0.000	*	 1.000 pm  0.001
+	lepton         :   leg2
+	name           :   LeptonWeighter_mu
+	verbose        :   False :
+15 :
+Analyzer: H2TauTauTreeProducerTauMu
+	name           :   H2TauTauTreeProducerTauMu
+	verbose        :   False :

@@ -1,0 +1,16 @@
+rm -rf */DYJetsFakeAnalyzer
+rm -rf */EmbedWeighter/
+rm -rf */HiggsPtWeighter/
+rm -rf */JetAnalyzer/
+rm -rf */JSONAnalyzer/
+rm -rf */LeptonWeighter_mu/
+rm -rf */LeptonWeighter_tau/
+rm -rf */LSFJOB_*
+rm -rf */NJetsAnalyzer/
+rm -rf */PileUpAnalyzer/
+rm -rf */TauDecayModeWeighter/
+rm -rf */TauFakeRateWeighter/
+rm -rf */TauMuAnalyzer/
+rm -rf */TriggerAnalyzer/
+rm -rf */VBFSimpleAnalyzer/
+rm -rf */VertexAnalyzer/

@@ -1,0 +1,4 @@
+Counter Trigger :
+	 All events                                     100 	 1.00 	 1.0000
+	 HLT                                             76 	 0.76 	 0.7600
+

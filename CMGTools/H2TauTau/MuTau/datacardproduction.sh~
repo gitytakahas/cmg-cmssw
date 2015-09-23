@@ -1,0 +1,12 @@
+#for pt in 20 #21 24 27 30 33 36
+#for pt in 30 #21 24 27 30 33 36
+#for pt in 24
+#for pt in 21 24 27 30 33 36
+for pt in 20
+#for pt in 33
+#for pt in 24 27
+  do
+  python combineCards.py ${pt}
+  python addSys.py
+  mv htt_mt.inputs-sm-8TeV.root htt_mt.inputs-sm-8TeV_${pt}.root
+done

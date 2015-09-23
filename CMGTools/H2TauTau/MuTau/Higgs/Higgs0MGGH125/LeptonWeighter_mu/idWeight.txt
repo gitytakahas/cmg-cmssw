@@ -1,0 +1,1 @@
+Average idWeight       :   0.9850 +-   0.0000

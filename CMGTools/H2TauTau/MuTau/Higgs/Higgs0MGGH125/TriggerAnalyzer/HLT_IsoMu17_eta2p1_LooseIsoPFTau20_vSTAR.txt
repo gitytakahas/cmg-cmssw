@@ -1,0 +1,4 @@
+Counter HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v* :
+	 events tested                                21908 	 1.00 	 1.0000
+	 events passed                                17280 	 0.79 	 0.7888
+

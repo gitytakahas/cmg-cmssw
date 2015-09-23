@@ -1,0 +1,1 @@
+Average isoWeight      :   0.9830 +-   0.0025

@@ -1,0 +1,6 @@
+Counter VBF :
+	 all events                                      52 	 1.00 	 1.0000
+	 M_jj > 500.0                                     5 	 0.10 	 0.0962
+	 delta Eta > 3.5                                  5 	 1.00 	 0.0962
+	 no central jets                                  3 	 0.60 	 0.0577
+

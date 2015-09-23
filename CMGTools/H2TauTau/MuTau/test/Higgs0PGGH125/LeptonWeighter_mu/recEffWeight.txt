@@ -1,0 +1,1 @@
+Average recEffWeight   :   0.9684 +-   0.0027

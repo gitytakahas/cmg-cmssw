@@ -1,0 +1,13 @@
+Counter DiLepton :
+	 all events                                   17446 	 1.00 	 1.0000
+	 > 0 di-lepton                                15539 	 0.89 	 0.8907
+	 lepton accept                                15518 	 1.00 	 0.8895
+	 third lepton veto                            13124 	 0.85 	 0.7523
+	 leg1 offline cuts passed                     12890 	 0.98 	 0.7389
+	 leg1 trig matched                            12682 	 0.98 	 0.7269
+	 leg2 offline cuts passed                     11350 	 0.89 	 0.6506
+	 leg2 trig matched                            11350 	 1.00 	 0.6506
+	 10.0 < m < 99999.0                           11350 	 1.00 	 0.6506
+	 dR > 0.5                                     11347 	 1.00 	 0.6504
+	 exactly 1 di-lepton                          11283 	 0.99 	 0.6467
+
