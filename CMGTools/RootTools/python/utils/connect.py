@@ -224,6 +224,7 @@ def retrieveInfosFromBadPublished(ds) :
 
     ### retrieve the owner of the dataset
     command = 'getInfo.py -s "select file_owner, path_name from dataset_details where path_name like \'{SAMPLE}\' order by path_name"'.format(SAMPLE = ds['path_name'])
+
     cmd = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     for line in cmd.stdout :
       if ds['path_name'] in line :
@@ -305,7 +306,8 @@ def connectSample(components, row, filePattern, aliases, cache, verbose):
     file_owner = row[2]
     info = []
     compName = findAlias(path_name, aliases)
-    #import pdb ; pdb.set_trace()
+    
+#    import pdb ; pdb.set_trace()
     if compName is None:
         print 'WARNING: cannot find alias for', path_name
         return False

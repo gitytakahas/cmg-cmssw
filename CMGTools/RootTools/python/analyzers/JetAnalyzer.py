@@ -97,7 +97,8 @@ class JetAnalyzer( Analyzer ):
                     pass
                     #jet.genJet = None
                 else:
-                    jet.genJet = pairs[jet] 
+                    jet.genJet = pairs[jet]
+                    jet.matchedGenJet = pairs[jet]
                 # print jet, jet.genJet
 
             #Add JER correction for MC jets. Requires gen-jet matching. 

@@ -182,7 +182,10 @@ class Histogram( object ):
         '''Sets the weight to normalize the weighted histogram to 1.
 
         In other words, the original histogram stays untouched.'''
-        self.Scale( 1/self.Integral() )
+        if self.Integral()!=0:
+            self.Scale( 1/self.Integral() )
+        else:
+            print '[WARNING] self.Integral() is zero'
 
     def RemoveNegativeValues(self, hist=None):
         # what about errors??

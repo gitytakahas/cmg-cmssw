@@ -99,6 +99,7 @@ class H2TauTauDataMC( AnalysisDataMC ):
             #     raise ValueError( self.shift + ' is not recognized. Use None, "Up" or "Down".')
 
 
+        print 'CHECK !!!', var
         tree.Project( histName, var, '{weight}*({cut})'.format(cut=cut,
                                                                weight=weight) )
         hist.SetStats(0)

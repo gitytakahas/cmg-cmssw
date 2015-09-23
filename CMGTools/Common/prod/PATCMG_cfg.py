@@ -14,7 +14,7 @@ print 'querying database for source files'
 
 
 runOnMC      = True
-runOnFastSim = False
+runOnFastSim = True
 
 from CMGTools.Production.datasetToSource import *
 ## This is used to get the correct global tag below, and to find the files

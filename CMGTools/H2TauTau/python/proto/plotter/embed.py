@@ -35,8 +35,12 @@ def embedScaleFactor(selComps, channel='TauMu'):
     zh.Sumw2()
     embedChain.Project('eh', 'visMass', '({cut})*weight'.format(cut=embcut))
     zttChain.Project('zh', 'visMass', '({cut})*weight'.format(cut=zttcut))
-    factor = zh.Integral()/eh.Integral()
-
+#    factor = zh.Integral()/eh.Integral()
+    if eh.Integral()==0:
+        factor = 0
+    else:
+        factor = zh.Integral()/eh.Integral()
+        
     print 'Integral Z', zh.Integral()
     print 'Integral emb', eh.Integral()
     return eh, zh, factor

@@ -153,9 +153,11 @@ class H2TauTauTreeProducerMuEle( TreeAnalyzerNumpy ):
        fill(tr, 'weight', event.eventWeight)
 #       fill(tr, 'embedWeight', event.embedWeight)
        fill(tr, 'embedWeight', 1.)
-       fill(tr, 'hqtWeight', event.higgsPtWeight)
-       fill(tr, 'hqtWeightUp', event.higgsPtWeightUp)
-       fill(tr, 'hqtWeightDown', event.higgsPtWeightDown)
+       if hasattr(event, 'hqtWeight'):
+           fill(tr, 'hqtWeight', event.higgsPtWeight)
+           fill(tr, 'hqtWeightUp', event.higgsPtWeightUp)
+           fill(tr, 'hqtWeightDown', event.higgsPtWeightDown)
+           
        if hasattr( event, 'NJetWeight'):
           fill(tr, 'NJetWeight', event.NJetWeight)
 

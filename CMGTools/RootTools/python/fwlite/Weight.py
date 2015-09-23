@@ -33,6 +33,7 @@ class Weight( object ):
             return 1 
         else:
             # MC
+            print 'YUTA : ', self.addWeight, self.xSection, self.intLumi, self.genNEvents, self.genEff
             return self.addWeight * self.xSection * self.intLumi / ( self.genNEvents * self.genEff) 
 
     def SetIntLumi(self, lumi):

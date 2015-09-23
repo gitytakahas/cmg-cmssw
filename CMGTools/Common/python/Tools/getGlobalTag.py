@@ -81,7 +81,8 @@ def getGlobalTagByDataset(runOnMC, dataset):
             
 
     if GT is None:
-        raise Exception("No global tag found for dataset '%s'. Check getGlobalTagByDataset" % dataset)
+        GT = 'START53_V27::All' 
+#        raise Exception("No global tag found for dataset '%s'. Check getGlobalTagByDataset" % dataset)
     return GT
 
 

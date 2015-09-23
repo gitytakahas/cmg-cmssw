@@ -98,6 +98,8 @@ class CheckDatasetExists(Task):
     def run(self, input):
         pattern = fnmatch.translate(self.options.wildcard)
         run_range = (self.options.min_run, self.options.max_run)
+
+#        import pdb;pdb.set_trace()
         data = createDataset(self.user, self.dataset, pattern, run_range = run_range)
         if( len(data.listOfGoodFiles()) == 0 ):
             raise Exception('no good root file in dataset %s | %s | %s | %s' % (self.user,

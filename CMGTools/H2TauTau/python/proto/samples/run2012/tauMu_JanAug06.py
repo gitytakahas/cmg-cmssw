@@ -66,14 +66,14 @@ aliases = {
 
 
 mc_ewk = []
-# mc_ewk += mc_dy
+#mc_ewk += mc_dy
 mc_ewk += t_mc_ewk
 mc_ewk += mc_w
 mc_ewk += mc_w_ext
 
 MC_list = copy.copy( mc_ewk )
 
-# MC_list.extend( mc_higgs )
+#MC_list.extend( mc_higgs )
 # MC_list.extend( mc_higgs_susy )
 MC_list.extend( mc_diboson ) 
     
@@ -84,14 +84,23 @@ allsamples.extend( data_list )
 mc_repro = []
 mc_repro += mc_dy
 mc_repro += mc_higgs
-mc_repro += mc_higgs_susy
+#mc_repro += mc_higgs_susy
 
 connect( allsamples, '%TAUMU_SVFitVEGAS_Jul29_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
 
-connect( embed_list, '%TAUMU_SVFitVEGAS_Aug07_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
+#connect( embed_list, '%TAUMU_SVFitVEGAS_Aug07_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
 connect( mc_repro, '%TAUMU_SVFitVEGAS_Aug26_steggema', 'tauMu.*root', aliases, cache=True, verbose=False)
+#connect( [HiggsVBF125], '%PAT_CMG_V5_16_0', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
+#connect( [HiggsGGH125], '%/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_5_16_0', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
+#connect( [TTJetsFullLept], '%/TTJets_FullLeptMGDecays_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V7C-v2/AODSIM/V5_B/PAT_CMG_V5_16_0', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
+#connect( [DYJets], '%/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_V5_16_0', 'cmgTuple_.*root', aliases, cache=True, verbose=False)
 
-allsamples.extend( embed_list )
+
+#/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_5_16_0
+#/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM/V5_B/PAT_CMG_5_16_0
+
+
+#allsamples.extend( embed_list )
 allsamples.extend( mc_repro )
 MC_list.extend( mc_repro ) 
 
@@ -132,4 +141,4 @@ for embed in embed_list:
         embed.triggers = embed_triggers
         # No trigger requirements for embedded samples
 for c in allsamples:
-    c.splitFactor = splitFactor(c, 5e4)
+    c.splitFactor = splitFactor(c, 3e4)

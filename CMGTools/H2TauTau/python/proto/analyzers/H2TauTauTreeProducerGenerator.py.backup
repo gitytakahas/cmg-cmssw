@@ -1,0 +1,155 @@
+from CMGTools.RootTools.analyzers.TreeAnalyzerNumpy import TreeAnalyzerNumpy
+from CMGTools.H2TauTau.proto.analyzers.ntuple import *
+from CMGTools.RootTools.fwlite.AutoHandle import AutoHandle
+from CMGTools.RootTools.utils.DeltaR import bestMatch
+#from CMGTools.RootTools.analyzers.GenParticleAnalyzer import *
+from CMGTools.RootTools.physicsobjects.PhysicsObjects import GenParticle, PhysicsObject, printOut
+
+class H2TauTauTreeProducerGenerator( TreeAnalyzerNumpy ):
+    '''Tree producer for the H->tau tau analysis.'''
+    
+    def getAllDaughters(self, p, l):
+        for i in range(0, p.numberOfDaughters()):
+            d = p.daughter(i)
+            l.append(d)
+            self.getAllDaughters(d, l)
+
+    def getVisibleP4(self, gen):
+        p4vis = gen.p4()
+        daughters = []
+        self.getAllDaughters(gen, daughters)
+        invisDaughters = [p for p in daughters if abs(p.pdgId()) in [12, 14, 16]]
+        for d in invisDaughters:
+            p4vis -= d.p4()
+
+        return p4vis
+
+    def declareVariables(self):
+
+        tr = self.tree
+
+        var( tr, 'run', int)
+        var( tr, 'lumi', int)
+        var( tr, 'evt', int)
+
+        bookGenParticle(tr, 'higgs')
+        bookGenParticle(tr, 'l1_gen')
+        bookGenParticle(tr, 'l2_gen')
+        
+        var(tr, 'l1_gen_vis_pt')
+        var(tr, 'l1_gen_vis_eta')
+        var(tr, 'l1_gen_vis_phi')
+        var(tr, 'l1_gen_decay_pdgId')
+
+        var(tr, 'l2_gen_vis_pt')
+        var(tr, 'l2_gen_vis_eta')
+        var(tr, 'l2_gen_vis_phi')
+        var(tr, 'l2_gen_decay_pdgId')
+        
+        var(tr, 'genMet')
+        var(tr, 'genMex')
+        var(tr, 'genMey')
+
+        self.maxNGenJets = 4
+        for i in range(0, self.maxNGenJets):
+            bookGenParticle(tr, 'genQG_{i}'.format(i=i))
+
+
+         
+    def declareHandles(self):
+        super(H2TauTauTreeProducerGenerator, self).declareHandles()
+        self.mchandles['genParticles'] = AutoHandle( 'genParticlesPruned',
+                                                     'std::vector<reco::GenParticle>' )
+
+
+        
+        
+    def process(self, iEvent, event):
+        self.readCollections( iEvent )
+                
+        tr = self.tree
+        tr.reset()
+
+        fill( tr, 'run', iEvent.eventAuxiliary().id().run())
+        fill( tr, 'lumi', iEvent.eventAuxiliary().id().luminosityBlock())
+        fill( tr, 'evt', iEvent.eventAuxiliary().id().event())
+
+        genParticles = self.mchandles['genParticles'].product()
+        event.genParticles = map( GenParticle, genParticles)
+
+        higgsBosons = [gen for gen in event.genParticles if gen.status()==3 and gen.pdgId()==25]
+
+        if len(higgsBosons)!=1:
+            strerr = '{nhiggs} Higgs bosons, this should not happen :\n {comp}'.format(nhiggs=len(higgsBosons), comp=str(self.cfg_comp))
+            raise ValueError(strerr)
+
+        else:
+
+            higgs = higgsBosons[0]
+
+#            import pdb; pdb.set_trace()
+            fillGenParticle(tr, 'higgs', higgs)
+
+            genTau1 = []
+            genTau2 = []
+
+            for i in range(0, higgs.numberOfDaughters()):
+                if higgs.daughter(i).pdgId()==15 and higgs.daughter(i).status()==3:
+                    genTau1.append(higgs.daughter(i))
+                elif higgs.daughter(i).pdgId()==-15 and higgs.daughter(i).status()==3:
+                    genTau2.append(higgs.daughter(i))
+
+
+            if len(genTau1)==1:
+                fillGenParticle(tr, 'l1_gen', genTau1[0])
+                genVisTau1 = self.getVisibleP4(genTau1[0])
+                fill(tr, 'l1_gen_vis_pt', genVisTau1.pt())
+                fill(tr, 'l1_gen_vis_eta', genVisTau1.eta())
+                fill(tr, 'l1_gen_vis_phi', genVisTau1.phi())
+
+
+                pdgId1 = genTau1[0].pdgId()
+                for ii in range(0, genTau1[0].daughter(0).numberOfDaughters()):
+                    _pdg_ = genTau1[0].daughter(0).daughter(ii).pdgId()
+                    if abs(_pdg_) in [11, 13]:
+                        pdgId1 = _pdg_
+
+                fill(tr, 'l1_gen_decay_pdgId', pdgId1)
+
+
+            if len(genTau2)==1:
+                fillGenParticle(tr, 'l2_gen', genTau2[0])
+                genVisTau2 = self.getVisibleP4(genTau2[0])
+                fill(tr, 'l2_gen_vis_pt', genVisTau2.pt())
+                fill(tr, 'l2_gen_vis_eta', genVisTau2.eta())
+                fill(tr, 'l2_gen_vis_phi', genVisTau2.phi())
+
+                pdgId2 = genTau2[0].pdgId()
+                for ii in range(0, genTau2[0].daughter(0).numberOfDaughters()):
+                    _pdg_ = genTau2[0].daughter(0).daughter(ii).pdgId()
+                    if abs(_pdg_) in [11, 13]:
+                        pdgId2 = _pdg_
+
+                fill(tr, 'l2_gen_decay_pdgId', pdgId2)
+
+            neutrinos = [p for p in event.genParticles if abs(p.pdgId()) in (12, 14, 16)]
+            if neutrinos:
+                genMet = neutrinos[0].p4()
+                for p in neutrinos[1:]:
+                    genMet += p.p4()
+                fill(tr, 'genMet', p.pt())
+                fill(tr, 'genMex', p.px())
+                fill(tr, 'genMey', p.py())
+            else:
+                fill(tr, 'genMet', 0.)
+                fill(tr, 'genMex', 0.)
+                fill(tr, 'genMey', 0.)
+          
+
+            quarksGluons = [p for p in event.genParticles if abs(p.pdgId()) in (1, 2, 3, 4, 5, 21) and p.status() == 3 and (p.numberOfDaughters() == 0 or p.daughter(0).status() != 3)]
+            quarksGluons.sort(key=lambda x: -x.pt())
+            for i in range(0, min(self.maxNGenJets, len(quarksGluons))):
+                fillGenParticle(tr, 'genQG_{i}'.format(i=i), quarksGluons[i])
+
+
+            self.tree.tree.Fill()

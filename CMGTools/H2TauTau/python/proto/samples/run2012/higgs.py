@@ -459,9 +459,44 @@ mc_higgs_vh = [
     ]
 
 
+mc_higgs_vbf_125 = [
+    HiggsVBF125
+    ]
+
+mc_higgs_ggh_125 = [
+    HiggsGGH125
+    ]
+
+mc_higgs_vh_125 = [
+    HiggsVH125
+    ]
+
+Higgs0PGGH125 = cfg.MCComponent(
+    name = 'Higgs0PGGH125',
+    files = [],
+    xSection = None, 
+    nGenEvents = 0,
+    triggers = [],
+    effCorrFactor = 1 )
+
+Higgs0MGGH125 = cfg.MCComponent(
+    name = 'Higgs0MGGH125',
+    files = [],
+    xSection = None, 
+    nGenEvents = 0,
+    triggers = [],
+    effCorrFactor = 1 )
+
+higgs_ggh_spin = [
+    Higgs0PGGH125,
+    Higgs0MGGH125
+    ]
+
+
 mc_higgs = copy.copy( mc_higgs_vbf )
 mc_higgs.extend( mc_higgs_ggh )
 mc_higgs.extend( mc_higgs_vh )
+
 
 
 pattern = re.compile('Higgs(\D+)(\d+)')
